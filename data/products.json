@@ -33,7 +33,11 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "cutout": {
+        "front": "assets/img/products/cutouts/shorts-white.webp",
+        "back": null
+      }
     },
     {
       "id": "riva-short",
@@ -62,7 +66,11 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "cutout": {
+        "front": "assets/img/products/cutouts/shorts-hibiscus.webp",
+        "back": null
+      }
     },
     {
       "id": "maree-short",
@@ -91,7 +99,11 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "cutout": {
+        "front": "assets/img/products/cutouts/shorts-blue-stripe.webp",
+        "back": null
+      }
     },
     {
       "id": "plage-short",
@@ -120,7 +132,11 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "cutout": {
+        "front": "assets/img/products/cutouts/shorts-pine-stripe.webp",
+        "back": null
+      }
     },
     {
       "id": "esprit-cotier-tee",
@@ -156,7 +172,11 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "cutout": {
+        "front": "assets/img/products/cutouts/tee-esprit-cotier-front.webp",
+        "back": "assets/img/products/cutouts/tee-esprit-cotier-back.webp"
+      }
     }
   ]
 }
