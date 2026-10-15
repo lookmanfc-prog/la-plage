@@ -51,7 +51,7 @@
   /* ---------------- Reveal on enter ---------------- */
   const observeReveals = (root = document) => {
     const els = root.querySelectorAll('.reveal:not(.is-in)');
-    if (!('IntersectionObserver' in window) || reduceMotion.matches) {
+    if (!('IntersectionObserver' in window)) {
       els.forEach((el) => el.classList.add('is-in'));
       return;
     }
@@ -330,11 +330,24 @@
     if (y) y.textContent = new Date().getFullYear();
   };
 
+  /* ---------------- Hero water: pause when hidden or off screen ---------------- */
+  const initHeroWaves = () => {
+    const hero = document.querySelector('[data-hero]');
+    if (!hero) return;
+    let onScreen = true;
+    const update = () => hero.classList.toggle('is-paused', document.hidden || !onScreen);
+    document.addEventListener('visibilitychange', update);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; update(); }).observe(hero);
+    }
+  };
+
   /* ---------------- Boot ---------------- */
   updateHeader();
   window.addEventListener('scroll', updateHeader, { passive: true });
   window.addEventListener('resize', updateHeader);
   observeReveals();
+  initHeroWaves();
   initParallax();
   initAccess();
   initLocale();
