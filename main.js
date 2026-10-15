@@ -113,21 +113,31 @@
     });
   };
 
-  /* ---------------- Products: a clean grid of floating, rotatable pieces ---------------- */
-  const grid = document.querySelector('[data-grid]');
-  let PRODUCTS = [];
+  /* ---------------- Products: render from JSON ---------------- */
+  const track = document.querySelector('[data-strip-track]');
 
-  const productItem = (p, i) => {
+  const productCard = (p, i) => {
     const li = document.createElement('li');
-    li.className = 'product';
+    li.className = 'strip__item';
     li.innerHTML = `
-      <div class="product__stage" data-spin-host="${i}"></div>
-      <div class="product__info">
-        <h3 class="product__name"><button type="button" class="product__view" data-view="${i}">${p.title}</button></h3>
-        <p class="product__color">${p.color.name}</p>
-        <p class="product__price">${formatVND.format(p.price)}</p>
-      </div>
-      <button type="button" class="btn-outline product__add" data-add="${i}">Add to cart</button>`;
+      <a class="card" data-motion href="#product/${p.handle}" data-index="${i}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}. View details">
+        <div class="card__media" data-motion>
+          <div class="card__shadow" data-motion aria-hidden="true"></div>
+          <div class="card__lift" data-motion>
+            <img src="${p.image.src}" alt="${p.image.alt}" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async" draggable="false">
+            ${p.imageHover ? `<img class="card__hover" data-motion src="${p.imageHover.src}" alt="" width="${p.imageHover.width}" height="${p.imageHover.height}" loading="lazy" decoding="async" draggable="false">` : ''}
+          </div>
+        </div>
+        <div class="card__meta" aria-hidden="true">
+          <h3 class="card__name">${p.title}</h3>
+          <p class="card__price">${formatVND.format(p.price)}</p>
+          <p class="card__color">${p.color.name}</p>
+        </div>
+        <div class="card__quick" data-motion aria-hidden="true">
+          <span class="card__sizes">${(p.sizes || []).map((s) => `<span>${s}</span>`).join('')}</span>
+          <span class="card__view">View</span>
+        </div>
+      </a>`;
     return li;
   };
 
@@ -136,187 +146,322 @@
       const res = await fetch('data/products.json', { cache: 'no-cache' });
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
-      PRODUCTS = data.products;
       const frag = document.createDocumentFragment();
-      PRODUCTS.forEach((p, i) => frag.appendChild(productItem(p, i)));
-      grid.appendChild(frag);
-      grid.querySelectorAll('[data-spin-host]').forEach((host) => {
-        const p = PRODUCTS[+host.dataset.spinHost];
-        new window.LaPlageSpin(host, {
-          front: p.cutout.front, back: p.cutout.back, alt: `${p.title} in ${p.color.name}`,
-          delay: -(+host.dataset.spinHost * 0.7), start: (+host.dataset.spinHost * 37) % 360 - 20,
-        });
-      });
-      return PRODUCTS;
+      data.products.forEach((p, i) => frag.appendChild(productCard(p, i)));
+      track.appendChild(frag);
+      return data.products;
     } catch (err) {
-      grid.innerHTML = '<li class="product"><p class="label">The collection could not be loaded. Serve the site over http to read data/products.json.</p></li>';
+      track.innerHTML = '<li class="strip__item"><p class="eyebrow">The collection could not be loaded. Serve the site over http to read data/products.json.</p></li>';
       console.error('[LA PLAGE] products', err);
       return [];
     }
   };
 
-  /* ---------------- Bag: add to cart, kept in this browser ---------------- */
-  const bag = (() => {
-    const KEY = 'laplage-bag';
-    let items = [];
-    try { items = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { items = []; }
-    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) { /* private mode */ } };
-    const drawer = document.querySelector('[data-bag]');
-    const list = document.querySelector('[data-bag-list]');
-    const total = document.querySelector('[data-bag-total]');
-    const counts = document.querySelectorAll('[data-bag-count]');
-    const toast = document.querySelector('[data-toast]');
-    let toastTimer = 0, opener = null;
-
-    const find = (id) => PRODUCTS.find((p) => p.id === id);
-    const render = () => {
-      items = items.filter((it) => find(it.id));
-      const n = items.reduce((s, it) => s + it.qty, 0);
-      counts.forEach((c) => { c.textContent = n; });
-      if (!list) return;
-      list.innerHTML = items.length ? items.map((it, k) => {
-        const p = find(it.id);
-        return `<li class="bag__line">
-          <img src="${p.cutout.front}" alt="" width="64" height="64">
-          <div class="bag__meta">
-            <p class="bag__name">${p.title}</p>
-            <label class="bag__size">Size
-              <select data-line-size="${k}">${(p.sizes || ['One size']).map((s) => `<option${s === it.size ? ' selected' : ''}>${s}</option>`).join('')}</select>
-            </label>
-            <div class="bag__qty">
-              <button type="button" aria-label="One less" data-line-dec="${k}">&minus;</button>
-              <span>${it.qty}</span>
-              <button type="button" aria-label="One more" data-line-inc="${k}">+</button>
-            </div>
-          </div>
-          <div class="bag__right">
-            <p>${formatVND.format(p.price * it.qty)}</p>
-            <button type="button" class="link bag__remove" data-line-remove="${k}">Remove</button>
-          </div>
-        </li>`;
-      }).join('') : '<li class="bag__empty">Your bag is empty.</li>';
-      total.textContent = formatVND.format(items.reduce((s, it) => s + find(it.id).price * it.qty, 0));
-    };
-    const add = (p, size) => {
-      const s = size || (p.sizes && (p.sizes.includes('M') ? 'M' : p.sizes[0])) || 'One size';
-      const hit = items.find((it) => it.id === p.id && it.size === s);
-      if (hit) hit.qty += 1; else items.push({ id: p.id, size: s, qty: 1 });
-      save(); render();
-      document.querySelectorAll('[data-bag-open]').forEach((b) => { b.classList.remove('is-bumped'); void b.offsetWidth; b.classList.add('is-bumped'); });
-      if (toast) {
-        toast.textContent = `Added to bag · ${p.title} · ${s}`;
-        toast.classList.add('is-on');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove('is-on'), 2600);
+  /* ---------------- Product pop: the hovered garment lifts and tilts toward the cursor ---------------- */
+  const initCardPop = () => {
+    const strip = document.querySelector('[data-strip]');
+    const cursorLabel = document.querySelector('[data-drag-cursor] span');
+    track.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const card = e.target.closest('.card');
+      if (cursorLabel) cursorLabel.textContent = card && !strip.classList.contains('is-dragging') ? 'View' : 'Drag';
+      if (!card) return;
+      const r = card.querySelector('.card__media').getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - .5;
+      const y = (e.clientY - r.top) / r.height - .5;
+      const lift = card.querySelector('.card__lift');
+      lift.style.setProperty('--ry', `${(x * 14).toFixed(2)}deg`);
+      lift.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`);
+    });
+    track.addEventListener('pointerout', (e) => {
+      const card = e.target.closest('.card');
+      if (card && !card.contains(e.relatedTarget)) {
+        const lift = card.querySelector('.card__lift');
+        lift.style.removeProperty('--rx'); lift.style.removeProperty('--ry');
       }
-    };
-    const open = (from) => {
-      opener = from || null;
-      drawer.hidden = false;
-      document.documentElement.classList.add('bag-on');
-      requestAnimationFrame(() => drawer.classList.add('is-open'));
-      drawer.querySelector('[data-bag-close]').focus({ preventScroll: true });
-    };
-    const close = () => {
-      drawer.classList.remove('is-open');
-      document.documentElement.classList.remove('bag-on');
-      setTimeout(() => { drawer.hidden = true; }, 400);
-      if (opener) opener.focus({ preventScroll: true });
-    };
-    if (drawer) {
-      document.querySelectorAll('[data-bag-open]').forEach((b) => b.addEventListener('click', () => open(b)));
-      drawer.querySelector('[data-bag-close]').addEventListener('click', close);
-      drawer.querySelector('[data-bag-access]').addEventListener('click', close);
-      drawer.addEventListener('click', (e) => { if (e.target === drawer) close(); });
-      drawer.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
-      list.addEventListener('click', (e) => {
-        const t = e.target.closest('button'); if (!t) return;
-        const k = +(t.dataset.lineInc ?? t.dataset.lineDec ?? t.dataset.lineRemove);
-        if (t.dataset.lineInc !== undefined) items[k].qty += 1;
-        else if (t.dataset.lineDec !== undefined) { items[k].qty -= 1; if (items[k].qty < 1) items.splice(k, 1); }
-        else if (t.dataset.lineRemove !== undefined) items.splice(k, 1);
-        save(); render();
-      });
-      list.addEventListener('change', (e) => {
-        const sel = e.target.closest('[data-line-size]'); if (!sel) return;
-        items[+sel.dataset.lineSize].size = sel.value; save(); render();
-      });
-    }
-    return { add, render };
-  })();
+    });
+  };
 
-  /* ---------------- Spotlight: one piece, large, rotatable, with details and sizes ---------------- */
+  /* ---------------- Spotlight: one product, floating, with details and sizes ---------------- */
   const initSpotlight = (products) => {
     const spot = document.querySelector('[data-spotlight]');
     if (!spot || !products.length) return;
     const $ = (sel) => spot.querySelector(sel);
     const stage = $('[data-spot-stage]');
+    const img = $('[data-spot-img]');
     const views = $('[data-spot-views]');
     const sizes = $('[data-spot-sizes]');
-    let index = 0, opener = null, closeTimer = 0, spin = null;
+    let index = 0, view = 'front', opener = null, closeTimer = 0;
 
-    const render = () => {
+    const render = (dir = 0) => {
       const p = products[index];
       $('[data-spot-index]').textContent = `${String(index + 1).padStart(2, '0')} / ${String(products.length).padStart(2, '0')}`;
       $('[data-spot-title]').textContent = p.title;
       $('[data-spot-desc]').textContent = p.description || '';
       $('[data-spot-color]').textContent = p.color.name;
       $('[data-spot-price]').textContent = formatVND.format(p.price);
-      sizes.innerHTML = (p.sizes || []).map((s) => `<button type="button" class="size" role="radio" aria-checked="${s === 'M'}" data-size="${s}">${s}</button>`).join('');
-      views.innerHTML = ['Front', 'Back'].map((v, k) => `<button type="button" class="view-btn" data-view-angle="${k * 180}">${v}</button>`).join('');
-      if (spin) spin.destroy();
-      spin = new window.LaPlageSpin(stage, { front: p.cutout.front, back: p.cutout.back, alt: `${p.title} in ${p.color.name}`, start: -25 });
-      spot.classList.remove('is-switching'); void stage.offsetWidth; spot.classList.add('is-switching');
+      const src = view === 'back' && p.imageHover ? p.imageHover : p.image;
+      img.src = src.src; img.alt = view === 'back' && p.imageHover ? p.imageHover.alt : p.image.alt;
+      sizes.innerHTML = (p.sizes || []).map((s, i) => `<button type="button" class="size" role="radio" aria-checked="${i === 1}" data-size="${s}">${s}</button>`).join('');
+      views.innerHTML = p.imageHover
+        ? ['front', 'back'].map((v) => `<button type="button" class="view-btn" aria-pressed="${v === view}" data-view="${v}">${v === 'front' ? 'Front' : 'Back'}</button>`).join('')
+        : '';
+      // pop the garment in again, entering from the direction of travel
+      spot.style.setProperty('--enter-x', `${dir * 60}px`);
+      spot.classList.remove('is-switching');
+      void stage.offsetWidth;
+      spot.classList.add('is-switching');
     };
+
     const open = (i, from) => {
       clearTimeout(closeTimer);
-      index = i; opener = from || null;
+      index = i; view = 'front'; opener = from || null;
       spot.hidden = false;
       document.documentElement.classList.add('spot-on');
-      render();
+      render(0);
       requestAnimationFrame(() => spot.classList.add('is-open'));
       $('[data-spot-close]').focus({ preventScroll: true });
     };
     const close = () => {
       spot.classList.remove('is-open');
       document.documentElement.classList.remove('spot-on');
-      closeTimer = setTimeout(() => { spot.hidden = true; if (spin) { spin.destroy(); spin = null; } }, 450);
+      closeTimer = setTimeout(() => { spot.hidden = true; }, 450);
       if (opener) opener.focus({ preventScroll: true });
     };
-    const go = (d) => { index = (index + d + products.length) % products.length; render(); };
+    const go = (d) => { index = (index + d + products.length) % products.length; view = 'front'; render(d); };
 
-    grid.addEventListener('click', (e) => {
-      const v = e.target.closest('[data-view]');
-      if (v) { open(+v.dataset.view, v); return; }
-      const a = e.target.closest('[data-add]');
-      if (a) bag.add(products[+a.dataset.add]);
+    // The strip captures the pointer while dragging, so the click lands on the viewport:
+    // remember which card the press started on.
+    const viewport = document.querySelector('[data-strip-viewport]');
+    let downCard = null;
+    viewport.addEventListener('pointerdown', (e) => { downCard = e.target.closest('.card'); }, true);
+    viewport.addEventListener('click', (e) => {
+      const card = e.target.closest('.card') || downCard;
+      downCard = null;
+      if (!card) return;
+      e.preventDefault();
+      open(parseInt(card.dataset.index, 10) || 0, card);
     });
     $('[data-spot-close]').addEventListener('click', close);
     $('[data-spot-prev]').addEventListener('click', () => go(-1));
     $('[data-spot-next]').addEventListener('click', () => go(1));
-    $('[data-spot-add]').addEventListener('click', () => {
-      const chosen = sizes.querySelector('[aria-checked="true"]');
-      bag.add(products[index], chosen ? chosen.dataset.size : undefined);
-    });
+    $('[data-spot-access]').addEventListener('click', close);
     sizes.addEventListener('click', (e) => {
       const b = e.target.closest('.size'); if (!b) return;
       sizes.querySelectorAll('.size').forEach((o) => o.setAttribute('aria-checked', String(o === b)));
     });
     views.addEventListener('click', (e) => {
-      const b = e.target.closest('[data-view-angle]'); if (b && spin) spin.goTo(+b.dataset.viewAngle);
+      const b = e.target.closest('.view-btn'); if (!b) return;
+      view = b.dataset.view; render(0);
     });
     spot.addEventListener('click', (e) => { if (e.target === spot) close(); });
     spot.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { close(); return; }
-      if (e.target.closest('.spin')) return;           // arrow keys rotate the piece when it has focus
       if (e.key === 'ArrowRight') { go(1); return; }
       if (e.key === 'ArrowLeft') { go(-1); return; }
       if (e.key !== 'Tab') return;
-      const f = [...spot.querySelectorAll('button, a[href], [tabindex="0"]')].filter((el) => el.offsetParent !== null);
+      const f = [...spot.querySelectorAll('button, a[href]')].filter((el) => el.offsetParent !== null);
       const first = f[0], last = f[f.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
+    // The garment leans toward the cursor
+    stage.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = stage.getBoundingClientRect();
+      stage.style.setProperty('--ry', `${(((e.clientX - r.left) / r.width - .5) * 16).toFixed(2)}deg`);
+      stage.style.setProperty('--rx', `${(-((e.clientY - r.top) / r.height - .5) * 10).toFixed(2)}deg`);
+    });
+    stage.addEventListener('pointerleave', () => { stage.style.removeProperty('--rx'); stage.style.removeProperty('--ry'); });
+    // Swipe between products on touch
+    let sx = null;
+    stage.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', (e) => {
+      if (sx === null) return;
+      const dx = e.changedTouches[0].clientX - sx; sx = null;
+      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+    });
+  };
+
+  /* ---------------- Strip: drag with inertia (fine pointers) / native swipe (touch) ---------------- */
+  const initStrip = () => {
+    const strip = document.querySelector('[data-strip]');
+    const viewport = strip.querySelector('[data-strip-viewport]');
+    const progress = strip.querySelector('[data-strip-progress]');
+    const prevBtn = document.querySelector('[data-strip-prev]');
+    const nextBtn = document.querySelector('[data-strip-next]');
+    const cursor = document.querySelector('[data-drag-cursor]');
+
+    const state = { x: 0, v: 0, min: 0, dragging: false, moved: 0, lastX: 0, lastT: 0, raf: 0, target: null };
+    let mode = null; // 'drag' | 'native'
+
+    const step = () => {
+      const item = track.querySelector('.strip__item');
+      if (!item) return 300;
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return item.offsetWidth + gap;
+    };
+
+    const measure = () => {
+      state.min = Math.min(0, viewport.clientWidth - track.scrollWidth);
+      state.x = clamp(state.x, state.min, 0);
+    };
+
+    const updateUI = (ratio) => {
+      progress.style.transform = `translate3d(${ratio * (progress.parentElement.clientWidth - progress.offsetWidth - parseFloat(getComputedStyle(progress.parentElement).paddingLeft) * 2)}px,0,0)`;
+      prevBtn.disabled = ratio <= 0.001;
+      nextBtn.disabled = ratio >= 0.999;
+    };
+
+    const render = () => {
+      const skew = reduceMotion.matches ? 0 : clamp(-state.v * 1.4, -3, 3);
+      track.style.transform = `translate3d(${state.x}px,0,0) skewX(${skew}deg)`;
+      updateUI(state.min ? state.x / state.min : 0);
+    };
+
+    // Rubber band past the edges while dragging
+    const rubber = (x) => {
+      if (x > 0) return x * 0.35;
+      if (x < state.min) return state.min + (x - state.min) * 0.35;
+      return x;
+    };
+
+    const tick = () => {
+      if (state.dragging) { state.raf = 0; return; }
+      if (state.target !== null) {
+        // eased glide to a target (buttons, keyboard focus)
+        const d = state.target - state.x;
+        state.v = d * 0.08 / 16;
+        state.x += d * 0.08;
+        if (Math.abs(d) < 0.5) { state.x = state.target; state.target = null; state.v = 0; }
+      } else {
+        state.x += state.v * 16;
+        state.v *= 0.94; // friction
+        // spring back inside bounds
+        if (state.x > 0) { state.x += (0 - state.x) * 0.16; state.v *= 0.6; }
+        if (state.x < state.min) { state.x += (state.min - state.x) * 0.16; state.v *= 0.6; }
+        if (Math.abs(state.v) < 0.005 && state.x <= 0.5 && state.x >= state.min - 0.5) {
+          state.v = 0; state.x = clamp(state.x, state.min, 0);
+          render(); state.raf = 0; return;
+        }
+      }
+      render();
+      state.raf = requestAnimationFrame(tick);
+    };
+    const run = () => { if (!state.raf) state.raf = requestAnimationFrame(tick); };
+
+    const glideTo = (x) => {
+      measure();
+      state.target = clamp(x, state.min, 0);
+      if (reduceMotion.matches) { state.x = state.target; state.target = null; render(); return; }
+      run();
+    };
+
+    /* pointer drag */
+    const onDown = (e) => {
+      if (mode !== 'drag' || e.button !== 0) return;
+      measure();
+      state.dragging = true; state.moved = 0; state.target = null; state.v = 0;
+      state.lastX = e.clientX; state.lastT = performance.now();
+      viewport.setPointerCapture(e.pointerId);
+      cursor.classList.add('is-pressed');
+    };
+    const onMove = (e) => {
+      if (mode === 'drag') moveCursor(e);
+      if (!state.dragging) return;
+      const now = performance.now();
+      const dx = e.clientX - state.lastX;
+      const dt = Math.max(1, now - state.lastT);
+      state.moved += Math.abs(dx);
+      if (state.moved > 6) strip.classList.add('is-dragging');
+      state.x = rubber(state.x + (state.x > 0 || state.x < state.min ? dx * 0.5 : dx));
+      state.v = state.v * 0.6 + (dx / dt) * 0.4; // smoothed px/ms
+      state.lastX = e.clientX; state.lastT = now;
+      render();
+    };
+    const onUp = (e) => {
+      if (!state.dragging) return;
+      state.dragging = false;
+      cursor.classList.remove('is-pressed');
+      if (viewport.hasPointerCapture(e.pointerId)) viewport.releasePointerCapture(e.pointerId);
+      if (performance.now() - state.lastT > 80) state.v = 0; // paused before release
+      if (reduceMotion.matches) { state.v = 0; state.x = clamp(state.x, state.min, 0); render(); }
+      requestAnimationFrame(() => strip.classList.remove('is-dragging'));
+      run();
+    };
+    // swallow the click that ends a drag
+    viewport.addEventListener('click', (e) => { if (state.moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+    /* custom cursor */
+    let cx = -200, cy = -200, tx = -200, ty = -200, cursorRaf = 0;
+    const cursorLoop = () => {
+      cx += (tx - cx) * (reduceMotion.matches ? 1 : 0.22);
+      cy += (ty - cy) * (reduceMotion.matches ? 1 : 0.22);
+      cursor.style.transform = `translate3d(${cx}px,${cy}px,0) scale(${state.dragging ? 0.82 : 1})`;
+      cursorRaf = (Math.abs(tx - cx) + Math.abs(ty - cy) > 0.3) ? requestAnimationFrame(cursorLoop) : 0;
+    };
+    const moveCursor = (e) => {
+      tx = e.clientX; ty = e.clientY;
+      if (cx === -200) { cx = tx; cy = ty; }
+      if (!cursorRaf) cursorRaf = requestAnimationFrame(cursorLoop);
+    };
+    viewport.addEventListener('pointerenter', (e) => { if (mode === 'drag' && e.pointerType === 'mouse') { moveCursor(e); cursor.classList.add('is-visible'); } });
+    viewport.addEventListener('pointerleave', () => { if (!state.dragging) cursor.classList.remove('is-visible'); });
+
+    viewport.addEventListener('pointerdown', onDown);
+    viewport.addEventListener('pointermove', onMove);
+    viewport.addEventListener('pointerup', onUp);
+    viewport.addEventListener('pointercancel', onUp);
+
+    /* wheel / trackpad horizontal scroll in drag mode */
+    viewport.addEventListener('wheel', (e) => {
+      if (mode !== 'drag' || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      state.target = null;
+      state.x = clamp(state.x - e.deltaX, state.min, 0);
+      state.v = 0; render();
+    }, { passive: false });
+
+    /* keep focused cards in view (keyboard) */
+    track.addEventListener('focusin', (e) => {
+      const item = e.target.closest('.strip__item');
+      if (!item) return;
+      if (mode === 'drag') {
+        viewport.scrollLeft = 0;
+        const left = item.offsetLeft, right = left + item.offsetWidth;
+        const pad = parseFloat(getComputedStyle(track).paddingLeft);
+        if (left + state.x < pad) glideTo(-(left - pad));
+        else if (right + state.x > viewport.clientWidth - pad) glideTo(-(right - viewport.clientWidth + pad));
+      }
+    });
+    viewport.addEventListener('scroll', () => {
+      if (mode === 'drag') { viewport.scrollLeft = 0; return; }
+      const max = viewport.scrollWidth - viewport.clientWidth;
+      updateUI(max > 0 ? viewport.scrollLeft / max : 0);
+    }, { passive: true });
+
+    /* prev / next */
+    const page = (dir) => {
+      if (mode === 'drag') glideTo(Math.round((state.x - dir * step()) / step()) * step());
+      else viewport.scrollBy({ left: dir * step(), behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    };
+    prevBtn.addEventListener('click', () => page(-1));
+    nextBtn.addEventListener('click', () => page(1));
+
+    /* switch modes with input type */
+    const setMode = () => {
+      const next = finePointer.matches ? 'drag' : 'native';
+      if (next === mode) { measure(); render(); return; }
+      mode = next;
+      strip.classList.toggle('is-draggable', mode === 'drag');
+      state.x = 0; state.v = 0;
+      if (mode === 'native') { track.style.transform = ''; cursor.classList.remove('is-visible'); updateUI(0); }
+      else { viewport.scrollLeft = 0; measure(); render(); }
+    };
+    finePointer.addEventListener?.('change', setMode);
+    window.addEventListener('resize', setMode);
+    if ('ResizeObserver' in window) new ResizeObserver(() => setMode()).observe(track);
+    setMode();
   };
 
   /* ---------------- Lookbook parallax ---------------- */
@@ -410,5 +555,5 @@
   initParallax();
   initAccess();
   initLocale();
-  loadProducts().then((products) => { initAnimations(); bag.render(); initSpotlight(products); });
+  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); });
 })();

@@ -44,7 +44,6 @@
           <li><a href="#lookbook" data-spy="lookbook">Lookbook</a></li>
         </ul>
       </nav>
-      <button class="nav__bag" type="button" data-bag-open>Bag (<span data-bag-count>0</span>)</button>
     </div>
   </header>
 
@@ -99,11 +98,22 @@
           <p class="label label--index" data-animate="fade-up"><span>01</span> The drop</p>
           <h2 class="display-2" id="drop-title" data-animate="words" data-delay="100">The first <em>drop</em></h2>
         </div>
-        <p class="drop__hint" data-animate="fade" data-delay="300">Drag a piece to turn it</p>
+        <div class="drop__controls" data-animate="fade" data-delay="300">
+          <button class="ui-btn link" type="button" data-strip-prev aria-controls="strip-track">Previous</button>
+          <span class="drop__divider" aria-hidden="true"></span>
+          <button class="ui-btn link" type="button" data-strip-next aria-controls="strip-track">Next</button>
+        </div>
       </div>
-      <ul class="grid wrap" data-grid data-stagger="fade-up" data-stagger-step="90" aria-label="Drop 001 products">
-        <!-- Rendered from data/products.json -->
-      </ul>
+
+      <div class="strip" data-strip>
+        <div class="strip__viewport" data-strip-viewport>
+          <ul class="strip__track" id="strip-track" data-strip-track aria-label="Drop 001 products" data-stagger="fade-up" data-stagger-step="90">
+            <!-- Rendered from data/products.json -->
+          </ul>
+        </div>
+        <div class="strip__progress wrap" aria-hidden="true" data-animate="line" data-delay="400"><span data-strip-progress></span></div>
+      </div>
+      <div class="drag-cursor" aria-hidden="true" data-drag-cursor><span>Drag</span></div>
     </section>
 
     <!-- Sea / Sand -->
@@ -231,23 +241,6 @@
     </div>
   </footer>
 
-  <!-- Bag -->
-  <div class="bag" role="dialog" aria-modal="true" aria-labelledby="bag-title" hidden data-bag data-motion>
-    <aside class="bag__panel" data-motion>
-      <div class="bag__head">
-        <h2 class="bag__title" id="bag-title">Your <em>bag</em></h2>
-        <button type="button" class="ui-btn link" data-bag-close>Close</button>
-      </div>
-      <ul class="bag__list" data-bag-list></ul>
-      <div class="bag__foot">
-        <p class="bag__total"><span>Subtotal</span> <span data-bag-total>0 ₫</span></p>
-        <p class="bag__note">Checkout opens with the drop. Members hear first.</p>
-        <a class="btn-outline bag__cta" href="#access" data-bag-access>Request access</a>
-      </div>
-    </aside>
-  </div>
-  <p class="toast" role="status" aria-live="polite" data-toast data-motion></p>
-
   <!-- Product spotlight: one piece at a time, floating, with details and sizes -->
   <div class="spotlight" role="dialog" aria-modal="true" aria-labelledby="spot-title" hidden data-spotlight data-motion>
     <button class="spotlight__close ui-btn link" type="button" data-spot-close>Close</button>
@@ -260,12 +253,17 @@
         <div><dt>Price</dt><dd data-spot-price></dd></div>
       </dl>
     </div>
-    <div class="spotlight__stage" data-spot-stage></div>
+    <figure class="spotlight__stage" data-spot-stage data-motion>
+      <div class="spotlight__shadow" data-motion aria-hidden="true"></div>
+      <div class="spotlight__float" data-motion>
+        <img class="spotlight__img" data-spot-img data-motion src="" alt="" width="1200" height="1500" decoding="async">
+      </div>
+    </figure>
     <div class="spotlight__buy" data-motion>
       <p class="label">Size</p>
       <div class="spotlight__sizes" role="radiogroup" aria-label="Size" data-spot-sizes></div>
       <div class="spotlight__views" data-spot-views></div>
-      <button type="button" class="btn-outline spotlight__cta" data-spot-add>Add to cart</button>
+      <a class="btn-outline spotlight__cta" href="#access" data-spot-access>Request access</a>
     </div>
     <button class="spotlight__nav spotlight__nav--prev" type="button" aria-label="Previous product" data-spot-prev>
       <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M40 6H1M6 1L1 6l5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
@@ -276,7 +274,6 @@
   </div>
 
   <script src="intro.js" defer></script>
-  <script src="spin.js" defer></script>
   <script src="main.js" defer></script>
 </body>
 </html>
