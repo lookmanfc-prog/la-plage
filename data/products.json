@@ -7,13 +7,24 @@
   },
   "products": [
     {
+      "id": "dune-short",
+      "handle": "dune-short",
+      "title": "Dune Short",
+      "price": 1390000,
+      "compareAtPrice": null,
+      "color": { "name": "White", "hex": "#F4F4F2" },
+      "image": { "src": "assets/img/products/shorts-white.jpg", "alt": "Dune Short in white with a small blue LA PLAGE palm on the left leg", "width": 1200, "height": 1500 },
+      "available": true,
+      "tags": ["short", "drop-001"]
+    },
+    {
       "id": "riva-short",
       "handle": "riva-short",
       "title": "Riva Short",
       "price": 1450000,
       "compareAtPrice": null,
-      "color": { "name": "Sea", "hex": "#2B7BB6" },
-      "image": { "src": "assets/img/products/riva-short.svg", "alt": "Riva Short in Sea blue, laid flat on white", "width": 800, "height": 1000 },
+      "color": { "name": "Hibiscus", "hex": "#7CCBEB" },
+      "image": { "src": "assets/img/products/shorts-hibiscus.jpg", "alt": "Riva Short in sky blue with a tonal hibiscus print and LA PLAGE palm", "width": 1200, "height": 1500 },
       "available": true,
       "tags": ["short", "drop-001"]
     },
@@ -23,54 +34,33 @@
       "title": "Marée Short",
       "price": 1450000,
       "compareAtPrice": null,
-      "color": { "name": "Tide", "hex": "#7D98AC" },
-      "image": { "src": "assets/img/products/maree-short.svg", "alt": "Marée Short in Tide grey-blue, laid flat on white", "width": 800, "height": 1000 },
+      "color": { "name": "Blue Stripe", "hex": "#5A6FA8" },
+      "image": { "src": "assets/img/products/shorts-blue-stripe.jpg", "alt": "Marée Short in blue and white seersucker stripe with a white drawcord and black LA PLAGE palm", "width": 1200, "height": 1500 },
       "available": true,
       "tags": ["short", "drop-001"]
     },
     {
-      "id": "plage-trunk",
-      "handle": "plage-trunk",
-      "title": "Plage Trunk",
-      "price": 1250000,
-      "compareAtPrice": null,
-      "color": { "name": "Sand", "hex": "#C7A272" },
-      "image": { "src": "assets/img/products/plage-trunk.svg", "alt": "Plage Trunk in Sand, laid flat on white", "width": 800, "height": 1000 },
-      "available": true,
-      "tags": ["trunk", "drop-001"]
-    },
-    {
-      "id": "soleil-short",
-      "handle": "soleil-short",
-      "title": "Soleil Short",
+      "id": "plage-short",
+      "handle": "plage-short",
+      "title": "Plage Short",
       "price": 1450000,
       "compareAtPrice": null,
-      "color": { "name": "Ochre", "hex": "#C68B4E" },
-      "image": { "src": "assets/img/products/soleil-short.svg", "alt": "Soleil Short in Ochre, laid flat on white", "width": 800, "height": 1000 },
+      "color": { "name": "Pine Stripe", "hex": "#3E6B4A" },
+      "image": { "src": "assets/img/products/shorts-pine-stripe.jpg", "alt": "Plage Short in pine green and white seersucker stripe with a white drawcord and black LA PLAGE palm", "width": 1200, "height": 1500 },
       "available": true,
       "tags": ["short", "drop-001"]
     },
     {
-      "id": "dune-short",
-      "handle": "dune-short",
-      "title": "Dune Short",
-      "price": 1390000,
+      "id": "esprit-cotier-tee",
+      "handle": "esprit-cotier-tee",
+      "title": "L'Esprit Côtier Tee",
+      "price": 890000,
       "compareAtPrice": null,
-      "color": { "name": "Bone", "hex": "#E3D8C3" },
-      "image": { "src": "assets/img/products/dune-short.svg", "alt": "Dune Short in Bone, laid flat on white", "width": 800, "height": 1000 },
+      "color": { "name": "White", "hex": "#F4F4F2" },
+      "image": { "src": "assets/img/products/tee-esprit-cotier-front.jpg", "alt": "L'Esprit Côtier Tee in white, front with a small LA PLAGE palm on the chest", "width": 1200, "height": 1500 },
+      "imageHover": { "src": "assets/img/products/tee-esprit-cotier-back.jpg", "alt": "Back of the tee: hand-drawn deck chairs by the sea and L'ESPRIT CÔTIER", "width": 1200, "height": 1500 },
       "available": true,
-      "tags": ["short", "drop-001"]
-    },
-    {
-      "id": "nuit-short",
-      "handle": "nuit-short",
-      "title": "Nuit Short",
-      "price": 1550000,
-      "compareAtPrice": null,
-      "color": { "name": "Night", "hex": "#0B2C47" },
-      "image": { "src": "assets/img/products/nuit-short.svg", "alt": "Nuit Short in Night navy, laid flat on white", "width": 800, "height": 1000 },
-      "available": true,
-      "tags": ["short", "drop-001"]
+      "tags": ["tee", "drop-001"]
     }
   ]
 }

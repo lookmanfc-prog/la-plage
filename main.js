@@ -121,8 +121,9 @@
     li.className = 'strip__item';
     li.innerHTML = `
       <a class="card" href="#product/${p.handle}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}">
-        <div class="card__media">
+        <div class="card__media${p.imageHover ? ' has-hover' : ''}">
           <img src="${p.image.src}" alt="${p.image.alt}" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async" draggable="false">
+          ${p.imageHover ? `<img class="card__hover" src="${p.imageHover.src}" alt="" width="${p.imageHover.width}" height="${p.imageHover.height}" loading="lazy" decoding="async" draggable="false">` : ''}
         </div>
         <div class="card__meta" aria-hidden="true">
           <h3 class="card__name">${p.title}</h3>
