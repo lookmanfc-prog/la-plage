@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LA PLAGE — Summer, worn slowly.</title>
+  <meta name="description" content="LA PLAGE. Vietnamese beachwear. Few pieces, made well. Drop 001 · Summer.">
+  <meta name="theme-color" content="#FFFFFF">
+  <link rel="icon" href="assets/brand/mark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.replace('no-js','js')</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="announce" role="note">
+    <p>Complimentary shipping in Vietnam <span aria-hidden="true">·</span> Limited runs</p>
+  </div>
+
+  <header class="header" data-header>
+    <div class="header__inner">
+      <nav class="header__nav" aria-label="Primary">
+        <ul>
+          <li><a class="link" href="#drop">Shop</a></li>
+          <li><a class="link" href="#collections">Collections</a></li>
+          <li><a class="link" href="#story">Story</a></li>
+          <li><a class="link" href="#lookbook">Lookbook</a></li>
+        </ul>
+      </nav>
+      <button class="header__menu-btn ui-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>Menu</button>
+
+      <a class="wordmark" href="#top" aria-label="LA PLAGE, home">LA PLAGE</a>
+
+      <div class="header__actions">
+        <button class="ui-btn link header__search" type="button" aria-label="Search">Search</button>
+        <button class="ui-btn link" type="button" aria-label="Cart, 0 items">Cart (<span data-cart-count>0</span>)</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu" hidden data-menu>
+    <div class="menu__top">
+      <button class="ui-btn" type="button" data-menu-close>Close</button>
+    </div>
+    <nav aria-label="Mobile">
+      <ul class="menu__list">
+        <li><a href="#drop" data-menu-link>Shop</a></li>
+        <li><a href="#collections" data-menu-link>Collections</a></li>
+        <li><a href="#story" data-menu-link>Story</a></li>
+        <li><a href="#lookbook" data-menu-link>Lookbook</a></li>
+      </ul>
+    </nav>
+    <div class="menu__foot">
+      <button class="ui-btn link" type="button">Search</button>
+      <span>EN / VI · VND</span>
+    </div>
+  </div>
+
+  <main id="main">
+    <!-- 3. Hero -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero__media" aria-hidden="true">
+        <!--
+          PLACEHOLDER: replace the gradient layer with the hero film or photo, e.g.
+          <video class="hero__video" autoplay muted loop playsinline preload="metadata" poster="assets/img/hero-poster.jpg">
+            <source src="assets/video/hero.mp4" type="video/mp4">
+          </video>
+        -->
+        <div class="hero__sky"></div>
+        <div class="hero__mark palm"></div>
+      </div>
+      <div class="hero__content wrap">
+        <p class="eyebrow reveal">Drop 001 · Summer</p>
+        <h1 class="hero__title reveal" id="hero-title" style="--d:.12s">Summer,<br> worn slowly.</h1>
+        <a class="link link--underlined hero__cta reveal" style="--d:.28s" href="#drop">Enter the collection</a>
+      </div>
+    </section>
+
+    <!-- 4. The first drop -->
+    <section class="drop" id="drop" aria-labelledby="drop-title">
+      <div class="drop__head wrap">
+        <div class="reveal">
+          <p class="eyebrow">Drop 001 · Six pieces</p>
+          <h2 class="h2" id="drop-title">The first drop</h2>
+        </div>
+        <div class="drop__controls reveal" style="--d:.1s">
+          <button class="ui-btn link" type="button" data-strip-prev aria-controls="strip-track">Previous</button>
+          <span class="drop__divider" aria-hidden="true"></span>
+          <button class="ui-btn link" type="button" data-strip-next aria-controls="strip-track">Next</button>
+        </div>
+      </div>
+
+      <div class="strip reveal" data-strip>
+        <div class="strip__viewport" data-strip-viewport>
+          <ul class="strip__track" id="strip-track" data-strip-track aria-label="Drop 001 products">
+            <!-- Rendered from data/products.json -->
+          </ul>
+        </div>
+        <div class="strip__progress wrap" aria-hidden="true"><span data-strip-progress></span></div>
+      </div>
+      <div class="drag-cursor" aria-hidden="true" data-drag-cursor><span>Drag</span></div>
+    </section>
+
+    <!-- 5. Sea / Sand -->
+    <section class="panels" id="collections" aria-label="Collections">
+      <a class="panel panel--sea" href="#drop">
+        <div class="panel__palm palm" aria-hidden="true"></div>
+        <div class="panel__caption reveal">
+          <p class="eyebrow">Collection 01</p>
+          <h2 class="panel__title">Sea</h2>
+          <p class="panel__text">Deep blues for early water and late swims.</p>
+          <span class="link link--underlined">Shop Sea</span>
+        </div>
+      </a>
+      <a class="panel panel--sand" href="#drop">
+        <div class="panel__palm palm" aria-hidden="true"></div>
+        <div class="panel__caption reveal" style="--d:.12s">
+          <p class="eyebrow">Collection 02</p>
+          <h2 class="panel__title">Sand</h2>
+          <p class="panel__text">Warm neutrals, sun-faded by design.</p>
+          <span class="link link--underlined">Shop Sand</span>
+        </div>
+      </a>
+    </section>
+
+    <!-- 6. Story -->
+    <section class="story" id="story" aria-labelledby="story-title">
+      <div class="story__inner wrap">
+        <img class="story__mark reveal" src="assets/brand/mark.png" alt="" width="44" height="40">
+        <h2 class="visually-hidden" id="story-title">Our story</h2>
+        <p class="story__text reveal" style="--d:.1s">Made for the hours between the tide and the evening. Few pieces. Made well. Never rushed.</p>
+        <a class="link link--underlined reveal" style="--d:.2s" href="#story">Read the story</a>
+      </div>
+    </section>
+
+    <!-- 7. Lookbook -->
+    <section class="lookbook" id="lookbook" aria-labelledby="lookbook-title">
+      <div class="lookbook__head wrap reveal">
+        <p class="eyebrow">Lookbook</p>
+        <h2 class="h2" id="lookbook-title">Golden hour, Mũi Né</h2>
+      </div>
+      <div class="lookbook__grid wrap">
+        <figure class="look reveal">
+          <div class="look__frame"><img data-parallax="0.08" src="assets/img/lookbook/look-01.svg" alt="Placeholder: a wide, empty beach in soft morning light" width="900" height="1400" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 01</span> Riva Short, Sea</figcaption>
+        </figure>
+        <figure class="look look--low reveal" style="--d:.12s">
+          <div class="look__frame"><img data-parallax="0.14" src="assets/img/lookbook/look-02.svg" alt="Placeholder: low sun over the water at golden hour" width="900" height="1400" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 02</span> Soleil Short, Ochre</figcaption>
+        </figure>
+        <figure class="look reveal" style="--d:.24s">
+          <div class="look__frame"><img data-parallax="0.06" src="assets/img/lookbook/look-03.svg" alt="Placeholder: pale sand and calm sea under a clear sky" width="900" height="1400" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 03</span> Dune Short, Bone</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 8. Private access -->
+    <section class="access" id="access" aria-labelledby="access-title">
+      <div class="access__inner wrap reveal">
+        <p class="eyebrow">Private access</p>
+        <h2 class="h2" id="access-title">Before it opens to everyone.</h2>
+        <p class="access__text">Each drop is small. Members hear first.</p>
+        <form class="access__form" novalidate data-access-form>
+          <label class="visually-hidden" for="access-email">Email address</label>
+          <input class="access__input" id="access-email" name="email" type="email" autocomplete="email" placeholder="Email address" required aria-describedby="access-status">
+          <button class="btn-outline" type="submit">Request access</button>
+        </form>
+        <p class="access__status" id="access-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 9. Footer -->
+  <footer class="footer">
+    <div class="footer__inner wrap">
+      <div class="footer__brand">
+        <div class="footer__mark palm" aria-hidden="true"></div>
+        <p class="footer__wordmark">LA PLAGE</p>
+        <p class="footer__tag">Summer, worn slowly.</p>
+      </div>
+      <nav class="footer__col" aria-label="Shop">
+        <h3>Shop</h3>
+        <ul>
+          <li><a class="link" href="#drop">Drop 001</a></li>
+          <li><a class="link" href="#collections">Sea</a></li>
+          <li><a class="link" href="#collections">Sand</a></li>
+        </ul>
+      </nav>
+      <nav class="footer__col" aria-label="House">
+        <h3>House</h3>
+        <ul>
+          <li><a class="link" href="#story">Story</a></li>
+          <li><a class="link" href="#lookbook">Lookbook</a></li>
+          <li><a class="link" href="#access">Private access</a></li>
+        </ul>
+      </nav>
+      <nav class="footer__col" aria-label="Help">
+        <h3>Help</h3>
+        <ul>
+          <li><a class="link" href="#">Shipping</a></li>
+          <li><a class="link" href="#">Returns</a></li>
+          <li><a class="link" href="#">Size guide</a></li>
+          <li><a class="link" href="#">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="footer__col">
+        <h3>Follow</h3>
+        <ul>
+          <li><a class="link" href="#" rel="noopener">Instagram</a></li>
+          <li><a class="link" href="#" rel="noopener">TikTok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__base wrap">
+      <p>&copy; <span data-year>2026</span> LA PLAGE. Made in Vietnam.</p>
+      <div class="footer__locale">
+        <div class="footer__lang" role="group" aria-label="Language">
+          <button class="ui-btn" type="button" aria-pressed="true" data-lang="en">EN</button>
+          <span aria-hidden="true">/</span>
+          <button class="ui-btn" type="button" aria-pressed="false" data-lang="vi">VI</button>
+        </div>
+        <span class="footer__currency">VND</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js" defer></script>
+</body>
+</html>
