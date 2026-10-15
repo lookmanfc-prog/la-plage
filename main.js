@@ -76,7 +76,11 @@
     });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 }) : null;
 
+  // Hero elements wait until the welcome wave has uncovered them
+  let introDone = !window.laPlageIntro;
+  if (window.laPlageIntro) window.laPlageIntro.then(() => { introDone = true; });
   const reveal = (el) => {
+    if (!introDone && el.closest('.hero')) { window.laPlageIntro.then(() => reveal(el)); return; }
     el.classList.add('is-visible');
     if (el.hasAttribute('data-stagger')) {
       el.querySelectorAll(':scope > [data-animate]').forEach((child) => child.classList.add('is-visible'));

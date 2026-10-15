@@ -16,6 +16,15 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
+  <!-- Welcome wave: the page opens under water and the wave washes back -->
+  <div class="intro" aria-hidden="true" data-intro>
+    <canvas class="intro__canvas"></canvas>
+    <p class="intro__brand" data-intro-brand>
+      <img src="assets/brand/mark.png" alt="" width="660" height="603">
+      <span>LA PLAGE</span>
+    </p>
+  </div>
+
   <div class="announce" role="note">
     <p>Complimentary shipping in Vietnam <span aria-hidden="true">·</span> Limited runs</p>
   </div>
@@ -213,6 +222,7 @@
     </div>
   </footer>
 
+  <script src="intro.js" defer></script>
   <script src="main.js" defer></script>
 </body>
 </html>
