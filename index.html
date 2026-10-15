@@ -3,15 +3,603 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LA PLAGE — Summer, worn slowly.</title>
+  <title>LA PLAGE · Summer, worn slowly.</title>
   <meta name="description" content="LA PLAGE. Vietnamese beachwear. Few pieces, made well. Drop 001 · Summer.">
   <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" href="assets/brand/mark.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap">
-  <link rel="stylesheet" href="styles.css">
-  <script>document.documentElement.classList.replace('no-js','js')</script>
+  <link rel="preload" as="image" href="assets/la-plage-shore.jpg">
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
+  <style>
+/* Fonts (local files, nothing hosted) */
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 500; font-display: swap; src: url(assets/fonts/inter-normal-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 500; font-display: swap; src: url(assets/fonts/inter-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 500; font-display: swap; src: url(assets/fonts/inter-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Lora'; font-style: italic; font-weight: 400; font-display: swap; src: url(assets/fonts/lora-italic-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Lora'; font-style: italic; font-weight: 400; font-display: swap; src: url(assets/fonts/lora-italic-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Lora'; font-style: italic; font-weight: 400; font-display: swap; src: url(assets/fonts/lora-italic-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Lora'; font-style: normal; font-weight: 400 500; font-display: swap; src: url(assets/fonts/lora-normal-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Lora'; font-style: normal; font-weight: 400 500; font-display: swap; src: url(assets/fonts/lora-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Lora'; font-style: normal; font-weight: 400 500; font-display: swap; src: url(assets/fonts/lora-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+:root {
+  /* Palette */
+  --white: #FFFFFF;
+  --sand-light: #F6EEDF;
+  --sand: #C7A272;
+  --sand-ink: #8A6A40;      /* sand darkened for small text on white (AA) */
+  --sea: #2B7BB6;
+  --sea-deep: #0B2C47;
+  --ink: #111111;
+  --ink-soft: #5A5A57;
+  --line: rgba(17, 17, 17, .12);
+
+  /* Type */
+  --serif: "Lora", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  /* Layout */
+  --gutter: clamp(16px, 4vw, 56px);
+  --bar-h: 34px;
+  --header-h: 68px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-enter: 220ms;   /* UI entrances */
+  --dur-exit: 150ms;    /* UI exits, always faster */
+  --dur-reveal: 280ms;  /* one reveal per section */
+  --dur-hero: 700ms;    /* hero entrance on load */
+
+  /* Hero photo: swap this one path for a higher-res file later */
+  --hero-img: url("assets/la-plage-shore.jpg");
+  --hero-ratio: 0.5626;  /* photo width / height (512 x 910) */
+  --hero-x: 50%;         /* focal point, like object-position */
+  --hero-y: 40%;
+
+  /* Shoreline masks and textures, drawn in the photo's own coordinates */
+  --mask-sea: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 910' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='16'/%3E%3C/filter%3E%3Cpath d='M50 40 L81 70 L105 105 L134 140 L159 175 L186 210 L203 245 L226 280 L248 315 L272 350 L287 385 L306 420 L325 455 L341 490 L346 525 L348 560 L349 595 L357 630 L373 665 L388 700 L402 735 L411 770 L424 805 L433 840 L435 875 L435 930 L560 940 L560 -30 L-30 -30Z' fill='white' filter='url%28%23b%29'/%3E%3C/svg%3E");
+  --mask-water: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 910' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='12'/%3E%3C/filter%3E%3Cpath d='M20 40 L51 70 L75 105 L104 140 L129 175 L156 210 L173 245 L196 280 L218 315 L242 350 L257 385 L276 420 L295 455 L311 490 L316 525 L318 560 L319 595 L327 630 L343 665 L358 700 L372 735 L381 770 L394 805 L403 840 L405 875 L405 930 L560 940 L560 -30 L-30 -30Z' fill='white' filter='url%28%23b%29'/%3E%3C/svg%3E");
+  --mask-foam: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 910' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='5'/%3E%3C/filter%3E%3Cpath d='M-28 40 L3 70 L27 105 L56 140 L81 175 L108 210 L125 245 L148 280 L170 315 L194 350 L209 385 L228 420 L247 455 L263 490 L268 525 L270 560 L271 595 L279 630 L295 665 L310 700 L324 735 L333 770 L346 805 L355 840 L357 875 L357 930 L445 930 L445 875 L443 840 L434 805 L421 770 L412 735 L398 700 L383 665 L367 630 L359 595 L358 560 L356 525 L351 490 L335 455 L316 420 L297 385 L282 350 L258 315 L236 280 L213 245 L196 210 L169 175 L144 140 L115 105 L91 70 L60 40Z' fill='white' filter='url%28%23b%29'/%3E%3C/svg%3E");
+  --mask-wet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 910' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='6'/%3E%3C/filter%3E%3Cpath d='M-50 40 L-19 70 L5 105 L34 140 L59 175 L86 210 L103 245 L126 280 L148 315 L172 350 L187 385 L206 420 L225 455 L241 490 L246 525 L248 560 L249 595 L257 630 L273 665 L288 700 L302 735 L311 770 L324 805 L333 840 L335 875 L335 930 L368 930 L368 875 L366 840 L357 805 L344 770 L335 735 L321 700 L306 665 L290 630 L282 595 L281 560 L279 525 L274 490 L258 455 L239 420 L220 385 L205 350 L181 315 L159 280 L136 245 L119 210 L92 175 L67 140 L38 105 L14 70 L-17 40Z' fill='white' filter='url%28%23b%29'/%3E%3C/svg%3E");
+  --tex-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");
+  --tex-caustic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='turbulence' baseFrequency='.014 .026' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -4 0 0 0 1.05'/%3E%3CfeGaussianBlur stdDeviation='.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23c%29'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; margin: 0; padding: 0; }
+h1, h2, h3, p, figure { margin: 0; }
+button { font: inherit; color: inherit; }
+
+.wrap { padding-inline: var(--gutter); }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 100;
+  padding: 12px 16px; background: var(--ink); color: var(--white);
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--dur-exit) var(--ease-out);
+}
+.skip-link:focus { opacity: 1; pointer-events: auto; transition-duration: var(--dur-enter); }
+
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+/* ---------- Type helpers ---------- */
+.eyebrow {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.h2 {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(30px, 4.2vw, 56px);
+  line-height: 1.08; letter-spacing: -.01em;
+  margin-top: 14px;
+}
+
+/* ---------- Links & buttons ---------- */
+.ui-btn {
+  background: none; border: 0; padding: 0 4px; cursor: pointer;
+  min-height: 44px; min-width: 44px;
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase;
+  transition: transform var(--dur-exit) var(--ease-out), opacity var(--dur-enter) var(--ease-out);
+}
+.ui-btn:active { transform: scale(0.97); }
+.ui-btn:disabled { opacity: .35; cursor: default; }
+.ui-btn:disabled:active { transform: none; }
+
+/* Thin underline that draws in on hover. 44px tall hit area. */
+.link {
+  position: relative; display: inline-flex; align-items: center;
+  min-height: 44px;
+}
+.link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 11px; height: 1px;
+  background: currentColor;
+  transform: scaleX(0); transform-origin: right center;
+  transition: transform var(--dur-exit) var(--ease-out);
+}
+.link:focus-visible::after { transform: scaleX(1); }
+
+/* Always underlined; hover strengthens the line */
+.link--underlined {
+  font-size: 12px; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+  align-items: flex-end; padding-bottom: 6px;
+}
+.link--underlined::after {
+  bottom: 0; transform: none; opacity: .45;
+  transition: opacity var(--dur-exit) var(--ease-out);
+}
+.link--underlined:focus-visible::after { opacity: 1; }
+
+.btn-outline {
+  appearance: none; background: transparent; cursor: pointer; color: var(--ink);
+  border: 1px solid var(--ink); border-radius: 0;
+  min-height: 48px; padding: 0 26px;
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+  transition:
+    background-color var(--dur-exit) var(--ease-out),
+    color var(--dur-exit) var(--ease-out),
+    transform var(--dur-exit) var(--ease-out);
+}
+.btn-outline:active { transform: scale(0.97); }
+
+@media (hover: hover) and (pointer: fine) {
+  .link:hover::after { transform: scaleX(1); transform-origin: left center; transition-duration: var(--dur-enter); }
+  .link--underlined:hover::after,
+  a:hover > .link--underlined::after { opacity: 1; transition-duration: var(--dur-enter); }
+  .btn-outline:hover { background: var(--ink); color: var(--white); transition-duration: var(--dur-enter); }
+}
+
+/* ---------- Hero entrance (load) and section reveals (scroll, once) ---------- */
+.js .enter { opacity: 0; transform: translate3d(0, 8px, 0); }
+.js.is-ready .enter {
+  opacity: 1; transform: none;
+  transition: opacity var(--dur-hero) var(--ease-out), transform var(--dur-hero) var(--ease-out);
+  transition-delay: calc(80ms + var(--i, 0) * 70ms);
+}
+.js .reveal { opacity: 0; transform: translate3d(0, 8px, 0); }
+.js .reveal.is-in {
+  opacity: 1; transform: none;
+  transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+}
+
+/* ==========================================================================
+   1. Announcement bar
+   ========================================================================== */
+.announce {
+  position: relative; z-index: 31;
+  min-height: var(--bar-h);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--sea-deep); color: var(--sand);
+  font-size: 10.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+  text-align: center; padding: 6px 16px;
+}
+.announce span { margin-inline: .6em; }
+
+/* ==========================================================================
+   2. Header
+   ========================================================================== */
+.header {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 30;
+  height: var(--header-h);
+  transform: translate3d(0, var(--header-y, var(--bar-h)), 0);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--dur-exit) var(--ease-out),
+    border-color var(--dur-exit) var(--ease-out);
+}
+.header.is-scrolled {
+  background: var(--white); border-bottom-color: var(--line);
+  transition-duration: var(--dur-enter);
+}
+.header__inner {
+  height: 100%;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding-inline: var(--gutter);
+}
+.header__nav ul { display: flex; gap: 28px; }
+.header__nav a { font-size: 12px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
+.header__menu-btn { display: none; justify-self: start; margin-left: -4px; }
+.wordmark {
+  grid-column: 2;
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-family: var(--serif); font-weight: 400;
+  font-size: 19px; letter-spacing: .3em;
+  margin-right: -.3em; /* optical centring for trailing tracking */
+  color: var(--sea-deep);
+}
+
+@media (max-width: 860px) {
+  :root { --header-h: 58px; }
+  .header__nav { display: none; }
+  .header__menu-btn { display: inline-block; grid-column: 1; grid-row: 1; }
+  .wordmark { font-size: 16px; grid-row: 1; }
+}
+
+/* Mobile menu */
+.menu {
+  position: fixed; inset: 0; z-index: 40;
+  background: var(--white);
+  display: flex; flex-direction: column;
+  padding: 0 var(--gutter) 32px;
+  opacity: 0;
+  transition: opacity var(--dur-exit) var(--ease-out);
+}
+.menu.is-open { opacity: 1; transition-duration: var(--dur-enter); }
+.menu__top { height: var(--header-h); display: flex; align-items: center; }
+.menu__top .ui-btn { margin-left: -4px; }
+.menu__list { margin-top: 8vh; }
+.menu__list li { border-top: 1px solid var(--line); }
+.menu__list li:last-child { border-bottom: 1px solid var(--line); }
+.menu__list a { display: block; padding: 18px 0; font-family: var(--serif); font-size: 34px; line-height: 1.1; }
+.menu__foot {
+  margin-top: auto;
+  font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft);
+}
+
+/* ==========================================================================
+   3. Hero: photo with layered, slow water
+   ========================================================================== */
+.hero {
+  position: relative;
+  height: 100vh; height: 100svh; min-height: 560px;
+  margin-top: calc(var(--bar-h) * -1);
+  display: flex; align-items: flex-end;
+  overflow: hidden; isolation: isolate; contain: paint;
+  background: #D9C6A4;
+}
+/* The stage keeps the photo's aspect ratio and covers the hero, so every
+   mask below lines up with the shoreline at any screen size. */
+.hero__stage {
+  position: absolute; z-index: -2;
+  left: var(--hero-x); top: var(--hero-y);
+  width: max(100%, calc(max(100vh, 560px) * var(--hero-ratio)));
+  width: max(100%, calc(max(100svh, 560px) * var(--hero-ratio)));
+  aspect-ratio: 512 / 910;
+  transform: translate(calc(var(--hero-x) * -1), calc(var(--hero-y) * -1));
+}
+.hero__photo {
+  position: absolute; inset: 0;
+  background: var(--hero-img) center / 100% 100% no-repeat;
+}
+.hero__mask { position: absolute; inset: 0; }
+.hero__mask--sea {
+  -webkit-mask: var(--mask-sea) 0 0 / 100% 100% no-repeat;
+          mask: var(--mask-sea) 0 0 / 100% 100% no-repeat;
+}
+.hero__mask--water {
+  -webkit-mask: var(--mask-water) 0 0 / 100% 100% no-repeat;
+          mask: var(--mask-water) 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: soft-light;
+}
+/* b) open water drifts a few px */
+.hero__sea {
+  animation: sea-drift 17s var(--ease-in-out) infinite alternate;
+}
+@keyframes sea-drift {
+  from { transform: translate3d(-3px, -2px, 0); }
+  to   { transform: translate3d(4px, 3px, 0); }
+}
+/* d) light shimmer on the water only, two speeds that never line up */
+.hero__shimmer {
+  position: absolute; inset: -80px;
+  background: var(--tex-caustic) 0 0 / 420px 420px repeat;
+  opacity: .5;
+  animation: shimmer-a 29s linear infinite alternate;
+}
+.hero__shimmer--b {
+  background-size: 300px 300px; background-position: 130px 70px;
+  opacity: .32;
+  animation: shimmer-b 37s linear infinite alternate;
+}
+@keyframes shimmer-a { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-46px, 22px, 0); } }
+@keyframes shimmer-b { from { transform: translate3d(-20px, 30px, 0); } to { transform: translate3d(24px, -8px, 0); } }
+/* c) wet sand darkens just behind the foam and fades as the water pulls back */
+.hero__wet {
+  position: absolute; inset: 0;
+  background: #4E3519;
+  -webkit-mask: var(--mask-wet) 0 0 / 100% 100% no-repeat;
+          mask: var(--mask-wet) 0 0 / 100% 100% no-repeat;
+  opacity: 0;
+  animation: wet 11.2s var(--ease-in-out) infinite;
+}
+@keyframes wet {
+  0%   { opacity: .02; }
+  40%  { opacity: .05; }
+  56%  { opacity: .15; }
+  100% { opacity: .02; }
+}
+/* c) swash: the foam edge runs up the sand ~16px and slides back */
+.hero__foam {
+  -webkit-mask: var(--mask-foam) 0 0 / 100% 100% no-repeat;
+          mask: var(--mask-foam) 0 0 / 100% 100% no-repeat;
+  animation: swash 11.2s var(--ease-in-out) infinite;
+}
+@keyframes swash {
+  0%   { transform: translate3d(0, 0, 0); }
+  42%  { transform: translate3d(-14.7px, 6.3px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.hero__sea, .hero__shimmer, .hero__wet, .hero__foam { will-change: transform, opacity; }
+.hero.is-paused .hero__sea,
+.hero.is-paused .hero__shimmer,
+.hero.is-paused .hero__wet,
+.hero.is-paused .hero__foam { animation-play-state: paused; }
+
+/* Fine grain hides upscaling softness on large screens */
+.hero__grain {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--tex-grain) 0 0 / 220px 220px repeat;
+  opacity: .1; mix-blend-mode: overlay;
+}
+/* Light scrims only where text sits */
+.hero__scrim {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .42) 0, rgba(255, 255, 255, 0) 150px),
+    linear-gradient(90deg, rgba(246, 238, 223, .42) 0, rgba(246, 238, 223, .36) 40%, rgba(246, 238, 223, 0) 64%);
+}
+
+.hero__content {
+  width: 100%;
+  padding-top: calc(var(--bar-h) + var(--header-h) + 40px);
+  padding-bottom: clamp(48px, 10vh, 112px);
+}
+.hero__title {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(50px, 9vw, 148px);
+  line-height: .98; letter-spacing: -.02em;
+  color: var(--ink);
+}
+.hero__sub { margin: 26px 0 18px; color: var(--sea-deep); }
+
+/* ==========================================================================
+   4. The first drop
+   ========================================================================== */
+.drop { padding: clamp(96px, 16vh, 180px) 0 clamp(80px, 12vh, 140px); }
+.drop__head {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 24px;
+  margin-bottom: clamp(40px, 6vh, 72px);
+}
+.drop__note { margin-top: 12px; font-size: 12px; color: var(--ink-soft); }
+.drop__controls { display: flex; align-items: center; gap: 12px; color: var(--ink-soft); }
+.drop__controls .ui-btn { font-size: 11px; }
+.drop__divider { width: 28px; height: 1px; background: var(--line); }
+
+.strip__viewport {
+  overflow: hidden;
+  touch-action: pan-y;               /* vertical page scroll stays native */
+  cursor: grab;
+  user-select: none; -webkit-user-select: none;
+}
+.strip__viewport:focus-visible { outline-offset: -2px; }
+.strip.is-dragging .strip__viewport { cursor: grabbing; }
+.strip__track {
+  display: flex; gap: clamp(14px, 2vw, 32px);
+  padding-inline: var(--gutter);
+  width: max-content;
+  will-change: transform;
+}
+.strip__item { width: clamp(250px, 27vw, 430px); flex: none; }
+.strip img { -webkit-user-drag: none; pointer-events: none; }
+
+.card__media { aspect-ratio: 4 / 5; overflow: hidden; background: var(--white); }
+.card__media img { width: 100%; height: 100%; object-fit: cover; }
+.card__meta {
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 16px;
+  padding-top: 18px; border-top: 1px solid var(--line); margin-top: 4px;
+}
+.card__name { font-family: var(--serif); font-size: 19px; font-weight: 400; line-height: 1.3; }
+.card__price { font-size: 13px; font-variant-numeric: tabular-nums; letter-spacing: .02em; padding-top: 3px; }
+.card__color {
+  grid-column: 1 / -1;
+  font-size: 10.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--sand-ink);
+}
+
+.strip__progress { margin-top: clamp(36px, 5vh, 56px); }
+.strip__progress::before { content: ""; display: block; height: 1px; background: var(--line); }
+.strip__progress span { display: block; height: 1px; margin-top: -1px; background: var(--ink); width: 18%; }
+
+/* Desktop "Drag" cursor (mouse only) */
+.drag-cursor {
+  position: fixed; left: 0; top: 0; z-index: 25; pointer-events: none;
+  width: 84px; height: 84px; margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  border: 1px solid rgba(17, 17, 17, .5);
+  background: rgba(255, 255, 255, .7);
+  display: grid; place-items: center;
+  font-size: 10.5px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
+  opacity: 0;
+  transition: opacity var(--dur-exit) var(--ease-out);
+}
+.drag-cursor span { padding-left: .2em; transition: transform var(--dur-exit) var(--ease-out); }
+.drag-cursor.is-visible { opacity: 1; transition-duration: var(--dur-enter); }
+.drag-cursor.is-pressed span { transform: scale(0.9); }
+@media (hover: hover) and (pointer: fine) {
+  .strip__viewport.has-cursor { cursor: none; }
+}
+
+@media (max-width: 640px) {
+  .drop__head { flex-direction: column; align-items: flex-start; }
+  .strip__item { width: 76vw; }
+}
+
+/* ==========================================================================
+   5. Sea / Sand panels (no ambient motion)
+   ========================================================================== */
+.panels { display: grid; grid-template-columns: 1fr 1fr; }
+.panel {
+  position: relative; overflow: hidden; isolation: isolate;
+  min-height: clamp(520px, 92vh, 980px);
+  display: flex; align-items: flex-end;
+  padding: clamp(32px, 5vw, 72px);
+}
+.panel--sea { color: var(--sand-light); background: linear-gradient(180deg, #0F3656 0%, var(--sea-deep) 70%); }
+.panel--sand { color: var(--ink); background: linear-gradient(180deg, #FAF4EA 0%, var(--sand-light) 70%); }
+.panel__palm {
+  position: absolute; z-index: -1;
+  width: 66%; left: 17%; top: 10%;
+  opacity: .24;
+}
+.panel__caption { max-width: 340px; }
+.panel--sea .eyebrow { color: var(--sand); }
+.panel--sand .eyebrow { color: var(--sand-ink); }
+.panel__title { font-family: var(--serif); font-weight: 400; font-size: clamp(44px, 6vw, 88px); line-height: 1; margin: 14px 0 16px; }
+.panel__text { margin-bottom: 14px; opacity: .88; }
+.panel:focus-visible { outline-offset: -8px; }
+
+@media (max-width: 760px) {
+  .panels { grid-template-columns: 1fr; }
+  .panel { min-height: 78svh; }
+}
+
+/* ==========================================================================
+   6. Story
+   ========================================================================== */
+.story { background: var(--sand-light); }
+.story__inner {
+  max-width: 900px; margin: 0 auto; text-align: center;
+  padding-block: clamp(110px, 20vh, 220px);
+  display: flex; flex-direction: column; align-items: center;
+}
+.story__mark { width: 44px; margin-bottom: 40px; }
+.story__text {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(24px, 3vw, 38px); line-height: 1.42;
+  max-width: 26ch; text-wrap: balance;
+}
+
+/* ==========================================================================
+   7. Lookbook (static, no parallax)
+   ========================================================================== */
+.lookbook { padding: clamp(110px, 18vh, 200px) 0 clamp(120px, 20vh, 220px); }
+.lookbook__head { margin-bottom: clamp(48px, 8vh, 96px); }
+.lookbook__grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: clamp(14px, 2.4vw, 40px); align-items: start;
+}
+.look--low { margin-top: clamp(60px, 12vw, 180px); }
+.look:nth-child(3) { margin-top: clamp(24px, 5vw, 72px); }
+.look__frame { overflow: hidden; aspect-ratio: 9 / 14; background: var(--sand-light); }
+.look__frame img { width: 100%; height: 100%; object-fit: cover; }
+.look figcaption { display: flex; gap: 14px; padding-top: 14px; font-size: 12px; color: var(--ink-soft); }
+.look figcaption span { font-weight: 500; letter-spacing: .18em; text-transform: uppercase; font-size: 10.5px; color: var(--ink); padding-top: 1px; }
+
+@media (max-width: 760px) {
+  .lookbook__grid { grid-template-columns: 1fr 1fr; }
+  .look:first-child { grid-column: 1 / -1; width: 78%; }
+  .look--low { margin-top: 0; }
+  .look:nth-child(3) { margin-top: 64px; }
+}
+
+/* ==========================================================================
+   8. Private access
+   ========================================================================== */
+.access { border-top: 1px solid var(--line); }
+.access__inner { max-width: 640px; margin: 0 auto; text-align: center; padding-block: clamp(110px, 18vh, 190px); }
+.access__text { color: var(--ink-soft); margin: 18px 0 44px; }
+.access__form { display: flex; gap: 20px; align-items: flex-end; }
+.access__input {
+  flex: 1; min-width: 0; min-height: 48px;
+  appearance: none; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0;
+  background: transparent; padding: 12px 0;
+  font-family: var(--sans); font-size: 16px; color: var(--ink);
+  transition: border-color var(--dur-exit) var(--ease-out);
+}
+.access__input::placeholder { color: #767571; }
+.access__input:focus { outline: none; border-bottom-color: var(--sea); transition-duration: var(--dur-enter); }
+.access__input:focus-visible { outline: 2px solid var(--sea); outline-offset: 4px; }
+.access__input[aria-invalid="true"] { border-bottom-color: #A23B2A; }
+.access__status { min-height: 1.6em; margin-top: 18px; font-size: 13px; color: var(--ink-soft); }
+.access__status.is-error { color: #A23B2A; }
+
+@media (max-width: 520px) {
+  .access__form { flex-direction: column; align-items: stretch; }
+}
+
+/* ==========================================================================
+   9. Footer
+   ========================================================================== */
+.footer { background: var(--sea-deep); color: var(--sand); font-size: 13px; }
+.footer__inner {
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px;
+  padding-block: clamp(72px, 12vh, 120px) 56px;
+}
+.footer__mark { width: 52px; margin-bottom: 26px; }
+.footer__wordmark { font-family: var(--serif); letter-spacing: .3em; font-size: 16px; }
+.footer__tag { margin-top: 10px; font-family: var(--serif); font-style: italic; color: rgba(246, 238, 223, .75); }
+.footer__col h3 {
+  font-size: 10.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+  color: rgba(246, 238, 223, .7); margin-bottom: 6px;
+}
+/* 44px wide hit area for short footer links, without widening the underline */
+.footer__col .link::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 50%;
+  width: max(100%, 44px); transform: translateX(-50%);
+}
+.footer__base {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+  border-top: 1px solid rgba(199, 162, 114, .25);
+  padding-block: 24px 28px;
+  font-size: 11.5px; letter-spacing: .08em; color: rgba(246, 238, 223, .75);
+}
+.footer__locale { font-size: 11px; font-weight: 500; letter-spacing: .16em; color: var(--sand); }
+
+@media (max-width: 760px) {
+  .footer__inner { grid-template-columns: 1fr 1fr; }
+  .footer__brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 520px) {
+  .announce { font-size: 9.5px; letter-spacing: .14em; }
+  :root { --hero-x: 46%; --hero-y: 50%; }
+  .hero__scrim {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .42) 0, rgba(255, 255, 255, 0) 150px),
+      linear-gradient(90deg, rgba(246, 238, 223, .42) 0, rgba(246, 238, 223, .36) 62%, rgba(246, 238, 223, 0) 92%);
+  }
+}
+
+/* ==========================================================================
+   Reduced motion: still photo, no transforms, short opacity fades only
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .hero__mask--sea, .hero__mask--water, .hero__wet, .hero__foam { display: none; }
+  .js .enter, .js .reveal { transform: none; }
+  .js.is-ready .enter, .js .reveal.is-in { transition: opacity 200ms var(--ease-out); transition-delay: 0s; }
+  .ui-btn:active, .btn-outline:active { transform: none; }
+  .link::after, .drag-cursor span { transition: none; }
+  .strip__track { will-change: auto; }
+}
+  </style>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -31,13 +619,7 @@
         </ul>
       </nav>
       <button class="header__menu-btn ui-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>Menu</button>
-
-      <a class="wordmark" href="#top" aria-label="LA PLAGE, home">LA PLAGE</a>
-
-      <div class="header__actions">
-        <button class="ui-btn link header__search" type="button" aria-label="Search">Search</button>
-        <button class="ui-btn link" type="button" aria-label="Cart, 0 items">Cart (<span data-cart-count>0</span>)</button>
-      </div>
+      <a class="wordmark enter" style="--i:0" href="#top" aria-label="LA PLAGE, home">LA PLAGE</a>
     </div>
   </header>
 
@@ -53,53 +635,53 @@
         <li><a href="#lookbook" data-menu-link>Lookbook</a></li>
       </ul>
     </nav>
-    <div class="menu__foot">
-      <button class="ui-btn link" type="button">Search</button>
-      <span>EN / VI · VND</span>
-    </div>
+    <p class="menu__foot">EN · VND</p>
   </div>
 
   <main id="main">
     <!-- 3. Hero -->
-    <section class="hero" id="top" aria-labelledby="hero-title">
-      <div class="hero__media" aria-hidden="true">
-        <!--
-          PLACEHOLDER: replace the gradient layer with the hero film or photo, e.g.
-          <video class="hero__video" autoplay muted loop playsinline preload="metadata" poster="assets/img/hero-poster.jpg">
-            <source src="assets/video/hero.mp4" type="video/mp4">
-          </video>
-        -->
-        <div class="hero__sky"></div>
-        <div class="hero__mark palm"></div>
+    <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
+      <div class="hero__stage" aria-hidden="true">
+        <div class="hero__photo"></div>
+        <div class="hero__mask hero__mask--sea"><div class="hero__photo hero__sea"></div></div>
+        <div class="hero__mask hero__mask--water">
+          <div class="hero__shimmer"></div>
+          <div class="hero__shimmer hero__shimmer--b"></div>
+        </div>
+        <div class="hero__wet"></div>
+        <div class="hero__photo hero__foam"></div>
       </div>
+      <div class="hero__grain" aria-hidden="true"></div>
+      <div class="hero__scrim" aria-hidden="true"></div>
       <div class="hero__content wrap">
-        <p class="eyebrow reveal">Drop 001 · Summer</p>
-        <h1 class="hero__title reveal" id="hero-title" style="--d:.12s">Summer,<br> worn slowly.</h1>
-        <a class="link link--underlined hero__cta reveal" style="--d:.28s" href="#drop">Enter the collection</a>
+        <h1 class="hero__title enter" style="--i:1" id="hero-title">Summer,<br> worn slowly.</h1>
+        <p class="eyebrow hero__sub enter" style="--i:2">Drop 001 · Summer</p>
+        <a class="link link--underlined enter" style="--i:3" href="#drop">Enter the collection</a>
       </div>
     </section>
 
     <!-- 4. The first drop -->
     <section class="drop" id="drop" aria-labelledby="drop-title">
-      <div class="drop__head wrap">
-        <div class="reveal">
-          <p class="eyebrow">Drop 001 · Six pieces</p>
-          <h2 class="h2" id="drop-title">The first drop</h2>
+      <div class="reveal">
+        <div class="drop__head wrap">
+          <div>
+            <p class="eyebrow">Drop 001 · Six pieces</p>
+            <h2 class="h2" id="drop-title">The first drop</h2>
+            <p class="drop__note">Prices shown are placeholders.</p>
+          </div>
+          <div class="drop__controls">
+            <button class="ui-btn" type="button" data-strip-prev aria-controls="strip-viewport">Previous</button>
+            <span class="drop__divider" aria-hidden="true"></span>
+            <button class="ui-btn" type="button" data-strip-next aria-controls="strip-viewport">Next</button>
+          </div>
         </div>
-        <div class="drop__controls reveal" style="--d:.1s">
-          <button class="ui-btn link" type="button" data-strip-prev aria-controls="strip-track">Previous</button>
-          <span class="drop__divider" aria-hidden="true"></span>
-          <button class="ui-btn link" type="button" data-strip-next aria-controls="strip-track">Next</button>
-        </div>
-      </div>
 
-      <div class="strip reveal" data-strip>
-        <div class="strip__viewport" data-strip-viewport>
-          <ul class="strip__track" id="strip-track" data-strip-track aria-label="Drop 001 products">
-            <!-- Rendered from data/products.json -->
-          </ul>
+        <div class="strip" data-strip>
+          <div class="strip__viewport" id="strip-viewport" tabindex="0" role="region" aria-label="Drop 001 products. Use the arrow keys to scroll." data-strip-viewport>
+            <ul class="strip__track" data-strip-track></ul>
+          </div>
+          <div class="strip__progress wrap" aria-hidden="true"><span data-strip-progress></span></div>
         </div>
-        <div class="strip__progress wrap" aria-hidden="true"><span data-strip-progress></span></div>
       </div>
       <div class="drag-cursor" aria-hidden="true" data-drag-cursor><span>Drag</span></div>
     </section>
@@ -107,8 +689,8 @@
     <!-- 5. Sea / Sand -->
     <section class="panels" id="collections" aria-label="Collections">
       <a class="panel panel--sea" href="#drop">
-        <div class="panel__palm palm" aria-hidden="true"></div>
-        <div class="panel__caption reveal">
+        <img class="panel__palm" src="assets/brand/mark.png" alt="" width="660" height="603" loading="lazy" decoding="async">
+        <div class="panel__caption">
           <p class="eyebrow">Collection 01</p>
           <h2 class="panel__title">Sea</h2>
           <p class="panel__text">Deep blues for early water and late swims.</p>
@@ -116,8 +698,8 @@
         </div>
       </a>
       <a class="panel panel--sand" href="#drop">
-        <div class="panel__palm palm" aria-hidden="true"></div>
-        <div class="panel__caption reveal" style="--d:.12s">
+        <img class="panel__palm" src="assets/brand/mark-sand.png" alt="" width="660" height="603" loading="lazy" decoding="async">
+        <div class="panel__caption">
           <p class="eyebrow">Collection 02</p>
           <h2 class="panel__title">Sand</h2>
           <p class="panel__text">Warm neutrals, sun-faded by design.</p>
@@ -128,33 +710,34 @@
 
     <!-- 6. Story -->
     <section class="story" id="story" aria-labelledby="story-title">
-      <div class="story__inner wrap">
-        <img class="story__mark reveal" src="assets/brand/mark.png" alt="" width="44" height="40">
+      <div class="story__inner wrap reveal">
+        <img class="story__mark" src="assets/brand/mark.png" alt="" width="44" height="40" loading="lazy" decoding="async">
         <h2 class="visually-hidden" id="story-title">Our story</h2>
-        <p class="story__text reveal" style="--d:.1s">Made for the hours between the tide and the evening. Few pieces. Made well. Never rushed.</p>
-        <a class="link link--underlined reveal" style="--d:.2s" href="#story">Read the story</a>
+        <p class="story__text">Made for the hours between the tide and the evening. Few pieces. Made well. Never rushed.</p>
       </div>
     </section>
 
     <!-- 7. Lookbook -->
     <section class="lookbook" id="lookbook" aria-labelledby="lookbook-title">
-      <div class="lookbook__head wrap reveal">
-        <p class="eyebrow">Lookbook</p>
-        <h2 class="h2" id="lookbook-title">Golden hour, Mũi Né</h2>
-      </div>
-      <div class="lookbook__grid wrap">
-        <figure class="look reveal">
-          <div class="look__frame"><img data-parallax="0.08" src="assets/img/lookbook/look-01.svg" alt="Placeholder: a wide, empty beach in soft morning light" width="900" height="1400" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 01</span> Riva Short, Sea</figcaption>
-        </figure>
-        <figure class="look look--low reveal" style="--d:.12s">
-          <div class="look__frame"><img data-parallax="0.14" src="assets/img/lookbook/look-02.svg" alt="Placeholder: low sun over the water at golden hour" width="900" height="1400" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 02</span> Soleil Short, Ochre</figcaption>
-        </figure>
-        <figure class="look reveal" style="--d:.24s">
-          <div class="look__frame"><img data-parallax="0.06" src="assets/img/lookbook/look-03.svg" alt="Placeholder: pale sand and calm sea under a clear sky" width="900" height="1400" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 03</span> Dune Short, Bone</figcaption>
-        </figure>
+      <div class="reveal">
+        <div class="lookbook__head wrap">
+          <p class="eyebrow">Lookbook</p>
+          <h2 class="h2" id="lookbook-title">Golden hour, Mũi Né</h2>
+        </div>
+        <div class="lookbook__grid wrap">
+          <figure class="look">
+            <div class="look__frame"><img src="assets/img/lookbook/look-01.svg" alt="Placeholder: a wide, empty beach in soft morning light" width="900" height="1400" loading="lazy" decoding="async"></div>
+            <figcaption><span>Look 01</span> Riva Short, Sea</figcaption>
+          </figure>
+          <figure class="look look--low">
+            <div class="look__frame"><img src="assets/img/lookbook/look-02.svg" alt="Placeholder: low sun over the water at golden hour" width="900" height="1400" loading="lazy" decoding="async"></div>
+            <figcaption><span>Look 02</span> Soleil Short, Ochre</figcaption>
+          </figure>
+          <figure class="look">
+            <div class="look__frame"><img src="assets/img/lookbook/look-03.svg" alt="Placeholder: pale sand and calm sea under a clear sky" width="900" height="1400" loading="lazy" decoding="async"></div>
+            <figcaption><span>Look 03</span> Dune Short, Bone</figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
@@ -178,7 +761,7 @@
   <footer class="footer">
     <div class="footer__inner wrap">
       <div class="footer__brand">
-        <div class="footer__mark palm" aria-hidden="true"></div>
+        <img class="footer__mark" src="assets/brand/mark-sand.png" alt="" width="52" height="48" loading="lazy" decoding="async">
         <p class="footer__wordmark">LA PLAGE</p>
         <p class="footer__tag">Summer, worn slowly.</p>
       </div>
@@ -198,36 +781,446 @@
           <li><a class="link" href="#access">Private access</a></li>
         </ul>
       </nav>
-      <nav class="footer__col" aria-label="Help">
-        <h3>Help</h3>
-        <ul>
-          <li><a class="link" href="#">Shipping</a></li>
-          <li><a class="link" href="#">Returns</a></li>
-          <li><a class="link" href="#">Size guide</a></li>
-          <li><a class="link" href="#">Contact</a></li>
-        </ul>
-      </nav>
-      <div class="footer__col">
-        <h3>Follow</h3>
-        <ul>
-          <li><a class="link" href="#" rel="noopener">Instagram</a></li>
-          <li><a class="link" href="#" rel="noopener">TikTok</a></li>
-        </ul>
-      </div>
     </div>
     <div class="footer__base wrap">
       <p>&copy; <span data-year>2026</span> LA PLAGE. Made in Vietnam.</p>
-      <div class="footer__locale">
-        <div class="footer__lang" role="group" aria-label="Language">
-          <button class="ui-btn" type="button" aria-pressed="true" data-lang="en">EN</button>
-          <span aria-hidden="true">/</span>
-          <button class="ui-btn" type="button" aria-pressed="false" data-lang="vi">VI</button>
-        </div>
-        <span class="footer__currency">VND</span>
-      </div>
+      <p class="footer__locale">EN · VND</p>
     </div>
   </footer>
 
-  <script src="main.js" defer></script>
+  <!-- Product data: one place to edit, shaped for a later Shopify import. Prices in VND are placeholders. -->
+  <script type="application/json" id="product-data">
+{
+  "currency": "VND",
+  "collection": {
+    "handle": "drop-001",
+    "title": "The first drop",
+    "subtitle": "Drop 001 · Summer"
+  },
+  "products": [
+    {
+      "id": "riva-short",
+      "handle": "riva-short",
+      "title": "Riva Short",
+      "price": 1450000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Sea",
+        "hex": "#2B7BB6"
+      },
+      "image": {
+        "src": "assets/img/products/riva-short.svg",
+        "alt": "Riva Short in Sea blue, laid flat on white",
+        "width": 800,
+        "height": 1000
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ]
+    },
+    {
+      "id": "maree-short",
+      "handle": "maree-short",
+      "title": "Marée Short",
+      "price": 1450000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Tide",
+        "hex": "#7D98AC"
+      },
+      "image": {
+        "src": "assets/img/products/maree-short.svg",
+        "alt": "Marée Short in Tide grey-blue, laid flat on white",
+        "width": 800,
+        "height": 1000
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ]
+    },
+    {
+      "id": "plage-trunk",
+      "handle": "plage-trunk",
+      "title": "Plage Trunk",
+      "price": 1250000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Sand",
+        "hex": "#C7A272"
+      },
+      "image": {
+        "src": "assets/img/products/plage-trunk.svg",
+        "alt": "Plage Trunk in Sand, laid flat on white",
+        "width": 800,
+        "height": 1000
+      },
+      "available": true,
+      "tags": [
+        "trunk",
+        "drop-001"
+      ]
+    },
+    {
+      "id": "soleil-short",
+      "handle": "soleil-short",
+      "title": "Soleil Short",
+      "price": 1450000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Ochre",
+        "hex": "#C68B4E"
+      },
+      "image": {
+        "src": "assets/img/products/soleil-short.svg",
+        "alt": "Soleil Short in Ochre, laid flat on white",
+        "width": 800,
+        "height": 1000
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ]
+    },
+    {
+      "id": "dune-short",
+      "handle": "dune-short",
+      "title": "Dune Short",
+      "price": 1390000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Bone",
+        "hex": "#E3D8C3"
+      },
+      "image": {
+        "src": "assets/img/products/dune-short.svg",
+        "alt": "Dune Short in Bone, laid flat on white",
+        "width": 800,
+        "height": 1000
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ]
+    },
+    {
+      "id": "nuit-short",
+      "handle": "nuit-short",
+      "title": "Nuit Short",
+      "price": 1550000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Night",
+        "hex": "#0B2C47"
+      },
+      "image": {
+        "src": "assets/img/products/nuit-short.svg",
+        "alt": "Nuit Short in Night navy, laid flat on white",
+        "width": 800,
+        "height": 1000
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ]
+    }
+  ]
+}
+  </script>
+
+  <script>
+(() => {
+  'use strict';
+
+  const root = document.documentElement;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const formatVND = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
+  const escapeHTML = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  /* ---------- Hero entrance: start after first paint ---------- */
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-ready')));
+  setTimeout(() => root.classList.add('is-ready'), 400); // fallback if frames are throttled
+
+  /* ---------- Header: follows the announcement bar, then turns white ---------- */
+  const header = document.querySelector('[data-header]');
+  const bar = document.querySelector('.announce');
+  let headerTicking = false;
+  const updateHeader = () => {
+    headerTicking = false;
+    const y = window.scrollY;
+    const barH = bar.offsetHeight;
+    header.style.setProperty('--header-y', `${Math.max(0, barH - y)}px`);
+    header.classList.toggle('is-scrolled', y > barH + 8);
+  };
+  const queueHeader = () => { if (!headerTicking) { headerTicking = true; requestAnimationFrame(updateHeader); } };
+  window.addEventListener('scroll', queueHeader, { passive: true });
+  window.addEventListener('resize', queueHeader);
+  updateHeader();
+
+  /* ---------- Mobile menu ---------- */
+  const menu = document.querySelector('[data-menu]');
+  const openBtn = document.querySelector('[data-menu-open]');
+  const closeBtn = document.querySelector('[data-menu-close]');
+  let menuTimer = 0;
+  const setMenu = (open, restoreFocus = true) => {
+    clearTimeout(menuTimer);
+    openBtn.setAttribute('aria-expanded', String(open));
+    if (open) {
+      menu.hidden = false;
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => menu.classList.add('is-open'));
+      closeBtn.focus();
+    } else {
+      menu.classList.remove('is-open');
+      document.body.style.overflow = '';
+      menuTimer = setTimeout(() => { menu.hidden = true; }, 150);
+      if (restoreFocus) openBtn.focus();
+    }
+  };
+  openBtn.addEventListener('click', () => setMenu(true));
+  closeBtn.addEventListener('click', () => setMenu(false));
+  menu.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => setMenu(false, false)));
+  menu.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { setMenu(false); return; }
+    if (e.key !== 'Tab') return;
+    const f = menu.querySelectorAll('a, button');
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  /* ---------- One reveal per section, once ---------- */
+  const reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.01 });
+    reveals.forEach((el) => io.observe(el));
+  } else {
+    reveals.forEach((el) => el.classList.add('is-in'));
+  }
+
+  /* ---------- Hero waves: pause when hidden or off screen ---------- */
+  const hero = document.querySelector('[data-hero]');
+  let heroOnScreen = true;
+  const updateHeroPause = () => hero.classList.toggle('is-paused', document.hidden || !heroOnScreen);
+  document.addEventListener('visibilitychange', updateHeroPause);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => { heroOnScreen = entry.isIntersecting; updateHeroPause(); }).observe(hero);
+  }
+
+  /* ---------- Products ---------- */
+  const track = document.querySelector('[data-strip-track]');
+  const data = JSON.parse(document.getElementById('product-data').textContent);
+  track.innerHTML = data.products.map((p) => `
+    <li class="strip__item">
+      <article class="card">
+        <div class="card__media">
+          <img src="${escapeHTML(p.image.src)}" alt="${escapeHTML(p.image.alt)}" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async" draggable="false">
+        </div>
+        <div class="card__meta">
+          <h3 class="card__name">${escapeHTML(p.title)}</h3>
+          <p class="card__price">${formatVND.format(p.price)}</p>
+          <p class="card__color">${escapeHTML(p.color.name)}</p>
+        </div>
+      </article>
+    </li>`).join('');
+
+  /* ---------- Draggable strip: pointer capture, momentum, soft edges ---------- */
+  (() => {
+    const strip = document.querySelector('[data-strip]');
+    const viewport = strip.querySelector('[data-strip-viewport]');
+    const progress = strip.querySelector('[data-strip-progress]');
+    const prevBtn = document.querySelector('[data-strip-prev]');
+    const nextBtn = document.querySelector('[data-strip-next]');
+    const cursor = document.querySelector('[data-drag-cursor]');
+
+    const s = {
+      x: 0, v: 0, min: 0, travel: 0, target: null,
+      pointer: null, startX: 0, originX: 0, moved: 0, samples: [],
+      raf: 0, last: 0,
+    };
+
+    const measure = () => {
+      s.min = Math.min(0, viewport.clientWidth - track.scrollWidth);
+      const bar = progress.parentElement;
+      const pad = parseFloat(getComputedStyle(bar).paddingLeft) || 0;
+      s.travel = Math.max(0, bar.clientWidth - pad * 2 - progress.offsetWidth);
+    };
+    const step = () => {
+      const item = track.firstElementChild;
+      return item ? item.offsetWidth + (parseFloat(getComputedStyle(track).columnGap) || 0) : 300;
+    };
+    const render = () => {
+      const skew = reduceMotion.matches ? 0 : clamp(-s.v * 0.6, -1, 1);
+      track.style.transform = `translate3d(${s.x.toFixed(2)}px,0,0)${Math.abs(skew) > 0.01 ? ` skewX(${skew.toFixed(3)}deg)` : ''}`;
+      const ratio = s.min ? clamp(s.x / s.min, 0, 1) : 0;
+      progress.style.transform = `translate3d(${(ratio * s.travel).toFixed(1)}px,0,0)`;
+      prevBtn.disabled = s.x >= -1;
+      nextBtn.disabled = s.x <= s.min + 1;
+    };
+    // Friction past the edges: the further you pull, the less it moves
+    const rubber = (over) => (over * 0.5) / (1 + Math.abs(over) / 400);
+    const bounded = (raw) => (raw > 0 ? rubber(raw) : raw < s.min ? s.min + rubber(raw - s.min) : raw);
+
+    const tick = (now) => {
+      const dt = s.last ? Math.min(48, now - s.last) : 16.7;
+      s.last = now;
+      const k = dt / 16.7;
+      if (s.target !== null) {
+        const d = s.target - s.x;
+        s.x += d * (1 - Math.pow(0.84, k));
+        if (Math.abs(d) < 0.4) { s.x = s.target; s.target = null; }
+      } else {
+        s.x += s.v * dt;
+        s.v *= Math.pow(0.95, k);
+        const edge = s.x > 0 ? 0 : s.x < s.min ? s.min : null;
+        if (edge !== null) {
+          s.v *= Math.pow(0.7, k);
+          s.x += (edge - s.x) * (1 - Math.pow(0.85, k));
+          if (Math.abs(edge - s.x) < 0.4 && Math.abs(s.v) < 0.02) { s.x = edge; s.v = 0; }
+        }
+        if (Math.abs(s.v) < 0.01 && edge === null) s.v = 0;
+      }
+      render();
+      if (s.target !== null || s.v !== 0 || s.x > 0 || s.x < s.min) {
+        s.raf = requestAnimationFrame(tick);
+      } else {
+        s.raf = 0; s.last = 0; render();
+      }
+    };
+    const run = () => { if (!s.raf) { s.last = 0; s.raf = requestAnimationFrame(tick); } };
+    const stop = () => { cancelAnimationFrame(s.raf); s.raf = 0; s.last = 0; };
+
+    const glideTo = (x) => {
+      measure();
+      s.v = 0;
+      s.target = clamp(x, s.min, 0);
+      if (reduceMotion.matches) { s.x = s.target; s.target = null; render(); return; }
+      run();
+    };
+
+    viewport.addEventListener('pointerdown', (e) => {
+      if (s.pointer !== null) return;                       // ignore a second finger
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      measure(); stop();
+      s.target = null; s.v = 0;
+      s.x = clamp(s.x, s.min, 0);
+      s.pointer = e.pointerId;
+      s.startX = e.clientX; s.originX = s.x; s.moved = 0;
+      s.samples = [{ x: e.clientX, t: e.timeStamp }];
+      viewport.setPointerCapture(e.pointerId);
+      cursor.classList.add('is-pressed');
+    });
+    viewport.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'mouse') moveCursor(e);
+      if (e.pointerId !== s.pointer) return;
+      const dx = e.clientX - s.startX;
+      s.moved = Math.max(s.moved, Math.abs(dx));
+      if (s.moved > 4) strip.classList.add('is-dragging');
+      s.samples.push({ x: e.clientX, t: e.timeStamp });
+      while (s.samples.length > 2 && e.timeStamp - s.samples[0].t > 100) s.samples.shift();
+      const first = s.samples[0];
+      s.v = e.timeStamp > first.t ? (e.clientX - first.x) / (e.timeStamp - first.t) : 0;
+      s.x = bounded(s.originX + dx);
+      render();
+    });
+    const endDrag = (e) => {
+      if (e.pointerId !== s.pointer) return;
+      s.pointer = null;
+      cursor.classList.remove('is-pressed');
+      strip.classList.remove('is-dragging');
+      if (viewport.hasPointerCapture(e.pointerId)) viewport.releasePointerCapture(e.pointerId);
+      const last = s.samples[s.samples.length - 1];
+      if (e.type === 'pointercancel' || !last || e.timeStamp - last.t > 60) s.v = 0;
+      s.v = clamp(s.v, -4, 4);
+      if (reduceMotion.matches) { s.v = 0; s.x = clamp(s.x, s.min, 0); render(); return; }
+      run();
+    };
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+    viewport.addEventListener('lostpointercapture', endDrag);
+
+    // Trackpad horizontal scroll
+    viewport.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      measure(); stop();
+      s.target = null; s.v = 0;
+      s.x = clamp(s.x - e.deltaX, s.min, 0);
+      render();
+    }, { passive: false });
+
+    // Keyboard
+    viewport.addEventListener('keydown', (e) => {
+      const map = { ArrowRight: -1, ArrowLeft: 1 };
+      if (e.key in map) { e.preventDefault(); glideTo(Math.round((s.x + map[e.key] * step()) / step()) * step()); }
+      else if (e.key === 'Home') { e.preventDefault(); glideTo(0); }
+      else if (e.key === 'End') { e.preventDefault(); measure(); glideTo(s.min); }
+    });
+    prevBtn.addEventListener('click', () => glideTo(Math.round((s.x + step()) / step()) * step()));
+    nextBtn.addEventListener('click', () => glideTo(Math.round((s.x - step()) / step()) * step()));
+
+    // "Drag" cursor, mouse only
+    let cx = 0, cy = 0, tx = 0, ty = 0, cursorRaf = 0, cursorOn = false;
+    const cursorLoop = () => {
+      const f = reduceMotion.matches ? 1 : 0.25;
+      cx += (tx - cx) * f; cy += (ty - cy) * f;
+      cursor.style.transform = `translate3d(${cx.toFixed(1)}px,${cy.toFixed(1)}px,0)`;
+      cursorRaf = Math.abs(tx - cx) + Math.abs(ty - cy) > 0.3 ? requestAnimationFrame(cursorLoop) : 0;
+    };
+    const moveCursor = (e) => {
+      tx = e.clientX; ty = e.clientY;
+      if (!cursorOn) { cx = tx; cy = ty; }
+      if (!cursorRaf) cursorRaf = requestAnimationFrame(cursorLoop);
+    };
+    viewport.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse' || !finePointer.matches) return;
+      moveCursor(e); cursorOn = true;
+      viewport.classList.add('has-cursor'); cursor.classList.add('is-visible');
+    });
+    viewport.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      cursorOn = false;
+      viewport.classList.remove('has-cursor'); cursor.classList.remove('is-visible');
+    });
+
+    const onResize = () => { measure(); s.x = clamp(s.x, s.min, 0); render(); };
+    window.addEventListener('resize', onResize);
+    if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(track);
+    onResize();
+  })();
+
+  /* ---------- Private access form (not connected to a mailing list yet) ---------- */
+  const form = document.querySelector('[data-access-form]');
+  const input = form.querySelector('input');
+  const status = document.getElementById('access-status');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ok = input.value.trim() !== '' && input.checkValidity();
+    input.setAttribute('aria-invalid', String(!ok));
+    status.classList.toggle('is-error', !ok);
+    if (!ok) { status.textContent = 'Please enter a valid email address.'; input.focus(); return; }
+    status.textContent = 'Thank you. We will write before the next drop.';
+    form.reset();
+  });
+  input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); status.classList.remove('is-error'); status.textContent = ''; });
+
+  const year = document.querySelector('[data-year]');
+  if (year) year.textContent = new Date().getFullYear();
+})();
+  </script>
 </body>
 </html>
