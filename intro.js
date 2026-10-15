@@ -81,18 +81,18 @@
   };
 
   /* ---------- Timeline ---------- */
-  const HOLD = 650;       // under water, wordmark visible
-  const RECEDE = 2300;    // the wash back
-  const FADE = 350;
-  const ease = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+  const HOLD = 700;       // under water, wordmark visible
+  const RECEDE = 2700;    // the wash back
+  const FADE = 250;
+  const ease = (p) => -(Math.cos(Math.PI * p) - 1) / 2;   // sine in-out: no sudden starts or stops
   // Recede with one small surge back in, the way real backwash hesitates
   const travel = (p) => {
-    const surge = Math.sin(Math.PI * Math.min(1, Math.max(0, (p - .34) / .26))) * .055;
+    const surge = Math.sin(Math.PI * Math.min(1, Math.max(0, (p - .34) / .3))) * .03;
     return ease(p) - surge;
   };
   const baseAt = (p) => -0.2 * D + travel(Math.min(1, Math.max(0, p))) * 1.42 * D;
 
-  let caustic = null, lace = null, start = 0, speed = 1, clock = 0, last = 0, uncovered = false, done = false;
+  let caustic = null, lace = null, speed = 1, target = 1, clock = 0, last = 0, uncovered = false, done = false;
 
   const draw = (t) => {
     const p = Math.max(0, (t - HOLD) / RECEDE);
@@ -161,11 +161,8 @@
       const tt = t * (1.1 + i * .2), amp = .6 + i * .2;
       const a = edgePoints(base + D * off, tt, amp);
       const b = a.map(([u, v]) => [u, v + width * (.35 + .65 * (.5 + .5 * Math.sin(u * .008 + i * 2 + t * .0009)))]);
-      ctx.save();
-      ctx.filter = 'blur(4px)';
       traceBand(a, b);
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha * .32})`; ctx.fill();
-      ctx.restore();
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha * .22})`; ctx.fill();
       if (lace) {
         ctx.save(); traceBand(a, b); ctx.clip();
         ctx.globalAlpha = alpha * .9; ctx.fillStyle = lace;
@@ -201,7 +198,13 @@
     ctx.restore();
 
     // Wordmark fades as the water starts to move
-    if (brand) brand.style.opacity = String(Math.max(0, 1 - p * 5));
+    if (brand) {
+      const k = Math.min(1, p / .35);
+      brand.style.opacity = String(1 - k * k * (3 - 2 * k));
+      brand.style.transform = `translate(-50%, calc(-50% - ${(k * 18).toFixed(1)}px))`;
+    }
+    // the whole overlay melts away over the last stretch, so there is no separate fade step
+    canvas.style.opacity = String(p < .78 ? 1 : Math.max(0, 1 - (p - .78) / .22));
 
     // Hero text area uncovered: let the page start its own entrance
     if (!uncovered && p > .32) { uncovered = true; resolveUncovered(); }
@@ -212,6 +215,7 @@
     if (done) return;
     const dt = last ? Math.min(64, now - last) : 16;
     last = now;
+    speed += (target - speed) * Math.min(1, dt / 220);
     clock += dt * speed;
     const p = draw(clock);
     if (p >= 1) {
@@ -234,7 +238,7 @@
   }
 
   // Impatient visitors: any input speeds the wave up
-  const hurry = () => { speed = 3.2; };
+  const hurry = () => { target = 2.6; };
   ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((type) => window.addEventListener(type, hurry, { once: true, passive: true }));
 
   window.addEventListener('resize', onResize);

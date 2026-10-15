@@ -255,7 +255,7 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
 .js .intro {
   display: block;
   position: fixed; inset: 0; z-index: 200;
-  background: linear-gradient(180deg, #1C97A8 0%, #0D6E87 60%, #0A4E6A 100%);
+  background: linear-gradient(180deg, #34B4B8 0%, #2AA9B2 35%, #1A97A6 70%, #148AA0 100%);   /* matches the first frame of the canvas */
   pointer-events: none;
   transition: opacity 350ms var(--ease-soft);
   animation: intro-failsafe 1ms linear 10s forwards;   /* never trap the page */
@@ -263,10 +263,12 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
 .js .intro.is-drawing { background: transparent; }
 .js .intro.is-leaving { opacity: 0; }
 @keyframes intro-failsafe { to { opacity: 0; visibility: hidden; } }
-.intro__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.intro__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; will-change: opacity; }
 .intro__brand {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center; gap: 18px;
+  will-change: opacity, transform;
+  animation: brand-in 900ms cubic-bezier(.16, 1, .3, 1) both;
   color: var(--white);
   font-family: var(--serif); font-size: clamp(18px, 2vw, 26px); letter-spacing: var(--track-wordmark);
   margin-right: -.3em;
@@ -274,6 +276,7 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
 }
 .intro__brand img { width: clamp(46px, 5vw, 70px); filter: brightness(0) invert(1); opacity: .95; }
 html.intro-on { overflow: hidden; }
+@keyframes brand-in { from { opacity: 0; letter-spacing: .5em; } to { opacity: 1; } }
 
 /* ==========================================================================
    Announcement bar
@@ -373,55 +376,122 @@ html.intro-on { overflow: hidden; }
   margin-top: calc(var(--bar-h) * -1);
   display: flex; align-items: center;
 }
-.hero__scene { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.hero__scene { position: absolute; inset: 0; z-index: -1; pointer-events: none; --horizon: 63%; --shore: 76%; }
+
+/* Golden-hour sky, warm at the horizon */
 .hero__sky {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, #CFE4EF 0%, #E3EEF1 34%, #F3F0E6 62%, #F8E9CF 80%, #F3DDB8 100%);
+  background: linear-gradient(180deg, #BCD9E8 0%, #D9E8EE 30%, #EFE9DF 48%, #F7DFC0 57%, #F9CF9F var(--horizon), #F9CF9F 100%);
 }
+/* The sun, setting into the sea */
 .hero__sun {
-  position: absolute; left: 58%; top: 18%;
-  width: min(62vmin, 640px); aspect-ratio: 1; translate: -50% 0;
-  background: radial-gradient(circle, rgba(255, 249, 232, .95) 0, rgba(255, 241, 212, .55) 28%, rgba(255, 236, 200, 0) 66%);
-  animation: sun-breathe 9s ease-in-out infinite alternate;
-}
-@keyframes sun-breathe { from { scale: 1; opacity: .85; } to { scale: 1.08; opacity: 1; } }
-.hero__sea {
-  position: absolute; left: 0; right: 0; bottom: 21vh; height: 7vh;
+  position: absolute; left: 65%; top: var(--horizon);
+  width: min(90vmin, 980px); aspect-ratio: 1; translate: -50% -50%;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, .55) 0, rgba(255, 255, 255, 0) 2px),
-    linear-gradient(180deg, #A9D4DA 0%, #BFE0DC 60%, #DCEBDD 100%);
+    radial-gradient(circle, rgba(255, 246, 225, .95) 0, rgba(255, 233, 196, .65) 9%, rgba(255, 214, 160, .32) 22%, rgba(255, 205, 150, 0) 50%);
+  animation: sun-breathe 8s ease-in-out infinite alternate;
 }
-.hero__sea::after {   /* light glinting on the water */
-  content: ""; position: absolute; inset: 0;
-  /* soft bands of light drifting across fine rows of water */
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .85) 50%, rgba(255, 255, 255, 0)) 0 0 / 38% 100% repeat-x,
-    linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .6) 50%, rgba(255, 255, 255, 0)) 0 0 / 23% 100% repeat-x;
-  -webkit-mask: repeating-linear-gradient(180deg, #000 0 1px, transparent 1px 6px), linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent);
-          mask: repeating-linear-gradient(180deg, #000 0 1px, transparent 1px 6px), linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent);
-  -webkit-mask-composite: source-in; mask-composite: intersect;
-  opacity: .5;
-  animation: glint 18s linear infinite, glint-fade 4.2s ease-in-out infinite alternate;
+.hero__sun-disc {
+  position: absolute; left: 50%; top: 50%;
+  width: 12%; aspect-ratio: 1; translate: -50% -66%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, #FFFCF2 0, #FFF2D6 55%, #FFE2B0 100%);
+  box-shadow: 0 0 40px 18px rgba(255, 238, 205, .75);
 }
-@keyframes glint { from { background-position: 0 0, 0 0; } to { background-position: 100vw 0, -60vw 0; } }
-@keyframes glint-fade { from { opacity: .3; } to { opacity: .6; } }
-.hero__dune {
-  position: absolute; left: -15%; right: -15%;
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-}
-.hero__dune--back  { bottom: -8vh; height: 31vh; background: linear-gradient(180deg, #F4E8D2, #EEDDBF); left: -40%; right: 10%; }
-.hero__dune--front { bottom: -16vh; height: 30vh; background: linear-gradient(180deg, #EFDFC3, #E7D2AE); left: 5%; right: -35%; }
+@keyframes sun-breathe { from { scale: 1; opacity: .9; } to { scale: 1.06; opacity: 1; } }
 
-.hero__layer { position: absolute; inset: 0; transform: translate3d(var(--lx, 0), var(--ly, 0), 0); will-change: transform; }
-.tree { position: absolute; width: auto; max-width: none; transform-origin: 50% 100%; }
-.tree--near  { right: -7vw;  bottom: 2vh;  height: 84vh; }
-.tree--mid   { right: 27vw;  bottom: 13vh; height: 66vh; }
-.tree--far-a { left: 43vw;   bottom: 19vh; height: 36vh; }
-.tree--far-b { left: 55vw;   bottom: 19vh; height: 24vh; }
-.tree-shadow {
-  position: absolute; right: 6vw; bottom: 2vh; width: 26vw; height: 5vh;
-  background: radial-gradient(closest-side, rgba(11, 44, 71, .2), rgba(11, 44, 71, 0));
+/* Sea between the horizon and the shore */
+.hero__sea {
+  position: absolute; left: 0; right: 0; top: var(--horizon); height: calc(var(--shore) - var(--horizon));
+  overflow: hidden;
+  background: linear-gradient(180deg, #A7CBD3 0%, #7FBACA 22%, #56A6BC 60%, #4C9EB5 100%);
 }
+.hero__sea::before {   /* haze where sea meets sky */
+  content: ""; position: absolute; inset: 0 0 auto; height: 22%;
+  background: linear-gradient(180deg, rgba(249, 214, 170, .7), rgba(249, 214, 170, 0));
+}
+/* Swells rolling toward the shore: lines get wider apart as they come closer */
+.hero__swell {
+  position: absolute; inset: -40% 0 0;
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0) 0 9px, rgba(255, 255, 255, .13) 9px 10px, rgba(255, 255, 255, 0) 10px 22px);
+  -webkit-mask: linear-gradient(180deg, transparent 30%, #000 70%);
+          mask: linear-gradient(180deg, transparent 30%, #000 70%);
+  transform-origin: 50% 0; transform: perspective(300px) rotateX(38deg);
+  animation: swell 6s linear infinite;
+}
+@keyframes swell { from { background-position: 0 0; } to { background-position: 0 44px; } }
+/* Sun glitter: a shimmering path of light on the water */
+.hero__glitter {
+  position: absolute; left: 65%; top: 0; bottom: 0; width: min(12vw, 170px); translate: -50% 0;
+  background:
+    linear-gradient(90deg, rgba(255, 246, 222, 0), rgba(255, 246, 222, .95) 50%, rgba(255, 246, 222, 0)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0) 0 7px, #fff 7px 19px, rgba(255, 255, 255, 0) 19px 31px);
+  background-blend-mode: multiply;
+  -webkit-mask:
+    repeating-linear-gradient(180deg, #000 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, #000, rgba(0, 0, 0, .4) 70%, transparent),
+    radial-gradient(60% 100% at 50% 0, #000 30%, transparent 100%);
+          mask:
+    repeating-linear-gradient(180deg, #000 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, #000, rgba(0, 0, 0, .4) 70%, transparent),
+    radial-gradient(60% 100% at 50% 0, #000 30%, transparent 100%);
+  -webkit-mask-composite: source-in, source-in; mask-composite: intersect;
+  animation: glitter 2.6s steps(6) infinite, glitter-pulse 5s ease-in-out infinite alternate;
+}
+@keyframes glitter { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 31px 0; } }
+@keyframes glitter-pulse { from { opacity: .45; } to { opacity: .8; } }
+
+/* Sand, with fine grain */
+.hero__sand {
+  position: absolute; left: 0; right: 0; top: var(--shore); bottom: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .42 0 0 0 0 .25 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px 180px,
+    linear-gradient(180deg, #EFD9B6 0%, #F2DFC0 30%, #EAD1A8 100%);
+}
+/* The shoreline: wet sand and a foam edge that laps in and out */
+.hero__shore { position: absolute; left: 0; right: 0; top: var(--shore); height: 6vh; }
+.hero__wet {
+  position: absolute; left: 0; right: 0; top: -2px; height: 100%;
+  background: linear-gradient(180deg, rgba(150, 120, 80, .38), rgba(150, 120, 80, 0));
+  transform-origin: 50% 0;
+  animation: wet 7s ease-in-out infinite;
+}
+.hero__foam {
+  position: absolute; left: -5%; right: -5%; top: -6px; height: 12px;
+  background:
+    radial-gradient(14px 5px at 50% 50%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0)) 0 0 / 46px 12px repeat-x,
+    linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .85) 45%, rgba(255, 255, 255, 0));
+  transform-origin: 50% 0;
+  animation: lap 7s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+@keyframes lap {
+  0%   { transform: translate3d(0, 0, 0) scaleY(.8); opacity: .75; }
+  40%  { transform: translate3d(-12px, 2.4vh, 0) scaleY(1.25); opacity: 1; }
+  70%  { transform: translate3d(-6px, 1vh, 0) scaleY(1); opacity: .6; }
+  100% { transform: translate3d(0, 0, 0) scaleY(.8); opacity: .75; }
+}
+@keyframes wet {
+  0%, 100% { transform: scaleY(.5); opacity: .7; }
+  45%      { transform: scaleY(1.15); opacity: 1; }
+}
+
+/* Palms and their long low-sun shadows (the shadow is the same animated SVG, mirrored onto the sand) */
+.hero__layer { position: absolute; inset: 0; transform: translate3d(var(--lx, 0), var(--ly, 0), 0); will-change: transform; }
+.grove__unit { position: absolute; }
+.tree { position: relative; display: block; height: 100%; width: auto; max-width: none; transform-origin: 50% 100%; }
+.tree-cast {
+  position: absolute; left: 0; top: 100%; height: 100%; width: auto; max-width: none;
+  transform-origin: 50% 0;
+  transform: scaleY(-.22) skewX(var(--cast-skew, 48deg));
+  filter: brightness(0) blur(2.5px);
+}
+.js .tree-cast[data-animate="fade"].is-visible, .no-js .tree-cast { opacity: var(--cast-a, .13); }
+.grove__unit--far-a .tree-cast, .grove__unit--far-b .tree-cast { display: none; }   /* distant palms: shadows too faint to read */
+.grove__unit--near  { right: -6vw; bottom: 3vh;  height: 84vh; --cast-skew: 58deg; --cast-a: .12; }
+.grove__unit--mid   { right: 28vw; bottom: 12vh; height: 62vh; --cast-skew: 50deg; --cast-a: .09; }
+.grove__unit--far-a { left: 41vw;  bottom: 20vh; height: 30vh; --cast-skew: -20deg; --cast-a: .08; }
+.grove__unit--far-b { left: 55vw;  bottom: 20.5vh; height: 25vh; --cast-skew: 20deg; --cast-a: .07; }
 
 .hero__content { position: relative; width: 100%; padding-top: var(--nav-h); color: var(--sea-deep); }
 .hero__content .label { color: var(--sea-deep); font-weight: 400; }
@@ -445,13 +515,12 @@ html.intro-on { overflow: hidden; }
 @media (max-width: 760px) {
   .hero { align-items: flex-start; }
   .hero__content { padding-top: calc(var(--nav-h) + 9vh); }
-  .tree--near  { right: -34vw; bottom: 1vh;  height: 56vh; }
-  .hero__dune--back { left: -30%; right: -30%; }
-  .tree--mid   { right: 46vw;  bottom: 13vh; height: 42vh; }
-  .tree--far-a { left: 58vw;   bottom: 19vh; height: 26vh; }
-  .tree--far-b { left: 74vw;   bottom: 19vh; height: 20vh; }
-  .tree-shadow { right: 2vw; width: 52vw; }
-  .hero__sun { left: 70%; top: 34%; }
+  .grove__unit--near  { right: -38vw; bottom: 2vh;  height: 56vh; }
+  .grove__unit--mid   { right: 50vw;  bottom: 12vh; height: 40vh; }
+  .grove__unit--far-a { left: 60vw;   bottom: 21vh; height: 22vh; }
+  .grove__unit--far-b { left: 4vw;    bottom: 21vh; height: 18vh; }
+  .hero__glitter { width: 26vw; left: 62%; }
+  .hero__sun { left: 62%; }
 }
 
 /* ==========================================================================
