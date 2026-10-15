@@ -61,9 +61,21 @@
 
   <main id="main">
     <!-- 3. Hero -->
-    <section class="hero" id="top" aria-labelledby="hero-title">
+    <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
       <div class="hero__frame">
-        <img class="hero__img" src="assets/hero-beach.jpg" alt="Aerial view of turquoise waves breaking onto a wide sandy beach" width="736" height="1288" fetchpriority="high" decoding="async">
+        <div class="hero__stage" data-hero-stage>
+          <img class="hero__img" src="assets/hero-beach.jpg" alt="Aerial view of turquoise waves breaking onto a wide sandy beach" width="736" height="1288" fetchpriority="high" decoding="async">
+          <!-- Slow water: copies of the same photo, masked along the shoreline -->
+          <div class="hero__waves" aria-hidden="true">
+            <div class="wave wave--sea"></div>
+            <div class="wave-mask wave-mask--water">
+              <div class="wave-caustic"></div>
+              <div class="wave-caustic wave-caustic--b"></div>
+            </div>
+            <div class="wave wave--wet"></div>
+            <div class="wave wave--swash"></div>
+          </div>
+        </div>
         <div class="hero__content">
           <p class="eyebrow reveal">Drop 001 · Summer</p>
           <h1 class="hero__title reveal" id="hero-title" style="--d:.12s">Summer,<br> worn slowly.</h1>

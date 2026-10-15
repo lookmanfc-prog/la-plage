@@ -30,6 +30,12 @@
 
   /* Brand mark (interim: derived from the provided PNG; swap for the palm-only SVG layer) */
   --mark-url: url("assets/brand/mark.png");
+
+  /* Hero water: shoreline masks drawn in the photo's own coordinates (736 x 1288) */
+  --wave-mask-sea: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 736 1288' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='16'/%3E%3C/filter%3E%3Cpath d='M-30 -30 L175 -20 L171 46 L177 92 L177 138 L182 184 L184 230 L184 276 L183 322 L180 368 L182 414 L170 460 L175 506 L170 552 L170 598 L170 644 L197 690 L192 736 L201 782 L211 828 L208 874 L186 920 L204 966 L215 1012 L231 1058 L232 1104 L235 1150 L235 1196 L235 1242 L235 1310 L-30 1320Z' fill='white' filter='url%28%23b%29'/%3E%3C/svg%3E");
+  --wave-mask-swash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 736 1288' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='7'/%3E%3C/filter%3E%3Cpath d='M240 -20 L236 46 L242 92 L242 138 L247 184 L249 230 L249 276 L248 322 L245 368 L247 414 L235 460 L240 506 L235 552 L235 598 L235 644 L262 690 L257 736 L266 782 L276 828 L273 874 L251 920 L269 966 L280 1012 L296 1058 L297 1104 L300 1150 L300 1196 L300 1242 L300 1310 L556 1310 L559 1242 L552 1196 L550 1150 L540 1104 L524 1058 L508 1012 L499 966 L510 920 L529 874 L545 828 L546 782 L537 736 L520 690 L500 644 L490 598 L463 552 L434 506 L389 460 L358 414 L336 368 L332 322 L319 276 L314 230 L314 184 L331 138 L340 92 L339 46 L340 -20Z' fill='white' filter='url%28%23b%29'/%3E%3C/svg%3E");
+  --wave-mask-wet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 736 1288' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='7'/%3E%3C/filter%3E%3Cpath d='M328 -20 L327 46 L328 92 L319 138 L302 184 L302 230 L307 276 L320 322 L324 368 L346 414 L377 460 L422 506 L451 552 L478 598 L488 644 L508 690 L525 736 L534 782 L533 828 L517 874 L498 920 L487 966 L496 1012 L512 1058 L528 1104 L538 1150 L540 1196 L547 1242 L544 1310 L576 1310 L579 1242 L572 1196 L570 1150 L560 1104 L544 1058 L528 1012 L519 966 L530 920 L549 874 L565 828 L566 782 L557 736 L540 690 L520 644 L510 598 L483 552 L454 506 L409 460 L378 414 L356 368 L352 322 L339 276 L334 230 L334 184 L351 138 L360 92 L359 46 L360 -20Z' fill='white' filter='url%28%23b%29'/%3E%3C/svg%3E");
+  --wave-caustic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='turbulence' baseFrequency='.014 .026' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -4 0 0 0 1.05'/%3E%3CfeGaussianBlur stdDeviation='.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23c%29'/%3E%3C/svg%3E");
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -261,11 +267,73 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
 }
 .hero__title {
   font-family: var(--serif); font-weight: 400;
-  font-size: 16px; line-height: 1.45; letter-spacing: .02em;
-  margin: 10px 0 12px;
+  font-size: clamp(26px, 3.4vw, 52px); line-height: 1.12; letter-spacing: -.005em;
+  margin: 12px 0 18px;
   color: var(--sea-deep);
 }
 .hero__cta { font-size: 12px; font-weight: 400; letter-spacing: .16em; white-space: nowrap; }
+
+/* Stage holds the photo and its water layers, so they always line up (and rotate together) */
+.hero__stage { position: relative; }
+.hero__waves { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.wave, .wave-mask { position: absolute; inset: 0; }
+.wave { background: url("assets/hero-beach.jpg") center / 100% 100% no-repeat; will-change: transform, opacity; }
+/* Open water drifts a few px along the shore */
+.wave--sea {
+  -webkit-mask: var(--wave-mask-sea) 0 0 / 100% 100% no-repeat;
+          mask: var(--wave-mask-sea) 0 0 / 100% 100% no-repeat;
+  animation: wave-drift 17s cubic-bezier(.45, 0, .25, 1) infinite alternate;
+}
+@keyframes wave-drift {
+  from { transform: translate3d(-2px, -4px, 0); }
+  to   { transform: translate3d(3px, 5px, 0); }
+}
+/* Soft light shimmer on the water only, two speeds that never line up */
+.wave-mask--water {
+  -webkit-mask: var(--wave-mask-sea) 0 0 / 100% 100% no-repeat;
+          mask: var(--wave-mask-sea) 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: soft-light;
+}
+.wave-caustic {
+  position: absolute; inset: -80px;
+  background: var(--wave-caustic) 0 0 / 420px 420px repeat;
+  opacity: .45;
+  will-change: transform;
+  animation: wave-shimmer-a 29s linear infinite alternate;
+}
+.wave-caustic--b {
+  background-size: 300px 300px; background-position: 130px 70px;
+  opacity: .3;
+  animation: wave-shimmer-b 37s linear infinite alternate;
+}
+@keyframes wave-shimmer-a { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(22px, -46px, 0); } }
+@keyframes wave-shimmer-b { from { transform: translate3d(30px, -20px, 0); } to { transform: translate3d(-8px, 24px, 0); } }
+/* The thin swash runs up the sand ~14px and slides back */
+.wave--swash {
+  -webkit-mask: var(--wave-mask-swash) 0 0 / 100% 100% no-repeat;
+          mask: var(--wave-mask-swash) 0 0 / 100% 100% no-repeat;
+  animation: wave-swash 11.2s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+@keyframes wave-swash {
+  0%   { transform: translate3d(0, 0, 0); }
+  42%  { transform: translate3d(14px, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+/* Wet sand darkens where the water just was, then fades */
+.wave--wet {
+  background: #4E3519;
+  -webkit-mask: var(--wave-mask-wet) 0 0 / 100% 100% no-repeat;
+          mask: var(--wave-mask-wet) 0 0 / 100% 100% no-repeat;
+  opacity: 0;
+  animation: wave-wet 11.2s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+@keyframes wave-wet {
+  0%   { opacity: .02; }
+  40%  { opacity: .04; }
+  56%  { opacity: .13; }
+  100% { opacity: .02; }
+}
+.hero.is-paused .wave, .hero.is-paused .wave-caustic { animation-play-state: paused; }
 
 /* Landscape screens: the photo is turned on its side (shoreline left to right,
    sand on top) so it fills the full width. The file itself is untouched and
@@ -277,13 +345,13 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
     overflow: hidden;
     container-type: inline-size;
   }
-  .hero__img {
+  .hero__stage {
     position: absolute; left: 50%; top: 50%;
     width: 57.1429cqw;   /* 736/1288 of the frame width: becomes the height once rotated */
     height: 100cqw;      /* becomes the full width once rotated */
-    max-width: none; max-height: none;
     transform: translate(-50%, -50%) rotate(-90deg);
   }
+  .hero__img { width: 100%; height: 100%; max-width: none; max-height: none; }
   .hero__content {
     top: 26%; left: var(--gutter); right: auto;
   }
@@ -532,8 +600,13 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
-  .js .reveal { opacity: 1; transform: none; }
+  *:not(.wave):not(.wave-caustic), *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  /* Fade-ins still play, opacity only (no movement) */
+  .js .reveal {
+    transform: none !important;
+    transition: opacity var(--reveal) var(--ease-out) !important;
+    transition-delay: var(--d, 0s) !important;
+  }
   .card:hover .card__media, .card:hover .card__media img, .panel:hover .panel__palm { transform: none; }
   .panel:hover .panel__palm { transform: translate3d(-50%, -50%, 0); }
 }
