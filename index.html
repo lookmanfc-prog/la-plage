@@ -51,22 +51,37 @@
     <!-- Hero -->
     <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
       <!-- Animated coconut palms: each frond sways on its own rhythm (CSS inside each SVG) -->
+      <!-- Sunset beach with LA PLAGE palms: every leaf sways on its own rhythm (CSS inside each SVG) -->
       <div class="hero__scene" aria-hidden="true" data-hero-scene>
         <div class="hero__sky"></div>
-        <div class="hero__sun" data-motion></div>
-        <div class="hero__sea" data-motion></div>
+        <div class="hero__sun" data-motion><span class="hero__sun-disc"></span></div>
+        <div class="hero__sea">
+          <div class="hero__swell" data-motion></div>
+          <div class="hero__glitter" data-motion></div>
+        </div>
+        <div class="hero__sand"></div>
+        <div class="hero__shore" data-motion><span class="hero__wet" data-motion></span><span class="hero__foam" data-motion></span></div>
         <div class="hero__layer" data-depth="0.12">
-          <img data-motion class="tree tree--far-a" src="assets/palms/palm-far.svg" alt="" width="477" height="888" data-animate="grow" data-delay="250">
-          <img data-motion class="tree tree--far-b" src="assets/palms/palm-far-b.svg" alt="" width="457" height="868" data-animate="grow" data-delay="350">
+          <div class="grove__unit grove__unit--far-a">
+            <img data-motion class="tree" src="assets/palms/palm-far.svg" alt="" width="539" height="927" data-animate="grow" data-delay="250">
+            <img data-motion class="tree-cast" src="assets/palms/palm-far.svg" alt="" width="539" height="927" data-animate="fade" data-delay="250">
+          </div>
+          <div class="grove__unit grove__unit--far-b">
+            <img data-motion class="tree" src="assets/palms/palm-far-b.svg" alt="" width="551" height="882" data-animate="grow" data-delay="350">
+            <img data-motion class="tree-cast" src="assets/palms/palm-far-b.svg" alt="" width="551" height="882" data-animate="fade" data-delay="350">
+          </div>
         </div>
-        <div class="hero__dune hero__dune--back"></div>
         <div class="hero__layer" data-depth="0.3">
-          <img data-motion class="tree tree--mid" src="assets/palms/palm-mid.svg" alt="" width="576" height="926" data-animate="grow" data-delay="150">
+          <div class="grove__unit grove__unit--mid">
+            <img data-motion class="tree" src="assets/palms/palm-mid.svg" alt="" width="599" height="924" data-animate="grow" data-delay="150">
+            <img data-motion class="tree-cast" src="assets/palms/palm-mid.svg" alt="" width="599" height="924" data-animate="fade" data-delay="150">
+          </div>
         </div>
-        <div class="hero__dune hero__dune--front"></div>
         <div class="hero__layer" data-depth="0.6">
-          <span class="tree-shadow tree-shadow--near"></span>
-          <img data-motion class="tree tree--near" src="assets/palms/palm-near.svg" alt="" width="648" height="1020" data-animate="grow">
+          <div class="grove__unit grove__unit--near">
+            <img data-motion class="tree" src="assets/palms/palm-near.svg" alt="" width="732" height="1050" data-animate="grow">
+            <img data-motion class="tree-cast" src="assets/palms/palm-near.svg" alt="" width="732" height="1050" data-animate="fade">
+          </div>
         </div>
       </div>
       <div class="hero__content wrap">
