@@ -267,6 +267,28 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
 }
 .hero__cta { font-size: 12px; font-weight: 400; letter-spacing: .16em; white-space: nowrap; }
 
+/* Landscape screens: the photo is turned on its side (shoreline left to right,
+   sand on top) so it fills the full width. The file itself is untouched and
+   nothing is cropped: the frame has the rotated image's exact proportions. */
+@media (orientation: landscape) and (min-width: 700px) {
+  .hero__frame {
+    width: 100%;
+    aspect-ratio: 1288 / 736;
+    overflow: hidden;
+    container-type: inline-size;
+  }
+  .hero__img {
+    position: absolute; left: 50%; top: 50%;
+    width: 57.1429cqw;   /* 736/1288 of the frame width: becomes the height once rotated */
+    height: 100cqw;      /* becomes the full width once rotated */
+    max-width: none; max-height: none;
+    transform: translate(-50%, -50%) rotate(-90deg);
+  }
+  .hero__content {
+    top: 26%; left: var(--gutter); right: auto;
+  }
+}
+
 /* ==========================================================================
    4. The first drop
    ========================================================================== */
