@@ -532,6 +532,13 @@ html.intro-on { overflow: hidden; }
 }
 .card:hover .card__media { transform: translate3d(0, -6px, 0); }
 .card:hover .card__media img { transform: scale(1.045); }
+/* Second view (e.g. the back of a tee) fades in on hover */
+.card__media .card__hover {
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity .7s var(--ease-soft), transform 1.6s var(--ease-out);
+}
+.card:hover .card__media .card__hover, .card:focus-visible .card__media .card__hover { opacity: 1; }
 .card__meta {
   display: grid; grid-template-columns: 1fr auto; gap: 6px 16px;
   padding-top: 18px; border-top: 1px solid var(--line); margin-top: 4px;
