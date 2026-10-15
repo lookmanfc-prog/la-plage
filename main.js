@@ -8,61 +8,105 @@
 
   const formatVND = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
 
-  /* ---------------- Header: follows the announcement bar, then turns white ---------------- */
-  const header = document.querySelector('[data-header]');
+  /* ---------------- Sticky nav: follows the announcement bar, turns to glass on scroll ---------------- */
+  const nav = document.querySelector('[data-nav]');
   const bar = document.querySelector('.announce');
-  const updateHeader = () => {
+  let navTicking = false;
+  const updateNav = () => {
+    navTicking = false;
     const y = window.scrollY;
     const barH = bar ? bar.offsetHeight : 0;
-    header.style.setProperty('--header-y', `${Math.max(0, barH - y)}px`);
-    header.classList.toggle('is-scrolled', y > barH + 8);
+    nav.style.setProperty('--nav-y', `${Math.max(0, barH - y)}px`);
+    nav.classList.toggle('is-glass', y > barH + 12);
   };
+  const queueNav = () => { if (!navTicking) { navTicking = true; requestAnimationFrame(updateNav); } };
 
-  /* ---------------- Mobile menu ---------------- */
-  const menu = document.querySelector('[data-menu]');
-  const openBtn = document.querySelector('[data-menu-open]');
-  const closeBtn = document.querySelector('[data-menu-close]');
-  const setMenu = (open) => {
-    openBtn.setAttribute('aria-expanded', String(open));
-    if (open) {
-      menu.hidden = false;
-      document.body.style.overflow = 'hidden';
-      requestAnimationFrame(() => menu.classList.add('is-open'));
-      closeBtn.focus();
-    } else {
-      menu.classList.remove('is-open');
-      document.body.style.overflow = '';
-      setTimeout(() => { menu.hidden = true; }, reduceMotion.matches ? 0 : 450);
-      openBtn.focus();
-    }
-  };
-  openBtn.addEventListener('click', () => setMenu(true));
-  closeBtn.addEventListener('click', () => setMenu(false));
-  menu.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => setMenu(false)));
-  menu.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') setMenu(false);
-    if (e.key !== 'Tab') return;
-    const f = menu.querySelectorAll('a, button');
-    const first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  });
-
-  /* ---------------- Reveal on enter ---------------- */
-  const observeReveals = (root = document) => {
-    const els = root.querySelectorAll('.reveal:not(.is-in)');
-    if (!('IntersectionObserver' in window)) {
-      els.forEach((el) => el.classList.add('is-in'));
-      return;
-    }
+  /* ---------------- Scroll spy: highlight the section in view ---------------- */
+  const initScrollSpy = () => {
+    const links = [...document.querySelectorAll('[data-spy]')];
+    if (!links.length || !('IntersectionObserver' in window)) return;
+    const byId = new Map(links.map((a) => [a.dataset.spy, a]));
     const io = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-in');
-        io.unobserve(entry.target);
+        links.forEach((a) => a.removeAttribute('aria-current'));
+        const link = byId.get(entry.target.id);
+        if (link) link.setAttribute('aria-current', 'true');
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-    els.forEach((el) => io.observe(el));
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    document.querySelectorAll('#top, #drop, #collections, #story, #lookbook, #access').forEach((sec) => io.observe(sec));
+  };
+
+  /* ---------------- Scroll animation system ----------------
+     data-animate="fade-up | fade | words | clip | line"  (+ data-delay="ms")
+     data-stagger="fade-up" on a parent reveals its children in sequence (+ data-stagger-step="ms")
+     Everything reveals once, when it enters the viewport. */
+  const splitWords = (el) => {
+    let i = 0;
+    const walk = (node) => {
+      [...node.childNodes].forEach((n) => {
+        if (n.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            const w = document.createElement('span');
+            w.className = 'w';
+            const inner = document.createElement('span');
+            inner.className = 'w__i';
+            inner.style.setProperty('--wi', i++);
+            inner.textContent = part;
+            w.appendChild(inner);
+            frag.appendChild(w);
+          });
+          n.replaceWith(frag);
+        } else if (n.nodeType === Node.ELEMENT_NODE && n.tagName !== 'BR') {
+          walk(n);
+        }
+      });
+    };
+    walk(el);
+  };
+
+  const animIO = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      reveal(entry.target);
+      animIO.unobserve(entry.target);
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 }) : null;
+
+  const reveal = (el) => {
+    el.classList.add('is-visible');
+    if (el.hasAttribute('data-stagger')) {
+      el.querySelectorAll(':scope > [data-animate]').forEach((child) => child.classList.add('is-visible'));
+    }
+  };
+
+  const prepare = (el) => {
+    if (el.dataset.animPrepared) return;
+    el.dataset.animPrepared = '1';
+    if (el.dataset.delay) el.style.setProperty('--delay', `${parseInt(el.dataset.delay, 10)}ms`);
+    if (el.dataset.animate === 'words') splitWords(el);
+  };
+
+  const initAnimations = (root = document) => {
+    // Stagger groups: children inherit the animation with increasing delays
+    root.querySelectorAll('[data-stagger]').forEach((group) => {
+      const type = group.dataset.stagger || 'fade-up';
+      const step = parseInt(group.dataset.staggerStep || '80', 10);
+      [...group.children].forEach((child, i) => {
+        if (!child.dataset.animate) child.dataset.animate = type;
+        child.style.setProperty('--delay', `${i * step}ms`);
+        child.dataset.animPrepared = '1';
+      });
+      if (animIO) animIO.observe(group); else reveal(group);
+    });
+    root.querySelectorAll('[data-animate]').forEach((el) => {
+      if (el.parentElement && el.parentElement.hasAttribute('data-stagger')) return; // driven by the group
+      prepare(el);
+      if (animIO) animIO.observe(el); else reveal(el);
+    });
   };
 
   /* ---------------- Products: render from JSON ---------------- */
@@ -343,13 +387,13 @@
   };
 
   /* ---------------- Boot ---------------- */
-  updateHeader();
-  window.addEventListener('scroll', updateHeader, { passive: true });
-  window.addEventListener('resize', updateHeader);
-  observeReveals();
+  updateNav();
+  window.addEventListener('scroll', queueNav, { passive: true });
+  window.addEventListener('resize', queueNav);
+  initScrollSpy();
   initHeroWaves();
   initParallax();
   initAccess();
   initLocale();
-  loadProducts().then(() => { initStrip(); observeReveals(track); });
+  loadProducts().then(() => { initAnimations(); initStrip(); });
 })();
