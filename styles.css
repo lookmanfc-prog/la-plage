@@ -351,6 +351,13 @@ html.intro-on { overflow: hidden; }
 .nav:not(.is-glass) .nav__links a,
 .nav:not(.is-glass) .nav__wordmark { text-shadow: 0 0 8px rgba(255, 255, 255, .8), 0 0 2px rgba(255, 255, 255, .6); }
 
+/* Over the welcome photos the nav reads in white */
+@media (min-width: 641px) {
+  .nav:not(.is-glass) { color: var(--white); }
+  .nav:not(.is-glass) .nav__links a,
+  .nav:not(.is-glass) .nav__wordmark { text-shadow: 0 1px 12px rgba(11, 44, 71, .35); }
+}
+
 /* Phones: logo on top, the four links underneath, glass from the start */
 @media (max-width: 640px) {
   :root { --nav-h: 92px; }
@@ -368,7 +375,7 @@ html.intro-on { overflow: hidden; }
 }
 
 /* ==========================================================================
-   Hero: a palm grove at golden hour
+   Hero: welcome photos
    ========================================================================== */
 .hero {
   position: relative; overflow: hidden; isolation: isolate;
@@ -376,132 +383,47 @@ html.intro-on { overflow: hidden; }
   margin-top: calc(var(--bar-h) * -1);
   display: flex; align-items: center;
 }
-.hero__scene { position: absolute; inset: 0; z-index: -1; pointer-events: none; --horizon: 63%; --shore: 76%; }
-
-/* Golden-hour sky, warm at the horizon */
-.hero__sky {
+/* Two photographs, crossfading slowly, each drifting in by a few percent */
+.hero__photos { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: var(--sea-deep); }
+.hero__photo {
+  position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
+  object-fit: cover;
+  will-change: opacity, transform;
+  animation: 20s ease-in-out infinite;
+}
+.hero__photo--a { object-position: 42% 60%; animation-name: photo-a; }
+.hero__photo--b { object-position: 50% 40%; animation-name: photo-b; opacity: 0; }
+@keyframes photo-a {
+  0%   { opacity: 1; transform: scale(1); }
+  42%  { opacity: 1; transform: scale(1.04); }
+  52%  { opacity: 0; transform: scale(1.05); }
+  90%  { opacity: 0; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes photo-b {
+  0%   { opacity: 0; transform: scale(1); }
+  42%  { opacity: 0; transform: scale(1); }
+  52%  { opacity: 1; transform: scale(1.01); }
+  90%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+/* Soft shade only where the words sit, so the photos stay natural */
+.hero__shade {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, #BCD9E8 0%, #D9E8EE 30%, #EFE9DF 48%, #F7DFC0 57%, #F9CF9F var(--horizon), #F9CF9F 100%);
-}
-/* The sun, setting into the sea */
-.hero__sun {
-  position: absolute; left: 65%; top: var(--horizon);
-  width: min(90vmin, 980px); aspect-ratio: 1; translate: -50% -50%;
   background:
-    radial-gradient(circle, rgba(255, 246, 225, .95) 0, rgba(255, 233, 196, .65) 9%, rgba(255, 214, 160, .32) 22%, rgba(255, 205, 150, 0) 50%);
-  animation: sun-breathe 8s ease-in-out infinite alternate;
-}
-.hero__sun-disc {
-  position: absolute; left: 50%; top: 50%;
-  width: 12%; aspect-ratio: 1; translate: -50% -66%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 45%, #FFFCF2 0, #FFF2D6 55%, #FFE2B0 100%);
-  box-shadow: 0 0 40px 18px rgba(255, 238, 205, .75);
-}
-@keyframes sun-breathe { from { scale: 1; opacity: .9; } to { scale: 1.06; opacity: 1; } }
-
-/* Sea between the horizon and the shore */
-.hero__sea {
-  position: absolute; left: 0; right: 0; top: var(--horizon); height: calc(var(--shore) - var(--horizon));
-  overflow: hidden;
-  background: linear-gradient(180deg, #A7CBD3 0%, #7FBACA 22%, #56A6BC 60%, #4C9EB5 100%);
-}
-.hero__sea::before {   /* haze where sea meets sky */
-  content: ""; position: absolute; inset: 0 0 auto; height: 22%;
-  background: linear-gradient(180deg, rgba(249, 214, 170, .7), rgba(249, 214, 170, 0));
-}
-/* Swells rolling toward the shore: lines get wider apart as they come closer */
-.hero__swell {
-  position: absolute; inset: -40% 0 0;
-  background:
-    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0) 0 9px, rgba(255, 255, 255, .13) 9px 10px, rgba(255, 255, 255, 0) 10px 22px);
-  -webkit-mask: linear-gradient(180deg, transparent 30%, #000 70%);
-          mask: linear-gradient(180deg, transparent 30%, #000 70%);
-  transform-origin: 50% 0; transform: perspective(300px) rotateX(38deg);
-  animation: swell 6s linear infinite;
-}
-@keyframes swell { from { background-position: 0 0; } to { background-position: 0 44px; } }
-/* Sun glitter: a shimmering path of light on the water */
-.hero__glitter {
-  position: absolute; left: 65%; top: 0; bottom: 0; width: min(12vw, 170px); translate: -50% 0;
-  background:
-    linear-gradient(90deg, rgba(255, 246, 222, 0), rgba(255, 246, 222, .95) 50%, rgba(255, 246, 222, 0)),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0) 0 7px, #fff 7px 19px, rgba(255, 255, 255, 0) 19px 31px);
-  background-blend-mode: multiply;
-  -webkit-mask:
-    repeating-linear-gradient(180deg, #000 0 2px, transparent 2px 7px),
-    linear-gradient(180deg, #000, rgba(0, 0, 0, .4) 70%, transparent),
-    radial-gradient(60% 100% at 50% 0, #000 30%, transparent 100%);
-          mask:
-    repeating-linear-gradient(180deg, #000 0 2px, transparent 2px 7px),
-    linear-gradient(180deg, #000, rgba(0, 0, 0, .4) 70%, transparent),
-    radial-gradient(60% 100% at 50% 0, #000 30%, transparent 100%);
-  -webkit-mask-composite: source-in, source-in; mask-composite: intersect;
-  animation: glitter 2.6s steps(6) infinite, glitter-pulse 5s ease-in-out infinite alternate;
-}
-@keyframes glitter { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 31px 0; } }
-@keyframes glitter-pulse { from { opacity: .45; } to { opacity: .8; } }
-
-/* Sand, with fine grain */
-.hero__sand {
-  position: absolute; left: 0; right: 0; top: var(--shore); bottom: 0;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .42 0 0 0 0 .25 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px 180px,
-    linear-gradient(180deg, #EFD9B6 0%, #F2DFC0 30%, #EAD1A8 100%);
-}
-/* The shoreline: wet sand and a foam edge that laps in and out */
-.hero__shore { position: absolute; left: 0; right: 0; top: var(--shore); height: 6vh; }
-.hero__wet {
-  position: absolute; left: 0; right: 0; top: -2px; height: 100%;
-  background: linear-gradient(180deg, rgba(150, 120, 80, .38), rgba(150, 120, 80, 0));
-  transform-origin: 50% 0;
-  animation: wet 7s ease-in-out infinite;
-}
-.hero__foam {
-  position: absolute; left: -5%; right: -5%; top: -6px; height: 12px;
-  background:
-    radial-gradient(14px 5px at 50% 50%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0)) 0 0 / 46px 12px repeat-x,
-    linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .85) 45%, rgba(255, 255, 255, 0));
-  transform-origin: 50% 0;
-  animation: lap 7s cubic-bezier(.45, 0, .25, 1) infinite;
-}
-@keyframes lap {
-  0%   { transform: translate3d(0, 0, 0) scaleY(.8); opacity: .75; }
-  40%  { transform: translate3d(-12px, 2.4vh, 0) scaleY(1.25); opacity: 1; }
-  70%  { transform: translate3d(-6px, 1vh, 0) scaleY(1); opacity: .6; }
-  100% { transform: translate3d(0, 0, 0) scaleY(.8); opacity: .75; }
-}
-@keyframes wet {
-  0%, 100% { transform: scaleY(.5); opacity: .7; }
-  45%      { transform: scaleY(1.15); opacity: 1; }
+    linear-gradient(180deg, rgba(11, 44, 71, .38) 0, rgba(11, 44, 71, 0) 170px),
+    linear-gradient(90deg, rgba(11, 44, 71, .5) 0, rgba(11, 44, 71, .28) 38%, rgba(11, 44, 71, 0) 66%);
 }
 
-/* Palms and their long low-sun shadows (the shadow is the same animated SVG, mirrored onto the sand) */
-.hero__layer { position: absolute; inset: 0; transform: translate3d(var(--lx, 0), var(--ly, 0), 0); will-change: transform; }
-.grove__unit { position: absolute; }
-.tree { position: relative; display: block; height: 100%; width: auto; max-width: none; transform-origin: 50% 100%; }
-.tree-cast {
-  position: absolute; left: 0; top: 100%; height: 100%; width: auto; max-width: none;
-  transform-origin: 50% 0;
-  transform: scaleY(-.22) skewX(var(--cast-skew, 48deg));
-  filter: brightness(0) blur(2.5px);
-}
-.js .tree-cast[data-animate="fade"].is-visible, .no-js .tree-cast { opacity: var(--cast-a, .13); }
-.grove__unit--far-a .tree-cast, .grove__unit--far-b .tree-cast { display: none; }   /* distant palms: shadows too faint to read */
-.grove__unit--near  { right: -6vw; bottom: 3vh;  height: 84vh; --cast-skew: 58deg; --cast-a: .12; }
-.grove__unit--mid   { right: 28vw; bottom: 12vh; height: 62vh; --cast-skew: 50deg; --cast-a: .09; }
-.grove__unit--far-a { left: 41vw;  bottom: 20vh; height: 30vh; --cast-skew: -20deg; --cast-a: .08; }
-.grove__unit--far-b { left: 55vw;  bottom: 20.5vh; height: 25vh; --cast-skew: 20deg; --cast-a: .07; }
-
-.hero__content { position: relative; width: 100%; padding-top: var(--nav-h); color: var(--sea-deep); }
-.hero__content .label { color: var(--sea-deep); font-weight: 400; }
+.hero__content { position: relative; width: 100%; padding-top: var(--nav-h); color: var(--white); text-shadow: 0 1px 24px rgba(11, 44, 71, .25); }
+.hero__content .label { color: var(--white); font-weight: 400; }
 .hero__title {
   font-family: var(--serif); font-weight: 400;
   font-size: clamp(48px, 7.2vw, 118px); line-height: 1.02; letter-spacing: var(--track-display);
   margin: 18px 0 30px;
-  color: var(--sea-deep);
+  color: var(--white);
 }
-.hero__title em { color: var(--sea); }
+.hero__title em { color: var(--sand-light); }
 .hero__cta { white-space: nowrap; }
 
 /* Palms grow up into place once the welcome wave has uncovered them */
@@ -515,12 +437,7 @@ html.intro-on { overflow: hidden; }
 @media (max-width: 760px) {
   .hero { align-items: flex-start; }
   .hero__content { padding-top: calc(var(--nav-h) + 9vh); }
-  .grove__unit--near  { right: -38vw; bottom: 2vh;  height: 56vh; }
-  .grove__unit--mid   { right: 50vw;  bottom: 12vh; height: 40vh; }
-  .grove__unit--far-a { left: 60vw;   bottom: 21vh; height: 22vh; }
-  .grove__unit--far-b { left: 4vw;    bottom: 21vh; height: 18vh; }
-  .hero__glitter { width: 26vw; left: 62%; }
-  .hero__sun { left: 62%; }
+  .hero__photo--a { object-position: 54% 60%; }   /* keep the sun and its path in a tall crop */
 }
 
 /* ==========================================================================
