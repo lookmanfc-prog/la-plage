@@ -516,29 +516,64 @@ html.intro-on { overflow: hidden; }
 
 /* Desktop drag mode (enabled by JS on fine pointers) */
 .strip.is-draggable .strip__viewport { overflow: hidden; scroll-snap-type: none; cursor: none; touch-action: pan-y; }
+.strip__viewport { padding-block: 64px 12px; margin-block: -64px -12px; }   /* room for the pop */
 .strip.is-draggable .strip__track { user-select: none; -webkit-user-select: none; }
 .strip.is-dragging a { pointer-events: none; }
 .strip img { -webkit-user-drag: none; user-select: none; }
 
-.card { display: block; }
+.card { display: block; transition: opacity 500ms var(--ease-soft), filter 500ms var(--ease-soft), scale 600ms var(--ease-out); }
 .card__media {
-  position: relative; overflow: hidden; background: var(--white);
+  position: relative; background: var(--white);
   aspect-ratio: 4 / 5;
-  transition: transform .9s var(--ease-out);
+  perspective: 1000px;
 }
-.card__media img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform 1.6s var(--ease-out);
-}
-.card:hover .card__media { transform: translate3d(0, -6px, 0); }
-.card:hover .card__media img { transform: scale(1.045); }
-/* Second view (e.g. the back of a tee) fades in on hover */
-.card__media .card__hover {
+.card__lift {
   position: absolute; inset: 0;
-  opacity: 0;
-  transition: opacity .7s var(--ease-soft), transform 1.6s var(--ease-out);
+  transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotate(0deg) scale(1);
+  transition: transform 750ms cubic-bezier(.2, 1.3, .35, 1);
+  will-change: transform;
 }
-.card:hover .card__media .card__hover, .card:focus-visible .card__media .card__hover { opacity: 1; }
+.card__lift img { width: 100%; height: 100%; object-fit: cover; }
+/* Second view (e.g. the back of a tee) fades in on hover */
+.card__lift .card__hover { position: absolute; inset: 0; opacity: 0; transition: opacity 600ms var(--ease-soft); }
+/* Soft ground shadow that spreads as the garment lifts */
+.card__shadow {
+  position: absolute; left: 22%; right: 22%; bottom: 13%; height: 6%;
+  background: radial-gradient(closest-side, rgba(11, 44, 71, .22), rgba(11, 44, 71, 0));
+  opacity: 0; transform: scale(.7);
+  transition: opacity 600ms var(--ease-soft), transform 750ms var(--ease-out);
+}
+.card__quick {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  margin-top: 14px;
+  opacity: 0; translate: 0 8px;
+  transition: opacity 400ms var(--ease-soft), translate 500ms var(--ease-out);
+}
+.card__sizes { display: flex; gap: 6px; }
+.card__sizes span {
+  min-width: 28px; padding: 4px 6px; text-align: center;
+  border: 1px solid var(--line);
+  font-size: 10px; letter-spacing: .1em; color: var(--ink-soft);
+}
+.card__view {
+  font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--sea);
+}
+.card__view::after { content: " \2192"; font-style: normal; }
+
+@media (hover: hover) and (pointer: fine) {
+  /* The hovered piece pops out, tilting toward the cursor; everything else steps back */
+  .card:hover .card__lift {
+    transform: translate3d(0, -7%, 40px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotate(-2.5deg) scale(1.13);
+  }
+  .card:hover .card__shadow { opacity: 1; transform: scale(1.05); }
+  .card:hover .card__hover { opacity: 1; }
+  .card:hover .card__quick { opacity: 1; translate: 0 0; }
+  .strip__track:has(.card:hover) .card:not(:hover) { opacity: .28; filter: saturate(.4) blur(1.5px); scale: .96; }
+  .strip.is-dragging .card { opacity: 1 !important; filter: none !important; scale: 1 !important; }
+}
+.card:focus-visible .card__hover { opacity: 1; }
+.card:focus-visible .card__quick { opacity: 1; translate: 0 0; }
+
 .card__meta {
   display: grid; grid-template-columns: 1fr auto; gap: 6px 16px;
   padding-top: 18px; border-top: 1px solid var(--line); margin-top: 4px;
@@ -736,11 +771,118 @@ html.intro-on { overflow: hidden; }
 }
 
 /* ==========================================================================
+   Product spotlight
+   ========================================================================== */
+html.spot-on { overflow: hidden; }
+.spotlight {
+  position: fixed; inset: 0; z-index: 150;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 1.6fr) minmax(200px, 1fr);
+  align-items: center; gap: clamp(16px, 3vw, 56px);
+  padding: 96px clamp(24px, 5vw, 88px) 64px;
+  background: var(--white);   /* pure white, like the product photos, so the garment floats with no box */
+  color: var(--sea-deep);
+  opacity: 0;
+  transition: opacity 450ms var(--ease-soft);
+}
+.spotlight[hidden] { display: none; }
+.spotlight.is-open { opacity: 1; }
+.spotlight__close { position: absolute; top: 28px; right: clamp(24px, 5vw, 88px); font-size: 11px; letter-spacing: .22em; }
+
+.spotlight__info, .spotlight__buy {
+  opacity: 0; translate: 0 16px;
+  transition: opacity 600ms var(--ease-out) 150ms, translate 800ms var(--ease-out) 150ms;
+}
+.spotlight.is-open .spotlight__info, .spotlight.is-open .spotlight__buy { opacity: 1; translate: 0 0; }
+.spotlight__title {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(30px, 3.4vw, 54px); line-height: 1.02; letter-spacing: -.02em;
+  text-transform: uppercase; letter-spacing: .02em;
+  margin: 18px 0 18px;
+}
+.spotlight__desc { max-width: 34ch; font-weight: 300; color: var(--ink-soft); }
+.spotlight__facts { margin: 28px 0 0; display: grid; gap: 10px; max-width: 280px; }
+.spotlight__facts div { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 10px; }
+.spotlight__facts dt { font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-soft); }
+.spotlight__facts dd { margin: 0; font-family: var(--serif); font-style: italic; }
+
+/* The garment: pops in, then floats */
+.spotlight__stage { position: relative; margin: 0; height: min(72vh, 760px); perspective: 1200px; }
+.spotlight__float {
+  position: absolute; inset: 0;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 600ms var(--ease-out);
+}
+.spotlight__img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; max-width: none; object-fit: contain;
+  animation: spot-float 6s ease-in-out infinite;
+}
+.spotlight.is-switching .spotlight__img { animation: spot-pop 900ms cubic-bezier(.2, 1.3, .35, 1) both, spot-float 6s ease-in-out 900ms infinite; }
+@keyframes spot-pop {
+  from { opacity: 0; transform: translate3d(var(--enter-x, 0), 40px, 0) scale(.72) rotate(-9deg); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(-2deg); }
+}
+@keyframes spot-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  50%      { transform: translate3d(0, -14px, 0) rotate(-.8deg); }
+}
+.spotlight__shadow {
+  position: absolute; left: 26%; right: 26%; bottom: 10%; height: 5%;
+  background: radial-gradient(closest-side, rgba(11, 44, 71, .2), rgba(11, 44, 71, 0));
+  animation: spot-shadow 6s ease-in-out infinite;
+}
+@keyframes spot-shadow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.86); opacity: .7; } }
+
+.spotlight__buy { justify-self: end; width: 100%; max-width: 260px; }
+.spotlight__sizes { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; }
+.size, .view-btn {
+  appearance: none; background: transparent; cursor: pointer;
+  min-width: 44px; min-height: 40px; padding: 0 10px;
+  border: 1px solid var(--line); color: var(--sea-deep);
+  font-family: var(--sans); font-size: 11px; letter-spacing: .12em;
+  transition: background-color 200ms var(--ease-soft), color 200ms var(--ease-soft), border-color 200ms var(--ease-soft);
+}
+.size:hover, .view-btn:hover { border-color: var(--sea-deep); }
+.size[aria-checked="true"], .view-btn[aria-pressed="true"] { background: var(--sea-deep); color: var(--white); border-color: var(--sea-deep); }
+.spotlight__views { display: flex; gap: 8px; margin-bottom: 22px; }
+.spotlight__views:empty { display: none; }
+.spotlight__cta { display: block; text-align: center; }
+
+.spotlight__nav {
+  position: absolute; top: 50%; translate: 0 -50%;
+  width: 64px; height: 44px; display: grid; place-items: center;
+  background: none; border: 0; cursor: pointer; color: var(--sea-deep);
+  transition: translate 300ms var(--ease-out), opacity 200ms;
+  opacity: .7;
+}
+.spotlight__nav svg { width: 40px; height: 12px; }
+.spotlight__nav--prev { left: clamp(4px, 1.5vw, 24px); }
+.spotlight__nav--next { right: clamp(4px, 1.5vw, 24px); }
+.spotlight__nav:hover { opacity: 1; }
+.spotlight__nav--prev:hover { translate: -4px -50%; }
+.spotlight__nav--next:hover { translate: 4px -50%; }
+
+@media (max-width: 860px) {
+  .spotlight {
+    grid-template-columns: 1fr; grid-template-rows: auto 1fr auto;
+    align-items: start; gap: 12px;
+    padding: 72px 24px 28px; overflow-y: auto;
+  }
+  .spotlight__stage { height: 44vh; order: -1; }
+  .spotlight__title { font-size: 28px; margin: 10px 0 10px; }
+  .spotlight__facts { margin-top: 16px; max-width: none; }
+  .spotlight__buy { justify-self: stretch; max-width: none; }
+  .spotlight__close { top: 20px; right: 24px; }
+  .spotlight__nav { top: calc(72px + 22vh); }
+}
+
+/* ==========================================================================
    Reduced motion: water and fades still play (as agreed), no movement elsewhere
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *:not(.wave):not(.wave-caustic):not(.intro), *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  *:not(.wave):not(.wave-caustic):not(.intro):not([data-motion]), *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
   .js [data-animate="fade-up"], .js [data-animate="fade"], .js [data-animate="words"] .w__i {
     transform: none !important;
     transition: opacity var(--dur-reveal) var(--ease-out) !important;
@@ -753,7 +895,6 @@ html.intro-on { overflow: hidden; }
   .js [data-animate="line"] { transform: none !important; opacity: 0; transition: opacity var(--dur-reveal) var(--ease-out) !important; }
   .js [data-animate="line"].is-visible { opacity: 1; }
   .panel__palm { transition: opacity 1400ms var(--ease-soft) !important; }
-  .card:hover .card__media, .card:hover .card__media img { transform: none; }
   .panel:hover .panel__palm { translate: none; scale: none; }
 }
 

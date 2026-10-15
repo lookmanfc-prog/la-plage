@@ -12,10 +12,28 @@
       "title": "Dune Short",
       "price": 1390000,
       "compareAtPrice": null,
-      "color": { "name": "White", "hex": "#F4F4F2" },
-      "image": { "src": "assets/img/products/shorts-white.jpg", "alt": "Dune Short in white with a small blue LA PLAGE palm on the left leg", "width": 1200, "height": 1500 },
+      "color": {
+        "name": "White",
+        "hex": "#F4F4F2"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-white.jpg",
+        "alt": "Dune Short in white with a small blue LA PLAGE palm on the left leg",
+        "width": 1200,
+        "height": 1500
+      },
       "available": true,
-      "tags": ["short", "drop-001"]
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Clean white swim short with an elastic waist and a small palm at the hem.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
     },
     {
       "id": "riva-short",
@@ -23,10 +41,28 @@
       "title": "Riva Short",
       "price": 1450000,
       "compareAtPrice": null,
-      "color": { "name": "Hibiscus", "hex": "#7CCBEB" },
-      "image": { "src": "assets/img/products/shorts-hibiscus.jpg", "alt": "Riva Short in sky blue with a tonal hibiscus print and LA PLAGE palm", "width": 1200, "height": 1500 },
+      "color": {
+        "name": "Hibiscus",
+        "hex": "#7CCBEB"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-hibiscus.jpg",
+        "alt": "Riva Short in sky blue with a tonal hibiscus print and LA PLAGE palm",
+        "width": 1200,
+        "height": 1500
+      },
       "available": true,
-      "tags": ["short", "drop-001"]
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Sky-blue swim short with a tonal hibiscus print and an elastic waist.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
     },
     {
       "id": "maree-short",
@@ -34,10 +70,28 @@
       "title": "Marée Short",
       "price": 1450000,
       "compareAtPrice": null,
-      "color": { "name": "Blue Stripe", "hex": "#5A6FA8" },
-      "image": { "src": "assets/img/products/shorts-blue-stripe.jpg", "alt": "Marée Short in blue and white seersucker stripe with a white drawcord and black LA PLAGE palm", "width": 1200, "height": 1500 },
+      "color": {
+        "name": "Blue Stripe",
+        "hex": "#5A6FA8"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-blue-stripe.jpg",
+        "alt": "Marée Short in blue and white seersucker stripe with a white drawcord and black LA PLAGE palm",
+        "width": 1200,
+        "height": 1500
+      },
       "available": true,
-      "tags": ["short", "drop-001"]
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Seersucker short in blue and white stripe with a white drawcord.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
     },
     {
       "id": "plage-short",
@@ -45,10 +99,28 @@
       "title": "Plage Short",
       "price": 1450000,
       "compareAtPrice": null,
-      "color": { "name": "Pine Stripe", "hex": "#3E6B4A" },
-      "image": { "src": "assets/img/products/shorts-pine-stripe.jpg", "alt": "Plage Short in pine green and white seersucker stripe with a white drawcord and black LA PLAGE palm", "width": 1200, "height": 1500 },
+      "color": {
+        "name": "Pine Stripe",
+        "hex": "#3E6B4A"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-pine-stripe.jpg",
+        "alt": "Plage Short in pine green and white seersucker stripe with a white drawcord and black LA PLAGE palm",
+        "width": 1200,
+        "height": 1500
+      },
       "available": true,
-      "tags": ["short", "drop-001"]
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Seersucker short in pine green and white stripe with a white drawcord.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
     },
     {
       "id": "esprit-cotier-tee",
@@ -56,11 +128,35 @@
       "title": "L'Esprit Côtier Tee",
       "price": 890000,
       "compareAtPrice": null,
-      "color": { "name": "White", "hex": "#F4F4F2" },
-      "image": { "src": "assets/img/products/tee-esprit-cotier-front.jpg", "alt": "L'Esprit Côtier Tee in white, front with a small LA PLAGE palm on the chest", "width": 1200, "height": 1500 },
-      "imageHover": { "src": "assets/img/products/tee-esprit-cotier-back.jpg", "alt": "Back of the tee: hand-drawn deck chairs by the sea and L'ESPRIT CÔTIER", "width": 1200, "height": 1500 },
+      "color": {
+        "name": "White",
+        "hex": "#F4F4F2"
+      },
+      "image": {
+        "src": "assets/img/products/tee-esprit-cotier-front.jpg",
+        "alt": "L'Esprit Côtier Tee in white, front with a small LA PLAGE palm on the chest",
+        "width": 1200,
+        "height": 1500
+      },
+      "imageHover": {
+        "src": "assets/img/products/tee-esprit-cotier-back.jpg",
+        "alt": "Back of the tee: hand-drawn deck chairs by the sea and L'ESPRIT CÔTIER",
+        "width": 1200,
+        "height": 1500
+      },
       "available": true,
-      "tags": ["tee", "drop-001"]
+      "tags": [
+        "tee",
+        "drop-001"
+      ],
+      "description": "White tee with a small palm on the chest and hand-drawn deck chairs by the sea on the back.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
     }
   ]
 }

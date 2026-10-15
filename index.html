@@ -222,6 +222,38 @@
     </div>
   </footer>
 
+  <!-- Product spotlight: one piece at a time, floating, with details and sizes -->
+  <div class="spotlight" role="dialog" aria-modal="true" aria-labelledby="spot-title" hidden data-spotlight data-motion>
+    <button class="spotlight__close ui-btn link" type="button" data-spot-close>Close</button>
+    <div class="spotlight__info" data-motion>
+      <p class="label">Drop 001 · <span data-spot-index>01 / 05</span></p>
+      <h2 class="spotlight__title" id="spot-title" data-spot-title></h2>
+      <p class="spotlight__desc" data-spot-desc></p>
+      <dl class="spotlight__facts">
+        <div><dt>Colour</dt><dd data-spot-color></dd></div>
+        <div><dt>Price</dt><dd data-spot-price></dd></div>
+      </dl>
+    </div>
+    <figure class="spotlight__stage" data-spot-stage data-motion>
+      <div class="spotlight__shadow" data-motion aria-hidden="true"></div>
+      <div class="spotlight__float" data-motion>
+        <img class="spotlight__img" data-spot-img data-motion src="" alt="" width="1200" height="1500" decoding="async">
+      </div>
+    </figure>
+    <div class="spotlight__buy" data-motion>
+      <p class="label">Size</p>
+      <div class="spotlight__sizes" role="radiogroup" aria-label="Size" data-spot-sizes></div>
+      <div class="spotlight__views" data-spot-views></div>
+      <a class="btn-outline spotlight__cta" href="#access" data-spot-access>Request access</a>
+    </div>
+    <button class="spotlight__nav spotlight__nav--prev" type="button" aria-label="Previous product" data-spot-prev>
+      <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M40 6H1M6 1L1 6l5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+    <button class="spotlight__nav spotlight__nav--next" type="button" aria-label="Next product" data-spot-next>
+      <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6h39M34 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+  </div>
+
   <script src="intro.js" defer></script>
   <script src="main.js" defer></script>
 </body>

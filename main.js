@@ -116,19 +116,26 @@
   /* ---------------- Products: render from JSON ---------------- */
   const track = document.querySelector('[data-strip-track]');
 
-  const productCard = (p) => {
+  const productCard = (p, i) => {
     const li = document.createElement('li');
     li.className = 'strip__item';
     li.innerHTML = `
-      <a class="card" href="#product/${p.handle}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}">
-        <div class="card__media${p.imageHover ? ' has-hover' : ''}">
-          <img src="${p.image.src}" alt="${p.image.alt}" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async" draggable="false">
-          ${p.imageHover ? `<img class="card__hover" src="${p.imageHover.src}" alt="" width="${p.imageHover.width}" height="${p.imageHover.height}" loading="lazy" decoding="async" draggable="false">` : ''}
+      <a class="card" data-motion href="#product/${p.handle}" data-index="${i}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}. View details">
+        <div class="card__media" data-motion>
+          <div class="card__shadow" data-motion aria-hidden="true"></div>
+          <div class="card__lift" data-motion>
+            <img src="${p.image.src}" alt="${p.image.alt}" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async" draggable="false">
+            ${p.imageHover ? `<img class="card__hover" data-motion src="${p.imageHover.src}" alt="" width="${p.imageHover.width}" height="${p.imageHover.height}" loading="lazy" decoding="async" draggable="false">` : ''}
+          </div>
         </div>
         <div class="card__meta" aria-hidden="true">
           <h3 class="card__name">${p.title}</h3>
           <p class="card__price">${formatVND.format(p.price)}</p>
           <p class="card__color">${p.color.name}</p>
+        </div>
+        <div class="card__quick" data-motion aria-hidden="true">
+          <span class="card__sizes">${(p.sizes || []).map((s) => `<span>${s}</span>`).join('')}</span>
+          <span class="card__view">View</span>
         </div>
       </a>`;
     return li;
@@ -140,12 +147,140 @@
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
       const frag = document.createDocumentFragment();
-      data.products.forEach((p) => frag.appendChild(productCard(p)));
+      data.products.forEach((p, i) => frag.appendChild(productCard(p, i)));
       track.appendChild(frag);
+      return data.products;
     } catch (err) {
       track.innerHTML = '<li class="strip__item"><p class="eyebrow">The collection could not be loaded. Serve the site over http to read data/products.json.</p></li>';
       console.error('[LA PLAGE] products', err);
+      return [];
     }
+  };
+
+  /* ---------------- Product pop: the hovered garment lifts and tilts toward the cursor ---------------- */
+  const initCardPop = () => {
+    const strip = document.querySelector('[data-strip]');
+    const cursorLabel = document.querySelector('[data-drag-cursor] span');
+    track.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const card = e.target.closest('.card');
+      if (cursorLabel) cursorLabel.textContent = card && !strip.classList.contains('is-dragging') ? 'View' : 'Drag';
+      if (!card) return;
+      const r = card.querySelector('.card__media').getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - .5;
+      const y = (e.clientY - r.top) / r.height - .5;
+      const lift = card.querySelector('.card__lift');
+      lift.style.setProperty('--ry', `${(x * 14).toFixed(2)}deg`);
+      lift.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`);
+    });
+    track.addEventListener('pointerout', (e) => {
+      const card = e.target.closest('.card');
+      if (card && !card.contains(e.relatedTarget)) {
+        const lift = card.querySelector('.card__lift');
+        lift.style.removeProperty('--rx'); lift.style.removeProperty('--ry');
+      }
+    });
+  };
+
+  /* ---------------- Spotlight: one product, floating, with details and sizes ---------------- */
+  const initSpotlight = (products) => {
+    const spot = document.querySelector('[data-spotlight]');
+    if (!spot || !products.length) return;
+    const $ = (sel) => spot.querySelector(sel);
+    const stage = $('[data-spot-stage]');
+    const img = $('[data-spot-img]');
+    const views = $('[data-spot-views]');
+    const sizes = $('[data-spot-sizes]');
+    let index = 0, view = 'front', opener = null, closeTimer = 0;
+
+    const render = (dir = 0) => {
+      const p = products[index];
+      $('[data-spot-index]').textContent = `${String(index + 1).padStart(2, '0')} / ${String(products.length).padStart(2, '0')}`;
+      $('[data-spot-title]').textContent = p.title;
+      $('[data-spot-desc]').textContent = p.description || '';
+      $('[data-spot-color]').textContent = p.color.name;
+      $('[data-spot-price]').textContent = formatVND.format(p.price);
+      const src = view === 'back' && p.imageHover ? p.imageHover : p.image;
+      img.src = src.src; img.alt = view === 'back' && p.imageHover ? p.imageHover.alt : p.image.alt;
+      sizes.innerHTML = (p.sizes || []).map((s, i) => `<button type="button" class="size" role="radio" aria-checked="${i === 1}" data-size="${s}">${s}</button>`).join('');
+      views.innerHTML = p.imageHover
+        ? ['front', 'back'].map((v) => `<button type="button" class="view-btn" aria-pressed="${v === view}" data-view="${v}">${v === 'front' ? 'Front' : 'Back'}</button>`).join('')
+        : '';
+      // pop the garment in again, entering from the direction of travel
+      spot.style.setProperty('--enter-x', `${dir * 60}px`);
+      spot.classList.remove('is-switching');
+      void stage.offsetWidth;
+      spot.classList.add('is-switching');
+    };
+
+    const open = (i, from) => {
+      clearTimeout(closeTimer);
+      index = i; view = 'front'; opener = from || null;
+      spot.hidden = false;
+      document.documentElement.classList.add('spot-on');
+      render(0);
+      requestAnimationFrame(() => spot.classList.add('is-open'));
+      $('[data-spot-close]').focus({ preventScroll: true });
+    };
+    const close = () => {
+      spot.classList.remove('is-open');
+      document.documentElement.classList.remove('spot-on');
+      closeTimer = setTimeout(() => { spot.hidden = true; }, 450);
+      if (opener) opener.focus({ preventScroll: true });
+    };
+    const go = (d) => { index = (index + d + products.length) % products.length; view = 'front'; render(d); };
+
+    // The strip captures the pointer while dragging, so the click lands on the viewport:
+    // remember which card the press started on.
+    const viewport = document.querySelector('[data-strip-viewport]');
+    let downCard = null;
+    viewport.addEventListener('pointerdown', (e) => { downCard = e.target.closest('.card'); }, true);
+    viewport.addEventListener('click', (e) => {
+      const card = e.target.closest('.card') || downCard;
+      downCard = null;
+      if (!card) return;
+      e.preventDefault();
+      open(parseInt(card.dataset.index, 10) || 0, card);
+    });
+    $('[data-spot-close]').addEventListener('click', close);
+    $('[data-spot-prev]').addEventListener('click', () => go(-1));
+    $('[data-spot-next]').addEventListener('click', () => go(1));
+    $('[data-spot-access]').addEventListener('click', close);
+    sizes.addEventListener('click', (e) => {
+      const b = e.target.closest('.size'); if (!b) return;
+      sizes.querySelectorAll('.size').forEach((o) => o.setAttribute('aria-checked', String(o === b)));
+    });
+    views.addEventListener('click', (e) => {
+      const b = e.target.closest('.view-btn'); if (!b) return;
+      view = b.dataset.view; render(0);
+    });
+    spot.addEventListener('click', (e) => { if (e.target === spot) close(); });
+    spot.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'ArrowRight') { go(1); return; }
+      if (e.key === 'ArrowLeft') { go(-1); return; }
+      if (e.key !== 'Tab') return;
+      const f = [...spot.querySelectorAll('button, a[href]')].filter((el) => el.offsetParent !== null);
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+    // The garment leans toward the cursor
+    stage.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = stage.getBoundingClientRect();
+      stage.style.setProperty('--ry', `${(((e.clientX - r.left) / r.width - .5) * 16).toFixed(2)}deg`);
+      stage.style.setProperty('--rx', `${(-((e.clientY - r.top) / r.height - .5) * 10).toFixed(2)}deg`);
+    });
+    stage.addEventListener('pointerleave', () => { stage.style.removeProperty('--rx'); stage.style.removeProperty('--ry'); });
+    // Swipe between products on touch
+    let sx = null;
+    stage.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', (e) => {
+      if (sx === null) return;
+      const dx = e.changedTouches[0].clientX - sx; sx = null;
+      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+    });
   };
 
   /* ---------------- Strip: drag with inertia (fine pointers) / native swipe (touch) ---------------- */
@@ -400,5 +535,5 @@
   initParallax();
   initAccess();
   initLocale();
-  loadProducts().then(() => { initAnimations(); initStrip(); });
+  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); });
 })();
