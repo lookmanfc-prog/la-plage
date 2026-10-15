@@ -34,7 +34,7 @@
   let W = 0, H = 0, L = 0, D = 0, scale = 1, seaward = 'down';
   const resize = () => {
     W = window.innerWidth; H = window.innerHeight;
-    seaward = matchMedia('(orientation: landscape) and (min-width: 700px)').matches ? 'down' : 'left';
+    seaward = 'down';   // the hero's sea sits along the bottom on every screen
     L = seaward === 'down' ? W : H;
     D = seaward === 'down' ? H : W;
     scale = Math.min(window.devicePixelRatio || 1, 1.5) * 0.8;   // a little under native: water is soft, frames stay cheap
