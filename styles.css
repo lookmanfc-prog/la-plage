@@ -170,21 +170,26 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
   border-bottom: 1px solid transparent;
   transition: background-color .5s var(--ease-soft), border-color .5s var(--ease-soft);
 }
-.header.is-scrolled { background: var(--white); border-bottom-color: var(--line); }
+.header { color: var(--sea-deep); }
+/* Over the photo only: a faint light halo keeps deep-sea text legible where it crosses water */
+.header:not(.is-scrolled) .header__nav a,
+.header:not(.is-scrolled) .wordmark,
+.header:not(.is-scrolled) .header__actions .ui-btn { text-shadow: 0 0 6px rgba(255, 255, 255, .85), 0 0 2px rgba(255, 255, 255, .6); }
+.header.is-scrolled { background: var(--white); border-bottom-color: rgba(11, 44, 71, .12); }
 .header__inner {
   height: 100%;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   padding-inline: var(--gutter);
 }
 .header__nav ul { display: flex; gap: 32px; }
-.header__nav a {
-  font-size: 12px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase;
+.header__nav a, .header__actions .ui-btn, .header__menu-btn {
+  font-size: 12px; font-weight: 300; letter-spacing: .18em; text-transform: uppercase;
 }
 .header__menu-btn { display: none; justify-self: start; }
 .wordmark {
   grid-column: 2;
   font-family: var(--serif); font-weight: 400;
-  font-size: 19px; letter-spacing: .3em;
+  font-size: 16px; letter-spacing: .3em;
   margin-right: -.3em; /* optical centering for trailing tracking */
   text-transform: uppercase;
   color: var(--sea-deep);
@@ -195,8 +200,16 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
   :root { --header-h: 58px; }
   .header__nav, .header__search { display: none; }
   .header__menu-btn { display: inline-block; grid-column: 1; grid-row: 1; }
-  .wordmark { font-size: 16px; grid-row: 1; }
+  .wordmark { font-size: 15px; grid-row: 1; }
   .header__actions { grid-column: 3; grid-row: 1; }
+}
+
+/* Photo spans the full width: top-left of the header sits over water */
+@media (max-aspect-ratio: 736/1288) {
+  .header:not(.is-scrolled) .header__menu-btn {
+    color: var(--white);
+    text-shadow: 0 0 6px rgba(11, 44, 71, .45);
+  }
 }
 
 /* Mobile menu */
@@ -225,48 +238,34 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
    3. Hero
    ========================================================================== */
 .hero {
-  position: relative;
-  min-height: 100vh; min-height: 100svh;
-  margin-top: calc(var(--bar-h) * -1); /* sit under the announcement bar */
-  display: flex; align-items: flex-end;
-  overflow: hidden;
-  isolation: isolate;
+  display: flex; justify-content: center;
+  background: var(--white);
 }
-.hero__media { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
-.hero__sky, .hero__video {
-  position: absolute; inset: -4%;
-  width: 108%; height: 108%; object-fit: cover;
-  background:
-    radial-gradient(120% 70% at 70% 8%, rgba(255, 255, 255, .7), rgba(255, 255, 255, 0) 60%),
-    linear-gradient(180deg, #D7E6EF 0%, #E6EDEE 34%, #F1EDE3 62%, #F6EEDF 80%, #F3E6CF 100%);
-  animation: kenburns 38s ease-in-out infinite alternate;
-  will-change: transform;
+/* The photo is shown whole, at its own aspect ratio, never cropped or scaled up past one screen */
+.hero__frame { position: relative; max-width: 100%; }
+.hero__img {
+  display: block;
+  width: auto; height: auto; max-width: 100%;
+  max-height: calc(100vh - var(--bar-h));
+  max-height: calc(100svh - var(--bar-h));
 }
-@keyframes kenburns {
-  from { transform: scale(1) translate3d(0, 0, 0); }
-  to   { transform: scale(1.07) translate3d(-1.2%, -1%, 0); }
-}
-.hero__mark {
-  position: absolute;
-  right: -6vw; bottom: -4vh;
-  width: min(68vw, 880px);
-  color: var(--sea);
-  opacity: .06;
-  animation: kenburns 46s ease-in-out infinite alternate-reverse;
-}
+/* Text sits on the dry sand, upper right */
 .hero__content {
-  width: 100%;
-  padding-top: calc(var(--bar-h) + var(--header-h) + 40px);
-  padding-bottom: clamp(56px, 11vh, 120px);
+  position: absolute;
+  top: 19%; left: 46%; right: 4%;
+  color: var(--sea-deep);
+}
+.hero__content .eyebrow {
+  font-size: 12px; font-weight: 300; letter-spacing: .22em;
+  color: var(--sea-deep);
 }
 .hero__title {
   font-family: var(--serif); font-weight: 400;
-  font-size: clamp(52px, 9.4vw, 152px);
-  line-height: .98; letter-spacing: -.02em;
-  margin: 22px 0 40px;
-  color: var(--ink);
+  font-size: 16px; line-height: 1.45; letter-spacing: .02em;
+  margin: 10px 0 12px;
+  color: var(--sea-deep);
 }
-.hero__content .eyebrow { color: var(--sea-deep); }
+.hero__cta { font-size: 12px; font-weight: 400; letter-spacing: .16em; white-space: nowrap; }
 
 /* ==========================================================================
    4. The first drop
@@ -520,5 +519,4 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
 /* ---------- Small-screen refinements ---------- */
 @media (max-width: 520px) {
   .announce { font-size: 9.5px; letter-spacing: .14em; }
-  .hero__mark { width: 118vw; right: -34vw; bottom: 26vh; }
 }

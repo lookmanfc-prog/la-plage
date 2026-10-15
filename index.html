@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/brand/mark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap">
   <link rel="stylesheet" href="styles.css">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
@@ -62,20 +62,13 @@
   <main id="main">
     <!-- 3. Hero -->
     <section class="hero" id="top" aria-labelledby="hero-title">
-      <div class="hero__media" aria-hidden="true">
-        <!--
-          PLACEHOLDER: replace the gradient layer with the hero film or photo, e.g.
-          <video class="hero__video" autoplay muted loop playsinline preload="metadata" poster="assets/img/hero-poster.jpg">
-            <source src="assets/video/hero.mp4" type="video/mp4">
-          </video>
-        -->
-        <div class="hero__sky"></div>
-        <div class="hero__mark palm"></div>
-      </div>
-      <div class="hero__content wrap">
-        <p class="eyebrow reveal">Drop 001 · Summer</p>
-        <h1 class="hero__title reveal" id="hero-title" style="--d:.12s">Summer,<br> worn slowly.</h1>
-        <a class="link link--underlined hero__cta reveal" style="--d:.28s" href="#drop">Enter the collection</a>
+      <div class="hero__frame">
+        <img class="hero__img" src="assets/hero-beach.jpg" alt="Aerial view of turquoise waves breaking onto a wide sandy beach" width="736" height="1288" fetchpriority="high" decoding="async">
+        <div class="hero__content">
+          <p class="eyebrow reveal">Drop 001 · Summer</p>
+          <h1 class="hero__title reveal" id="hero-title" style="--d:.12s">Summer,<br> worn slowly.</h1>
+          <a class="link link--underlined hero__cta reveal" style="--d:.28s" href="#drop">Enter the collection</a>
+        </div>
       </div>
     </section>
 
