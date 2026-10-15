@@ -253,6 +253,34 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
 .js [data-animate="line"].is-visible { transform: none; }
 
 /* ==========================================================================
+   Welcome wave (canvas drawn by intro.js)
+   Covers the page from first paint so nothing flashes, then washes away.
+   ========================================================================== */
+.intro { display: none; }
+.js .intro {
+  display: block;
+  position: fixed; inset: 0; z-index: 200;
+  background: linear-gradient(180deg, #1C97A8 0%, #0D6E87 60%, #0A4E6A 100%);
+  pointer-events: none;
+  transition: opacity 350ms var(--ease-soft);
+  animation: intro-failsafe 1ms linear 10s forwards;   /* never trap the page */
+}
+.js .intro.is-drawing { background: transparent; }
+.js .intro.is-leaving { opacity: 0; }
+@keyframes intro-failsafe { to { opacity: 0; visibility: hidden; } }
+.intro__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.intro__brand {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  color: var(--white);
+  font-family: var(--serif); font-size: clamp(18px, 2vw, 26px); letter-spacing: var(--track-wordmark);
+  margin-right: -.3em;
+  text-shadow: 0 1px 18px rgba(10, 78, 106, .45);
+}
+.intro__brand img { width: clamp(46px, 5vw, 70px); filter: brightness(0) invert(1); opacity: .95; }
+html.intro-on { overflow: hidden; }
+
+/* ==========================================================================
    Announcement bar
    ========================================================================== */
 .announce {
@@ -705,7 +733,7 @@ a:hover > .link--underlined::after, a:focus-visible > .link--underlined::after {
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *:not(.wave):not(.wave-caustic), *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  *:not(.wave):not(.wave-caustic):not(.intro), *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
   .js [data-animate="fade-up"], .js [data-animate="fade"], .js [data-animate="words"] .w__i {
     transform: none !important;
     transition: opacity var(--dur-reveal) var(--ease-out) !important;
