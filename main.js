@@ -514,44 +514,11 @@
     if (y) y.textContent = new Date().getFullYear();
   };
 
-  /* ---------------- Hero palms: depth parallax with the mouse and on scroll ---------------- */
-  const initHeroScene = () => {
-    const hero = document.querySelector('[data-hero]');
-    const layers = [...document.querySelectorAll('[data-hero-scene] [data-depth]')];
-    if (!hero || !layers.length) return;
-    let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, raf = 0;
-    const loop = () => {
-      tx += (mx - tx) * .06; ty += (my - ty) * .06;
-      layers.forEach((l) => {
-        const d = parseFloat(l.dataset.depth);
-        l.style.setProperty('--lx', `${(tx * d * 30).toFixed(2)}px`);
-        l.style.setProperty('--ly', `${(ty * d * 14 + sy * d * .35).toFixed(2)}px`);
-      });
-      raf = Math.abs(mx - tx) + Math.abs(my - ty) > .001 ? requestAnimationFrame(loop) : 0;
-    };
-    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
-    hero.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      mx = e.clientX / window.innerWidth - .5;
-      my = e.clientY / window.innerHeight - .5;
-      kick();
-    });
-    hero.addEventListener('pointerleave', () => { mx = 0; my = 0; kick(); });
-    window.addEventListener('scroll', () => {
-      const y = window.scrollY;
-      if (y > window.innerHeight * 1.2) return;
-      sy = y; kick();
-      // keep the loop alive for one frame even when the mouse is still
-      layers.forEach((l) => l.style.setProperty('--ly', `${(ty * parseFloat(l.dataset.depth) * 14 + sy * parseFloat(l.dataset.depth) * .35).toFixed(2)}px`));
-    }, { passive: true });
-  };
-
   /* ---------------- Boot ---------------- */
   updateNav();
   window.addEventListener('scroll', queueNav, { passive: true });
   window.addEventListener('resize', queueNav);
   initScrollSpy();
-  initHeroScene();
   initParallax();
   initAccess();
   initLocale();
