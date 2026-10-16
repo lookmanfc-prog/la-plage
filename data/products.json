@@ -27,6 +27,70 @@
   ],
   "products": [
     {
+      "id": "rivage-short",
+      "handle": "rivage-short",
+      "title": "Rivage Short",
+      "price": 1450000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Blue Toile",
+        "hex": "#2F5E9E"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-blue-toile.jpg",
+        "alt": "Rivage Short in white with a blue toile of palms, sailboats, crabs and deck chairs, with a woven LA PLAGE label",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "White swim short with a hand-drawn blue toile of palms, sailboats and deck chairs, and a woven palm label.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sea",
+      "category": "lagon",
+      "cutout": "assets/img/products/cutouts/shorts-blue-toile.webp"
+    },
+    {
+      "id": "corail-short",
+      "handle": "corail-short",
+      "title": "Corail Short",
+      "price": 1450000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Pink Floral",
+        "hex": "#EE6FA5"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-pink-floral.jpg",
+        "alt": "Corail Short with a pink and coral tropical floral print and an embroidered LA PLAGE palm",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Pink and coral tropical florals with an embroidered palm at the hem and an elastic waist.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "riva",
+      "cutout": "assets/img/products/cutouts/shorts-pink-floral.webp"
+    },
+    {
       "id": "dune-short",
       "handle": "dune-short",
       "title": "Dune Short",

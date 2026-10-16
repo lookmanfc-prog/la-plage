@@ -1781,6 +1781,88 @@ body { background: #0B3A5C; }
 }
 
 /* ==========================================================================
+   Afloat: pieces in glass bobbing on the open water, each at its own height,
+   tilt and pace, with a soft reflection on the sea beneath
+   ========================================================================== */
+.drift { position: relative; padding: clamp(80px, 14vh, 150px) 0 clamp(60px, 10vh, 120px); text-align: center; }
+.drift__head { margin-bottom: clamp(40px, 7vh, 80px); }
+.drift__label { color: var(--sand-light) !important; }
+.drift__title {
+  margin-top: 14px; color: var(--white);
+  font-family: var(--display); font-weight: 300; font-size: clamp(40px, 5.4vw, 92px); line-height: 1; letter-spacing: -.01em;
+  text-shadow: 0 2px 30px rgba(2, 20, 36, .45);
+}
+.drift__title em { font-style: italic; color: var(--sand-light); }
+.drift__row.glass-row {
+  grid-template-columns: repeat(6, minmax(0, 1fr)); width: min(1500px, calc(100% - 2 * var(--gutter))); margin: 0 auto;
+  gap: clamp(14px, 1.8vw, 30px); padding-bottom: 60px;
+}
+.drift .glass__bob {
+  position: relative;
+  translate: 0 calc(var(--lift, 0px) + var(--swell, 0px)); rotate: var(--tilt, 0deg);
+  animation: drift-bob calc(5.5s + var(--k) * .6s) ease-in-out calc(var(--k) * -1.3s) infinite;
+  transition: translate 600ms var(--ease-out);
+}
+@keyframes drift-bob {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  35%      { transform: translate3d(0, -14px, 0) rotate(1.2deg); }
+  70%      { transform: translate3d(0, -5px, 0) rotate(-1deg); }
+}
+.drift .glass__frame { aspect-ratio: 4 / 5; border-radius: 26px; }
+.drift .glass__frame img { animation: none; }
+/* the reflection on the water */
+.glass__reflection {
+  position: absolute; left: 6%; right: 6%; top: calc(100% + 6px); height: 55%; pointer-events: none; overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, .55), transparent 80%); mask-image: linear-gradient(180deg, rgba(0, 0, 0, .55), transparent 80%);
+  opacity: .5; filter: blur(3px) saturate(1.2);
+}
+.glass__reflection img { width: 100%; height: 180%; object-fit: contain; transform: scaleY(-1); transform-origin: top; margin-top: -35%; }
+.drift .glass__name, .drift .glass__price { position: relative; display: inline-block; }
+.drift .glass__name { margin-top: calc(14px + 22%); padding: 6px 14px 2px; border-radius: 999px 999px 0 0; }
+.drift .glass__name::before, .drift .glass__price::before { content: ""; position: absolute; inset: 0 -6px; z-index: -1; background: rgba(4, 30, 52, .38); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.drift .glass__name::before { border-radius: 14px 14px 0 0; }
+.drift .glass__price { padding: 2px 14px 6px; display: block; width: max-content; margin: 0 auto; }
+.drift .glass__price::before { border-radius: 0 0 14px 14px; }
+@media (max-width: 900px) {
+  .drift__row.glass-row { grid-template-columns: none; grid-auto-columns: 46%; width: 100%; padding: 4px 24px 60px; }
+}
+@media (max-width: 760px) {
+  .drift__row.glass-row { grid-auto-columns: 62%; }
+}
+
+/* ==========================================================================
+   Each line has its own voice: Shoreline in crisp navy display serif,
+   Soleil in warm pink italic, Marée in old-money engraved capitals
+   ========================================================================== */
+.row[data-line="lagon"] { --line-ink: #17406E; --line-accent: #2F6FB0; --line-tint: rgba(214, 232, 247, .55); }
+.row[data-line="riva"]  { --line-ink: #C2386F; --line-accent: #E77FA6; --line-tint: rgba(255, 222, 232, .55); }
+.row[data-line="maree"] { --line-ink: #23402F; --line-accent: #A9853F; --line-tint: rgba(226, 232, 214, .55); }
+.strip--gallery .rows .row[data-line] {
+  background:
+    linear-gradient(180deg, var(--line-tint), rgba(255, 248, 232, .45)),
+    url("assets/collections/sand.jpg") 0 0 / 512px 512px repeat, #EAD6AE;
+}
+.row[data-line] .row__index, .row[data-line] .row__kind { color: var(--line-accent); }
+.row[data-line] .row__name { color: var(--line-ink); }
+.row[data-line] .card__name { color: var(--line-ink); }
+.row[data-line] .card__color, .row[data-line] .card__detail span, .row[data-line] .strip__item::before { color: var(--line-accent); }
+.row[data-line] .card__meta { border-top-color: color-mix(in srgb, var(--line-accent) 35%, transparent); }
+
+.row[data-line="lagon"] .row__name { font-family: "DM Serif Display", var(--serif); font-weight: 400; letter-spacing: -.01em; }
+.row[data-line="lagon"] .card__name { font-family: "DM Serif Display", var(--serif); }
+
+.row[data-line="riva"] .row__name {
+  font-family: "Playfair Display", var(--serif); font-style: italic; font-weight: 500; letter-spacing: -.02em;
+  background: linear-gradient(100deg, #C2386F 0%, #F07C9E 45%, #F6A55E 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  padding: .06em .14em .14em 0; margin-bottom: -.1em;   /* room for the italic's swash and descenders */
+}
+.row[data-line="riva"] .card__name { font-family: "Playfair Display", var(--serif); font-style: italic; }
+
+.row[data-line="maree"] .row__name { font-family: "Cinzel", var(--serif); font-weight: 400; font-size: clamp(42px, 4.4vw, 76px); letter-spacing: .1em; }
+.row[data-line="maree"] .row__name::after { content: ""; display: block; width: 64px; height: 1px; margin-top: 18px; background: var(--line-accent); }
+.row[data-line="maree"] .card__name { font-family: "Cinzel", var(--serif); font-size: 16px; letter-spacing: .08em; }
+
+/* ==========================================================================
    Reduced motion: water and fades still play (as agreed), no movement elsewhere
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {

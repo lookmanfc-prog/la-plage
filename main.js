@@ -815,17 +815,31 @@
     if (!row || !products.length) return;
     // one from each line, then the tee
     const picks = [];
-    ['lagon-short', 'riva-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
+    ['rivage-short', 'corail-short', 'riva-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
       const p = products.find((x) => x.id === id); if (p) picks.push(p);
     });
     row.innerHTML = picks.map((p, k) => `
-      <li class="glass" style="--k:${k}" data-animate="fade-up" data-delay="${900 + k * 110}">
-        <button type="button" class="glass__frame" data-index="${products.indexOf(p)}" aria-label="View the ${p.title}" data-motion>
-          <img src="${p.cutout || p.image.src}" alt="" decoding="async" data-motion>
-        </button>
+      <li class="glass" style="--k:${k};--lift:${[0, 34, 8, 46, 14, 28][k % 6]}px;--tilt:${[-3, 2, -1.5, 3, -2.5, 1.5][k % 6]}deg" data-animate="fade-up" data-delay="${k * 110}" data-motion>
+        <div class="glass__bob" data-motion>
+          <button type="button" class="glass__frame" data-index="${products.indexOf(p)}" aria-label="View the ${p.title}" data-motion>
+            <img src="${p.cutout || p.image.src}" alt="" decoding="async" data-motion>
+          </button>
+          <span class="glass__reflection" aria-hidden="true" data-motion><img src="${p.cutout || p.image.src}" alt="" decoding="async"></span>
+        </div>
         <p class="glass__name">${p.title}</p>
         <p class="glass__price">${formatVND.format(p.price)}</p>
       </li>`).join('');
+    // each card rides the swell at its own pace as the page scrolls
+    const cards = [...row.querySelectorAll('.glass')];
+    let ticking = false;
+    const drift = () => {
+      ticking = false;
+      const r = row.getBoundingClientRect();
+      const t = (r.top + r.height / 2 - innerHeight / 2) / innerHeight;
+      cards.forEach((c, k) => c.style.setProperty('--swell', `${(t * (k % 2 ? 46 : -30)).toFixed(1)}px`));
+    };
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(drift); } }, { passive: true });
+    drift();
     row.querySelectorAll('.glass__frame').forEach((b) => {
       b.addEventListener('click', () => document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(b.dataset.index, 10), from: b, kind: 'plain' } })));
       b.addEventListener('pointermove', (e) => {
@@ -972,7 +986,7 @@
   initParallax();
   initAccess();
   initLocale();
-  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); });
+  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); initGlassRow(products); initAnimations(document.querySelector('[data-glass-row]')); });
   initLogo3d();
   initSlogan();
   initTide();
