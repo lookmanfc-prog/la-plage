@@ -135,8 +135,7 @@
         <div class="card__media" data-motion>
           <div class="card__shadow" data-motion aria-hidden="true"></div>
           <div class="card__lift" data-motion>
-            <img src="${p.image.src}" alt="${p.image.alt}" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async" draggable="false">
-            ${p.imageHover ? `<img class="card__hover" data-motion src="${p.imageHover.src}" alt="" width="${p.imageHover.width}" height="${p.imageHover.height}" loading="lazy" decoding="async" draggable="false">` : ''}
+            <img src="${p.cutout || p.image.src}" alt="${p.image.alt}" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async" draggable="false">
           </div>
         </div>
         <div class="card__meta" aria-hidden="true">
@@ -154,18 +153,33 @@
   };
 
   let categories = [];
-  // the three lines (Lagon, Riva, Marée) become tiles above the drop that also filter it
-  const renderLines = () => {
-    const box = document.querySelector('[data-lines]');
-    if (!box || !categories.length) return;
-    box.insertAdjacentHTML('beforeend', categories.map((c, i) => `
-      <button class="line" type="button" aria-pressed="false" data-filter="${c.key}">
-        <span class="line__index">0${i + 1}</span>
-        <span class="line__name">${c.name}</span>
-        <span class="line__kind">${c.kind}</span>
-        <span class="line__note">${c.note}</span>
-        <span class="line__where">Sand &amp; sea</span>
-      </button>`).join(''));
+  // one row per line (Lagon, Riva, Marée), each on its own stretch of sand
+  const renderRows = (products) => {
+    const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
+    lines.forEach((c, n) => {
+      const items = products.map((p, i) => [p, i]).filter(([p]) => !c.key || p.category === c.key);
+      if (!items.length) return;
+      const row = document.createElement('section');
+      row.className = 'row'; row.dataset.line = c.key; row.dataset.animate = 'fade-up';
+      row.setAttribute('aria-label', `${c.name}, ${c.kind}`);
+      row.innerHTML = `
+        <header class="row__head">
+          <p class="row__index">0${n + 1}</p>
+          <h3 class="row__name">${c.name}</h3>
+          <p class="row__kind">${c.kind}</p>
+          <p class="row__note">${c.note}</p>
+          <p class="row__where">Sand &amp; sea · ${String(items.length).padStart(2, '0')} pieces</p>
+        </header>
+        <ul class="row__items"></ul>`;
+      const ul = row.querySelector('.row__items');
+      items.forEach(([p, i], k) => {
+        const li = productCard(p, i);
+        li.style.setProperty('--k', k);
+        li.style.setProperty('--r', `${[-4, 3, -2, 5][k % 4]}deg`);   // each piece lies at its own slight angle, like on the sand
+        ul.appendChild(li);
+      });
+      track.appendChild(row);
+    });
   };
 
   const loadProducts = async () => {
@@ -174,13 +188,10 @@
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
       categories = data.categories || [];
-      renderLines();
-      const frag = document.createDocumentFragment();
-      data.products.forEach((p, i) => frag.appendChild(productCard(p, i)));
-      track.appendChild(frag);
+      renderRows(data.products);
       return data.products;
     } catch (err) {
-      track.innerHTML = '<li class="strip__item"><p class="eyebrow">The collection could not be loaded. Serve the site over http to read data/products.json.</p></li>';
+      track.innerHTML = '<p class="eyebrow">The collection could not be loaded. Serve the site over http to read data/products.json.</p>';
       console.error('[LA PLAGE] products', err);
       return [];
     }
@@ -281,7 +292,8 @@
       if (!palms) {
         palms = document.createElement('div');
         palms.className = 'palms'; palms.setAttribute('aria-hidden', 'true'); palms.dataset.motion = '';
-        const side = (s) => `<div class="palms__side palms__side--${s}" data-motion><img src="assets/collections/palm-fronds.svg" alt="" width="1000" height="1200" decoding="async"></div>`;
+        const nut = (k) => `<img class="palms__nut palms__nut--${k}" data-motion src="assets/collections/coconut-whole.svg" alt="" width="200" height="200">`;
+        const side = (s) => `<div class="palms__side palms__side--${s}" data-motion><div class="palms__inner"><img class="palms__tree" src="assets/collections/palm-tree.svg" alt="" width="1000" height="1400" decoding="async">${nut(1)}${nut(2)}${nut(3)}</div></div>`;
         palms.innerHTML = `<div class="palms__veil" data-motion></div>${side('l')}${side('r')}`;
         document.body.appendChild(palms);
         void palms.offsetWidth;
@@ -290,8 +302,8 @@
       setTimeout(() => {
         open(i, from);
         palms.classList.remove('is-shut'); palms.classList.add('is-open');
-        setTimeout(() => palms.classList.remove('is-open'), 1100);
-      }, 620);
+        setTimeout(() => palms.classList.remove('is-open'), 1300);
+      }, 1050);   // the trees sweep in, hold a beat while the coconuts drop, then part and fold away
     });
     $('[data-spot-prev]').addEventListener('click', () => go(-1));
     $('[data-spot-next]').addEventListener('click', () => go(1));
@@ -519,15 +531,8 @@
     setMode();
   };
 
-  /* ---------------- Collections: Sea and Sand panels, and the drop filter ---------------- */
+  /* ---------------- Collections: Sea and Sand panels ---------------- */
   const initCollections = (products) => {
-    const chips = [...document.querySelectorAll('[data-filter]')];
-    const setFilter = (key) => {
-      chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === key)));
-      track.querySelectorAll('.strip__item').forEach((li) => { li.hidden = key !== 'all' && li.dataset.collection !== key && li.dataset.category !== key; });
-      document.dispatchEvent(new CustomEvent('laplage:filter', { detail: key }));
-    };
-    chips.forEach((c) => c.addEventListener('click', () => setFilter(c.dataset.filter)));
 
     document.querySelectorAll('[data-collection]').forEach((panel) => {
       if (!panel.classList.contains('panel')) return;
@@ -566,8 +571,11 @@
         const src = p.cutout || p.image.src;
         const inner = key === 'sand'
           ? `<img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">`
-          : `<div class="bubble__glass" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></div>`;
-        return `<figure class="bubble${key === 'sand' ? ' bubble--free' : ''}" style="${varsFor(i, layout.desk[i], layout.phone[i])}" data-motion data-view="${at(p)}" role="button" tabindex="0" aria-label="View the ${p.title}">
+          : `<img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"><div class="bubble__glass" data-motion></div>
+             ${Array.from({ length: 10 }, (_, k) => `<span class="pop-drop" data-motion style="--a:${k * 36 + (k % 2) * 14}deg;--l:${(k % 3) * 8 + 52}%"></span>`).join('')}
+             ${i === shown.length - 1 ? '<span class="tap-hint" aria-hidden="true" data-motion>Tap to pop</span>' : ''}`;
+        const pop = key === 'sea';
+        return `<figure class="bubble${key === 'sand' ? ' bubble--free' : ''}" style="${varsFor(i, layout.desk[i], layout.phone[i])}" data-motion data-view="${at(p)}"${pop ? ' data-pop' : ''} role="button" tabindex="0" aria-label="${pop ? `Pop the bubble to free the ${p.title}` : `View the ${p.title}`}">
           <div class="bubble__flow" data-motion><div class="bubble__float" data-motion>${inner}</div></div>
           <figcaption>${p.title}</figcaption>
         </figure>`;
@@ -595,9 +603,24 @@
       fan.innerHTML = free.join('') + nuts.join('');
       // tap a piece: the palms part and it pops out in the spotlight, right here (no jump up the page)
       const view = (el) => document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(el.dataset.view, 10), from: el } }));
+      // Sea bubbles pop first (glass bursts into droplets, the piece is set free); tap the piece again to see it.
+      // A popped bubble slowly forms again a little later.
+      const tap = (el) => {
+        if (el.hasAttribute('data-pop') && !el.classList.contains('is-popped')) {
+          el.classList.add('is-popped');
+          el.setAttribute('aria-label', `View the ${el.querySelector('figcaption').textContent}`);
+          clearTimeout(el._regrow);
+          el._regrow = setTimeout(() => {
+            el.classList.remove('is-popped');
+            el.setAttribute('aria-label', `Pop the bubble to free the ${el.querySelector('figcaption').textContent}`);
+          }, 15000);
+          return;
+        }
+        view(el);
+      };
       fan.querySelectorAll('[data-view]').forEach((el) => {
-        el.addEventListener('click', () => view(el));
-        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); view(el); } });
+        el.addEventListener('click', () => tap(el));
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(el); } });
       });
       // tap a coconut: it shakes, cracks in two and the piece springs out; tap the piece to see it, or the shell to close it
       fan.querySelectorAll('.nut').forEach((nut) => {
@@ -674,7 +697,7 @@
         panel.style.setProperty('--my', `${((e.clientY - r.top) / r.height * 100).toFixed(1)}%`);
       });
       // clicking a collection filters the drop to its pieces
-      link.addEventListener('click', () => setFilter(key));
+
     });
   };
 
