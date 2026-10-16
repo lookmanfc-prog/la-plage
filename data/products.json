@@ -8,19 +8,19 @@
   "categories": [
     {
       "key": "lagon",
-      "name": "Lagon",
+      "name": "Shoreline",
       "kind": "Beach sport",
       "note": "Shirts and shorts made to move on the sand and in the shallows."
     },
     {
       "key": "riva",
-      "name": "Riva",
+      "name": "Tide",
       "kind": "Swim trunks",
       "note": "For the swim, from the first dip to the last light."
     },
     {
       "key": "maree",
-      "name": "Marée",
+      "name": "Riviera",
       "kind": "Old money",
       "note": "Seersucker and quiet stripes for long lunches by the sea."
     }
