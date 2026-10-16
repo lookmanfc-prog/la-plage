@@ -650,11 +650,13 @@ html.intro-on { overflow: hidden; }
    one after another, each with a rolling crest, and the words rise out of the deep. It plays
    again each time you come back down to it.
    ========================================================================== */
-.tide {
-  position: relative; overflow: hidden; isolation: isolate;
-  min-height: 100vh; min-height: 100svh;
+/* The section is taller than the screen and its stage stays pinned while you scroll through it,
+   so the wave and the words always play out in full view instead of sliding past. */
+.tide { position: relative; height: 190vh; background: #fff; }
+.tide__stage {
+  position: sticky; top: 0; overflow: hidden; isolation: isolate;
+  height: 100vh; height: 100svh;
   display: grid; place-items: center; text-align: center;
-  background: #fff;
 }
 .tide__sea { position: absolute; inset: 0; z-index: -1; }
 .tide__wave {
@@ -685,7 +687,7 @@ html.intro-on { overflow: hidden; }
 }
 .tide__kicker {
   font-size: 10.5px; letter-spacing: .34em; text-transform: uppercase; color: var(--sand);
-  transition-delay: 700ms;
+  transition-delay: 420ms;
 }
 .tide__phrase {
   margin: 26px 0 30px;
@@ -693,11 +695,11 @@ html.intro-on { overflow: hidden; }
   font-size: clamp(60px, 11vw, 196px); line-height: .92; letter-spacing: -.02em;
 }
 .tide__line { display: inline-block; opacity: 0; transform: translate3d(0, 40%, 0); filter: blur(10px); transition: opacity 1000ms var(--ease-soft), transform 1300ms var(--ease-out), filter 1000ms var(--ease-soft); }
-.tide__phrase span.tide__line { transition-delay: 760ms; }
-.tide__phrase em.tide__line { font-style: italic; color: var(--sand-light); transition-delay: 900ms; }
+.tide__phrase span.tide__line { transition-delay: 460ms; }
+.tide__phrase em.tide__line { font-style: italic; color: var(--sand-light); transition-delay: 600ms; }
 .tide__sub {
   font-family: var(--serif); font-style: italic; font-size: clamp(15px, 1.3vw, 19px); color: rgba(246, 238, 223, .82);
-  transition-delay: 1150ms;
+  transition-delay: 820ms;
 }
 .tide.is-in .tide__kicker, .tide.is-in .tide__sub { opacity: 1; transform: none; }
 .tide.is-in .tide__line { opacity: 1; transform: none; filter: blur(0); }
