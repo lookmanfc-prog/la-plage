@@ -486,42 +486,55 @@
       const fan = panel.querySelector('[data-fan]');
       const n = items.length;
       // pieces are scattered across the whole panel, clear of the caption in the bottom-left corner
+      // every piece floats freely and drifts slowly around the panel, clear of the caption in the bottom-left;
+      // on Sand, a couple of coconuts also wait to be cracked open, each hiding one of the pieces
       const slots = key === 'sand'
-        ? [[70, 14], [26, 19], [50, 41], [82, 60], [24, 44], [66, 80]]
+        ? [[22, 13], [70, 10], [46, 33], [86, 31], [84, 70], [66, 88]]
         : [[25, 17], [72, 14], [74, 55], [46, 37], [86, 80], [22, 44]];
-      if (key === 'sand') fan.removeAttribute('aria-hidden');   // the coconuts are buttons
-      fan.innerHTML = items.map((p, i) => {
-        const [x, y] = slots[i % slots.length];
+      const nutSlots = [[19, 37], [78, 60]];
+      // phones: the caption fills the lower half, so everything gathers in the top half
+      const phoneSlots = key === 'sand'
+        ? [[20, 10], [78, 9], [50, 24], [84, 38], [22, 36], [56, 44]]
+        : [[22, 14], [76, 12], [62, 34], [30, 40]];
+      const hidden = key === 'sand' ? items.slice(0, 2) : [];
+      if (hidden.length) fan.removeAttribute('aria-hidden');   // the coconuts are buttons
+      const varsFor = (i, x, y) => {
+        const [mx, my] = phoneSlots[i % phoneSlots.length];
         const s = (1 - ((i * 37) % 4) * 0.07).toFixed(2);          // a little variety in size
         const bob = (5.2 + ((i * 1.7) % 2.6)).toFixed(2);          // every piece on its own rhythm
-        const vars = `--i:${i};--x:${x}%;--y:${y}%;--dx:${((x - 50) / 50).toFixed(2)};--dy:${((y - 45) / 45).toFixed(2)};--s:${s};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s`;
+        const flow = (19 + ((i * 5) % 9)).toFixed(0);              // and its own slow drift
+        return `--i:${i};--x:${x}%;--y:${y}%;--mx:${mx}%;--my:${my}%;--dx:${((x - 50) / 50).toFixed(2)};--dy:${((y - 45) / 45).toFixed(2)};--s:${s};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s;--flow:${flow}s;--flow-delay:${(-i * 4.7).toFixed(1)}s;--fx:${(i % 2 ? -1 : 1) * (2.2 + (i % 3) * 0.8)}vw;--fy:${(1.6 + ((i + 1) % 3) * 0.7).toFixed(1)}vw`;
+      };
+      const free = items.map((p, i) => {
+        const [x, y] = slots[i % slots.length];
         const src = p.cutout || p.image.src;
-        if (key === 'sand') {
-          // Sand: each piece hides inside a coconut that cracks open when tapped
-          const crack = Array.from({ length: 4 }, (_, k) => `<span class="splash" data-motion style="--k:${k}"></span>`).join('');
-          return `<figure class="bubble bubble--coconut" style="${vars}" data-motion>
-            <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion>
-              <span class="coconut__shadow" data-motion></span>
-              <span class="nut__shell" data-motion>
-                <span class="nut__inside" data-motion></span>
-                <span class="nut__half nut__half--l" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
-                <span class="nut__half nut__half--r" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
-              </span>
-              <span class="nut__piece" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></span>
-              ${crack}
-            </button>
-            <figcaption>${p.title}</figcaption>
-          </figure>`;
-        }
-        return `<figure class="bubble" style="${vars}" data-motion>
-          <div class="bubble__float" data-motion>
-            <div class="bubble__glass" data-motion>
-              <img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">
-            </div>
-          </div>
+        const inner = key === 'sand'
+          ? `<img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">`
+          : `<div class="bubble__glass" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></div>`;
+        return `<figure class="bubble${key === 'sand' ? ' bubble--free' : ''}" style="${varsFor(i, x, y)}" data-motion>
+          <div class="bubble__flow" data-motion><div class="bubble__float" data-motion>${inner}</div></div>
           <figcaption>${p.title}</figcaption>
         </figure>`;
-      }).join('');
+      });
+      const nuts = hidden.map((p, j) => {
+        const [x, y] = nutSlots[j];
+        const src = p.cutout || p.image.src;
+        const crack = Array.from({ length: 4 }, (_, k) => `<span class="splash" data-motion style="--k:${k}"></span>`).join('');
+        return `<figure class="bubble bubble--coconut" style="${varsFor(n + j, x, y)}" data-motion>
+          <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion>
+            <span class="coconut__shadow" data-motion></span>
+            <span class="nut__shell" data-motion>
+              <span class="nut__inside" data-motion></span>
+              <span class="nut__half nut__half--l" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
+              <span class="nut__half nut__half--r" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
+            </span>
+            <span class="nut__piece" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></span>
+            ${crack}
+          </button>
+          <figcaption>${p.title}</figcaption>
+        </figure>`;
+      });
+      fan.innerHTML = free.join('') + nuts.join('');
       // tap a coconut: it shakes, cracks in two and the piece springs out; tap again to close it
       fan.querySelectorAll('.nut').forEach((nut) => {
         nut.addEventListener('click', () => {
