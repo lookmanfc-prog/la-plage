@@ -64,6 +64,7 @@
    ========================================================================== */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html.has-smooth { scroll-behavior: auto; }   /* main.js glides the page itself */
 body {
   margin: 0;
   background: var(--white);
@@ -395,6 +396,11 @@ html.intro-on { overflow: hidden; }
     linear-gradient(180deg, rgba(11, 44, 71, .38) 0, rgba(11, 44, 71, 0) 170px),
     linear-gradient(90deg, rgba(11, 44, 71, .58) 0, rgba(11, 44, 71, .46) 40%, rgba(11, 44, 71, 0) 72%);   /* keeps white type readable over the white sand */
 }
+/* the photo melts into the white page below, so the hero hands over softly */
+.hero__photos::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22vh;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .55) 60%, #fff 100%);
+}
 
 .hero__content { position: relative; width: 100%; padding-top: var(--nav-h); color: var(--white); text-shadow: 0 1px 24px rgba(11, 44, 71, .25); }
 .hero__content .label { color: var(--white); font-weight: 400; }
@@ -404,7 +410,32 @@ html.intro-on { overflow: hidden; }
   margin: 18px 0 30px;
   color: var(--white);
 }
-.hero__title em { color: var(--sand-light); }
+.hero__lead { display: block; }
+/* the slogan: a sunlit gradient drifting through the letters, turning to a new line every few seconds */
+@property --sun { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
+.slogan {
+  display: grid; justify-items: start;
+  margin-top: .04em; padding-bottom: .12em;
+  font-size: 1.08em;
+  filter: drop-shadow(0 2px 22px rgba(11, 44, 71, .35));
+}
+.hero__title .slogan__line {
+  grid-area: 1 / 1;
+  font-style: italic; white-space: nowrap;
+  padding-right: .12em;   /* room for the italic overhang */
+  background: linear-gradient(100deg, #FFE7B0 0%, #FFC27A 22%, #FF9A7A 40%, #FFD9A0 55%, #8FF0E4 75%, #FFE7B0 100%);
+  background-size: 260% 100%;
+  background-position: var(--sun) 50%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; text-shadow: none;
+  animation: sun-drift 9s ease-in-out infinite alternate;
+  opacity: 0; transform: translate3d(0, 55%, 0) rotate(2deg); filter: blur(8px);
+  transform-origin: left bottom;
+  transition: opacity 900ms var(--ease-soft), transform 1100ms var(--ease-out), filter 900ms var(--ease-soft);
+}
+.hero__title .slogan__line.is-on  { opacity: 1; transform: none; filter: blur(0); }
+.hero__title .slogan__line.is-off { opacity: 0; transform: translate3d(0, -45%, 0) rotate(-1deg); filter: blur(8px); transition-duration: 700ms, 800ms, 700ms; }
+@keyframes sun-drift { from { --sun: 0%; } to { --sun: 100%; } }
 .hero__cta { white-space: nowrap; }
 
 /* Palms grow up into place once the welcome wave has uncovered them */
@@ -424,7 +455,7 @@ html.intro-on { overflow: hidden; }
 /* ==========================================================================
    The first drop
    ========================================================================== */
-.drop { padding: var(--section-y) 0 clamp(80px, 12vh, 140px); position: relative; }
+.drop { padding: clamp(70px, 12vh, 140px) 0 clamp(160px, 28vh, 320px); position: relative; }
 .drop__head {
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;
   margin-bottom: clamp(44px, 7vh, 80px);
@@ -551,12 +582,51 @@ html.intro-on { overflow: hidden; }
   .strip__item { width: 76vw; }
 }
 
+/* The drop as a tall editorial gallery: big pieces in a loose rhythm (wide left, smaller right set lower,
+   then one on its own in the middle), each with its number. The hover pop stays exactly as above. */
+.strip--gallery .strip__viewport { overflow: visible; padding: 0; margin: 0; }
+.strip--gallery .strip__track {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(16px, 3vw, 56px); row-gap: clamp(90px, 16vh, 200px);
+  width: auto; padding-inline: var(--gutter); padding-top: clamp(30px, 6vh, 70px);
+  transform: none !important; will-change: auto;
+  counter-reset: piece;
+}
+.strip--gallery .strip__item { width: auto; position: relative; counter-increment: piece; }
+.strip--gallery .strip__item:nth-child(3n + 1) { grid-column: 1 / span 6; }
+.strip--gallery .strip__item:nth-child(3n + 2) { grid-column: 8 / span 5; margin-top: clamp(120px, 22vw, 380px); }
+.strip--gallery .strip__item:nth-child(3n + 3) { grid-column: 4 / span 5; }
+.strip--gallery .strip__item::before {
+  content: counter(piece, decimal-leading-zero);
+  position: absolute; top: -.62em; left: -.04em; z-index: 1; pointer-events: none;
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: clamp(56px, 7vw, 124px); line-height: 1; letter-spacing: -.03em;
+  color: var(--sand); opacity: .55;
+}
+.strip--gallery .strip__item:nth-child(3n + 2)::before { left: auto; right: -.04em; }
+.strip--gallery .card__meta { padding-top: 22px; }
+.strip--gallery .card__name { font-size: clamp(20px, 1.8vw, 28px); }
+.strip--gallery .card__price { font-size: 14px; }
+.strip--gallery .strip__item[hidden] { display: none; }
+
+@media (max-width: 760px) {
+  .strip--gallery .strip__track { grid-template-columns: minmax(0, 1fr); row-gap: 84px; }
+  .strip--gallery .strip__item:nth-child(n) { grid-column: 1; margin-top: 0; width: 88%; }
+  .strip--gallery .strip__item:nth-child(even) { justify-self: end; }
+  .strip--gallery .strip__item:nth-child(even)::before { left: auto; right: -.04em; }
+}
+
 /* ==========================================================================
    Sea / Sand panels
    ========================================================================== */
 /* Two collections side by side. On hover the chosen one breathes wider,
    its pieces fan out like swatch cards, and the light in it comes alive. */
-.panels { display: flex; }
+.panels { display: flex; position: relative; }
+/* the white page mists into the two collections instead of meeting them at a hard edge */
+.panels::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: clamp(90px, 16vh, 170px); z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, .7) 35%, rgba(255, 255, 255, 0) 100%);
+}
 .panel {
   --ease-lux: cubic-bezier(.2, .9, .25, 1);
   position: relative; overflow: hidden; isolation: isolate;
@@ -614,7 +684,7 @@ html.intro-on { overflow: hidden; }
 .panel--sea .panel__link:focus-visible  { outline-color: var(--sand-light); }
 .panel--sand .panel__link:focus-visible { outline-color: var(--sea-deep); }
 .panel__fan {
-  position: absolute; inset: 0; z-index: 2;
+  position: absolute; inset: clamp(50px, 9vh, 100px) 0 0; z-index: 2;   /* starts below the mist */
   --size: clamp(140px, 12.5vw, 230px);
   pointer-events: none;
 }
@@ -958,7 +1028,14 @@ html.intro-on { overflow: hidden; }
 /* ==========================================================================
    Story
    ========================================================================== */
-.story { background: var(--sand-light); }
+/* a soft sand-coloured swell rises over the collections, and the story fades into the white below */
+.story { position: relative; background: linear-gradient(180deg, var(--sand-light) 0%, var(--sand-light) 70%, #fff 100%); }
+.story::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: clamp(40px, 6vw, 90px); pointer-events: none;
+  background: var(--sand-light);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 90' preserveAspectRatio='none'%3E%3Cpath d='M0 90 V52 C 240 10, 480 10, 720 46 S 1200 84, 1440 30 V90 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 90' preserveAspectRatio='none'%3E%3Cpath d='M0 90 V52 C 240 10, 480 10, 720 46 S 1200 84, 1440 30 V90 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+}
 .story__inner {
   max-width: 1000px; margin: 0 auto; text-align: center;
   padding-block: clamp(120px, 22vh, 240px);
@@ -1008,7 +1085,7 @@ html.intro-on { overflow: hidden; }
 /* ==========================================================================
    Private access
    ========================================================================== */
-.access { border-top: 1px solid var(--line); background: var(--foam); }
+.access { background: linear-gradient(180deg, #fff 0%, var(--foam) 30%); }
 .access__inner {
   max-width: 760px; margin: 0 auto; text-align: center;
   padding-block: clamp(120px, 20vh, 210px);
@@ -1037,6 +1114,14 @@ html.intro-on { overflow: hidden; }
 /* ==========================================================================
    Footer
    ========================================================================== */
+/* the footer arrives as a deep-sea swell */
+.footer { position: relative; }
+.footer::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: clamp(40px, 6vw, 90px); pointer-events: none;
+  background: var(--sea-deep);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 90' preserveAspectRatio='none'%3E%3Cpath d='M0 90 V40 C 300 84, 560 84, 820 44 S 1260 6, 1440 50 V90 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 90' preserveAspectRatio='none'%3E%3Cpath d='M0 90 V40 C 300 84, 560 84, 820 44 S 1260 6, 1440 50 V90 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+}
 .footer { background: var(--sea-deep); color: var(--sand); font-size: 13px; font-weight: 300; }
 .footer__inner {
   display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 40px;
