@@ -70,6 +70,11 @@
           <p class="label label--index" data-animate="fade-up"><span>01</span> The drop</p>
           <h2 class="display-2" id="drop-title" data-animate="words" data-delay="100">The first <em>drop</em></h2>
         </div>
+        <div class="drop__filter" role="group" aria-label="Filter by collection" data-animate="fade" data-delay="250">
+          <button class="chip" type="button" aria-pressed="true" data-filter="all">All</button>
+          <button class="chip" type="button" aria-pressed="false" data-filter="sea">Sea</button>
+          <button class="chip" type="button" aria-pressed="false" data-filter="sand">Sand</button>
+        </div>
         <div class="drop__controls" data-animate="fade" data-delay="300">
           <button class="ui-btn link" type="button" data-strip-prev aria-controls="strip-track">Previous</button>
           <span class="drop__divider" aria-hidden="true"></span>
@@ -90,22 +95,28 @@
 
     <!-- Sea / Sand -->
     <section class="panels section" id="collections" aria-label="Collections">
-      <a class="panel panel--sea" href="#drop">
+      <a class="panel panel--sea" href="#drop" data-collection="sea" data-motion>
+        <div class="panel__light" aria-hidden="true" data-motion></div>
         <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="200"></div>
-        <div class="panel__caption">
-          <p class="label label--index" data-animate="fade-up"><span>02</span> Collection</p>
+        <div class="panel__fan" aria-hidden="true" data-fan="sea"></div>
+        <div class="panel__caption" data-motion>
+          <p class="label label--index" data-animate="fade-up" data-delay="0"><span>02</span> Collection</p>
           <h2 class="panel__title" data-animate="words" data-delay="120"><em>Sea</em></h2>
+          <p class="panel__count" data-count="sea" data-animate="fade-up" data-delay="240"></p>
           <p class="panel__text" data-animate="fade-up" data-delay="320">Deep blues for early water and late swims.</p>
-          <span class="link link--underlined" data-animate="fade-up" data-delay="440">Shop Sea</span>
+          <span class="panel__cta" data-animate="fade-up" data-delay="440" data-motion>Shop Sea<span class="panel__arrow" aria-hidden="true" data-motion></span></span>
         </div>
       </a>
-      <a class="panel panel--sand" href="#drop">
+      <a class="panel panel--sand" href="#drop" data-collection="sand" data-motion>
+        <div class="panel__light" aria-hidden="true" data-motion></div>
         <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="320"></div>
-        <div class="panel__caption">
+        <div class="panel__fan" aria-hidden="true" data-fan="sand"></div>
+        <div class="panel__caption" data-motion>
           <p class="label label--index" data-animate="fade-up" data-delay="120"><span>03</span> Collection</p>
           <h2 class="panel__title" data-animate="words" data-delay="240"><em>Sand</em></h2>
+          <p class="panel__count" data-count="sand" data-animate="fade-up" data-delay="360"></p>
           <p class="panel__text" data-animate="fade-up" data-delay="440">Warm neutrals, sun-faded by design.</p>
-          <span class="link link--underlined" data-animate="fade-up" data-delay="560">Shop Sand</span>
+          <span class="panel__cta" data-animate="fade-up" data-delay="560" data-motion>Shop Sand<span class="panel__arrow" aria-hidden="true" data-motion></span></span>
         </div>
       </a>
     </section>

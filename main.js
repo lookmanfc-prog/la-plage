@@ -119,6 +119,7 @@
   const productCard = (p, i) => {
     const li = document.createElement('li');
     li.className = 'strip__item';
+    li.dataset.collection = p.collection || '';
     li.innerHTML = `
       <a class="card" data-motion href="#product/${p.handle}" data-index="${i}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}. View details">
         <div class="card__media" data-motion>
@@ -461,7 +462,52 @@
     finePointer.addEventListener?.('change', setMode);
     window.addEventListener('resize', setMode);
     if ('ResizeObserver' in window) new ResizeObserver(() => setMode()).observe(track);
+    document.addEventListener('laplage:filter', () => {
+      state.x = 0; state.v = 0; state.target = null; viewport.scrollLeft = 0;
+      measure(); render(); updateUI(0);
+    });
     setMode();
+  };
+
+  /* ---------------- Collections: Sea and Sand panels, and the drop filter ---------------- */
+  const initCollections = (products) => {
+    const chips = [...document.querySelectorAll('[data-filter]')];
+    const setFilter = (key) => {
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === key)));
+      track.querySelectorAll('.strip__item').forEach((li) => { li.hidden = key !== 'all' && li.dataset.collection !== key; });
+      document.dispatchEvent(new CustomEvent('laplage:filter', { detail: key }));
+    };
+    chips.forEach((c) => c.addEventListener('click', () => setFilter(c.dataset.filter)));
+
+    document.querySelectorAll('[data-collection]').forEach((panel) => {
+      if (!panel.classList.contains('panel')) return;
+      const key = panel.dataset.collection;
+      const items = products.filter((p) => p.collection === key);
+      const fan = panel.querySelector('[data-fan]');
+      const n = items.length;
+      fan.style.setProperty('--spread', n > 3 ? '58%' : '74%');   // wider collections fan a little tighter
+      // a fan of the collection's own pieces, stacked at rest and spread on hover
+      fan.innerHTML = items.map((p, i) => {
+        const o = i - (n - 1) / 2;
+        return `<figure class="fan-card" style="--i:${i};--o:${o};--a:${Math.abs(o)}" data-motion>
+          <img src="${p.image.src}" alt="" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async">
+          <figcaption>${p.title}</figcaption>
+        </figure>`;
+      }).join('');
+      const count = panel.querySelector('[data-count]');
+      if (count) count.textContent = `${String(n).padStart(2, '0')} pieces`;
+      panel.setAttribute('aria-label', `${key === 'sea' ? 'Sea' : 'Sand'} collection, ${n} pieces. Shop the collection`);
+
+      // a soft sheen that follows the cursor
+      panel.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        const r = panel.getBoundingClientRect();
+        panel.style.setProperty('--mx', `${((e.clientX - r.left) / r.width * 100).toFixed(1)}%`);
+        panel.style.setProperty('--my', `${((e.clientY - r.top) / r.height * 100).toFixed(1)}%`);
+      });
+      // clicking a collection filters the drop to its pieces
+      panel.addEventListener('click', () => setFilter(key));
+    });
   };
 
   /* ---------------- Lookbook parallax ---------------- */
@@ -522,5 +568,5 @@
   initParallax();
   initAccess();
   initLocale();
-  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); });
+  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); });
 })();

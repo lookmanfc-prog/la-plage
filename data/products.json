@@ -33,7 +33,8 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "collection": "sand"
     },
     {
       "id": "riva-short",
@@ -62,7 +63,38 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "collection": "sea"
+    },
+    {
+      "id": "lagon-short",
+      "handle": "lagon-short",
+      "title": "Lagon Short",
+      "price": 1450000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Lagoon Floral",
+        "hex": "#2F6FAE"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-lagoon-floral.jpg",
+        "alt": "Lagon Short in deep lagoon blue with white hibiscus and monstera leaves and a woven LA PLAGE label",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Lagoon-blue swim short with white hibiscus and monstera leaves and a woven palm label.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sea"
     },
     {
       "id": "maree-short",
@@ -91,7 +123,8 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "collection": "sea"
     },
     {
       "id": "plage-short",
@@ -120,7 +153,38 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "collection": "sand"
+    },
+    {
+      "id": "palmier-short",
+      "handle": "palmier-short",
+      "title": "Palmier Short",
+      "price": 1450000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Palm Print",
+        "hex": "#8A8F5C"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-palm-print.jpg",
+        "alt": "Palmier Short in white with sketched olive and terracotta palm trees and a woven LA PLAGE label",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "White swim short with hand-sketched palms in olive and terracotta and a woven palm label.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand"
     },
     {
       "id": "esprit-cotier-tee",
@@ -156,7 +220,8 @@
         "M",
         "L",
         "XL"
-      ]
+      ],
+      "collection": "sand"
     }
   ]
 }
