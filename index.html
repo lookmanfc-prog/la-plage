@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
-  <link rel="stylesheet" href="styles.css?v=34">
+  <link rel="stylesheet" href="styles.css?v=35">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
 <body>
@@ -48,21 +48,24 @@
   </header>
 
   <main id="main">
-    <!-- Hero -->
-    <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
-      <!-- Animated coconut palms: each frond sways on its own rhythm (CSS inside each SVG) -->
-      <div class="hero__photos" aria-hidden="true">
-        <!-- Welcome photo: one still image, no motion -->
-        <img class="hero__photo" src="assets/hero/beach.jpg" alt="" width="3840" height="2560" fetchpriority="high" decoding="async">
-        <div class="hero__shade"></div>
-      </div>
+    <!-- Hero: a live ocean, the LA PLAGE logo in 3D (drag to turn it) and the drop behind glass -->
+    <section class="hero hero--ocean" id="top" aria-labelledby="hero-title" data-hero>
+      <canvas class="hero__ocean" data-ocean aria-hidden="true"></canvas>
+      <div class="hero__veil" aria-hidden="true"></div>
       <div class="hero__content wrap">
-        <p class="label" data-animate="fade-up" data-delay="200">Drop 001 · Summer</p>
+        <div class="logo3d" data-logo3d data-animate="fade" data-delay="150" role="img" aria-label="LA PLAGE logo. Drag to turn it around.">
+          <div class="logo3d__stage" data-motion>
+            <div class="logo3d__obj" data-logo3d-obj data-motion></div>
+          </div>
+          <span class="logo3d__shadow" aria-hidden="true" data-motion></span>
+        </div>
+        <p class="label hero__label" data-animate="fade-up" data-delay="400">Drop 001 · Summer · Made in Saigon</p>
         <h1 class="hero__title" id="hero-title">
           <span class="visually-hidden">Dressed for golden hour.</span>
-          <span class="hero__lead" aria-hidden="true" data-animate="words" data-delay="320">Dressed for</span>
-          <span class="slogan" aria-hidden="true" data-slogan data-animate="fade-up" data-delay="640"><em class="slogan__line is-on" data-motion>golden hour.</em></span>
+          <span class="hero__lead" aria-hidden="true" data-animate="words" data-delay="500">Dressed for</span>
+          <span class="slogan" aria-hidden="true" data-slogan data-animate="fade-up" data-delay="700"><em class="slogan__line is-on" data-motion>golden hour.</em></span>
         </h1>
+        <ul class="glass-row" data-glass-row aria-label="Featured pieces"></ul>
         <a class="link link--underlined hero__cta" href="#drop" data-animate="fade-up" data-delay="900">Enter the collection</a>
       </div>
     </section>
@@ -300,7 +303,8 @@
     </button>
   </div>
 
-  <script src="intro.js?v=34" defer></script>
-  <script src="main.js?v=34" defer></script>
+  <script src="intro.js?v=35" defer></script>
+  <script src="ocean.js?v=35" defer></script>
+  <script src="main.js?v=35" defer></script>
 </body>
 </html>

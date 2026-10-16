@@ -317,6 +317,7 @@
       const { index: i, from, kind } = e.detail;
       if (Number.isNaN(i)) return;
       if (kind === 'sea') { sharkRun(i, from); return; }
+      if (kind === 'plain') { open(i, from); return; }
       if (!palms) {
         palms = document.createElement('div');
         palms.className = 'palms'; palms.setAttribute('aria-hidden', 'true'); palms.dataset.motion = '';
@@ -729,6 +730,101 @@
     });
   };
 
+  /* ---------------- 3D logo: the palm and the wordmark are built from stacked slices so they have
+     real thickness; it sways on its own, and can be dragged round (with a little inertia) ---------------- */
+  const initLogo3d = () => {
+    const root = document.querySelector('[data-logo3d]');
+    const obj = root && root.querySelector('[data-logo3d-obj]');
+    if (!obj) return;
+    const SLICES = 26, WORD = 14;
+    let html = '<div class="logo3d__mark">';
+    for (let i = SLICES - 1; i >= 0; i--) {
+      const cls = i === 0 ? 'is-front' : (i === SLICES - 1 ? 'is-back' : 'is-side');
+      html += `<span class="logo3d__slice ${cls}" style="--z:${i}" data-motion></span>`;
+    }
+    html += '</div><div class="logo3d__word">';
+    for (let i = WORD - 1; i >= 0; i--) {
+      const cls = i === 0 ? 'is-front' : (i === WORD - 1 ? 'is-back' : 'is-side');
+      html += `<span class="logo3d__text ${cls}" style="--z:${i}" data-motion>LA PLAGE</span>`;
+    }
+    html += '</div>';
+    obj.innerHTML = html;
+
+    let ry = -18, rx = 6, vy = 0, dragging = false, lastX = 0, lastY = 0, idle = 0, raf = 0;
+    const t0 = performance.now();
+    const render = () => {
+      obj.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+      // light follows the turn: the sheen slides across the face, the sides darken away from the light
+      const a = ((ry % 360) + 360) % 360;
+      obj.style.setProperty('--sheen', `${(50 + Math.sin(a * Math.PI / 180) * 60).toFixed(1)}%`);
+      obj.style.setProperty('--side-light', (0.55 + 0.45 * Math.abs(Math.cos(a * Math.PI / 180))).toFixed(3));
+    };
+    const loop = (now) => {
+      raf = requestAnimationFrame(loop);
+      if (dragging) return render();
+      if (Math.abs(vy) > 0.02) { ry += vy; vy *= 0.95; idle = now; }
+      else if (now - idle > 1600) {
+        // at rest: a slow, continuous turn with a gentle nod
+        ry += 0.18;
+        rx += ((6 + Math.sin((now - t0) / 1800) * 4) - rx) * 0.03;
+      }
+      render();
+    };
+    root.addEventListener('pointerdown', (e) => {
+      dragging = true; lastX = e.clientX; lastY = e.clientY; vy = 0;
+      root.setPointerCapture(e.pointerId); root.classList.add('is-grabbing');
+    });
+    root.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      ry += dx * 0.45; rx = clamp(rx - dy * 0.3, -35, 35);
+      vy = vy * 0.5 + dx * 0.45 * 0.5;
+      lastX = e.clientX; lastY = e.clientY;
+    });
+    const up = (e) => {
+      if (!dragging) return;
+      dragging = false; idle = performance.now(); root.classList.remove('is-grabbing');
+      if (root.hasPointerCapture(e.pointerId)) root.releasePointerCapture(e.pointerId);
+    };
+    root.addEventListener('pointerup', up);
+    root.addEventListener('pointercancel', up);
+    // only animate while the hero is on screen
+    new IntersectionObserver(([en]) => {
+      if (en.isIntersecting && !raf) raf = requestAnimationFrame(loop);
+      if (!en.isIntersecting && raf) { cancelAnimationFrame(raf); raf = 0; }
+    }).observe(root);
+    render();
+  };
+
+  /* ---------------- Glass row: featured pieces in glass frames floating over the ocean ---------------- */
+  const initGlassRow = (products) => {
+    const row = document.querySelector('[data-glass-row]');
+    if (!row || !products.length) return;
+    // one from each line, then the tee
+    const picks = [];
+    ['lagon-short', 'riva-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
+      const p = products.find((x) => x.id === id); if (p) picks.push(p);
+    });
+    row.innerHTML = picks.map((p, k) => `
+      <li class="glass" style="--k:${k}" data-animate="fade-up" data-delay="${900 + k * 110}">
+        <button type="button" class="glass__frame" data-index="${products.indexOf(p)}" aria-label="View the ${p.title}" data-motion>
+          <img src="${p.cutout || p.image.src}" alt="" decoding="async" data-motion>
+        </button>
+        <p class="glass__name">${p.title}</p>
+        <p class="glass__price">${formatVND.format(p.price)}</p>
+      </li>`).join('');
+    row.querySelectorAll('.glass__frame').forEach((b) => {
+      b.addEventListener('click', () => document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(b.dataset.index, 10), from: b, kind: 'plain' } })));
+      b.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        const r = b.getBoundingClientRect();
+        b.style.setProperty('--tx', `${(((e.clientX - r.left) / r.width) - .5) * 14}deg`);
+        b.style.setProperty('--ty', `${(((e.clientY - r.top) / r.height) - .5) * -14}deg`);
+      });
+      b.addEventListener('pointerleave', () => { b.style.removeProperty('--tx'); b.style.removeProperty('--ty'); });
+    });
+  };
+
   /* ---------------- Hero slogan: a sunlit line that turns to the next every few seconds ---------------- */
   const initSlogan = () => {
     const box = document.querySelector('[data-slogan]');
@@ -863,7 +959,8 @@
   initParallax();
   initAccess();
   initLocale();
-  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); });
+  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); initGlassRow(products); initAnimations(document.querySelector('[data-glass-row]')); });
+  initLogo3d();
   initSlogan();
   initTide();
   initSmoothScroll();
