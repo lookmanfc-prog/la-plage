@@ -626,6 +626,17 @@ html.intro-on { overflow: hidden; }
   transition: transform 1300ms var(--ease-lux);
   transition-delay: calc(var(--i) * 70ms);
 }
+/* each piece wanders slowly around its spot */
+.bubble__flow {
+  position: absolute; inset: 0;
+  animation: flow var(--flow, 22s) ease-in-out var(--flow-delay, 0s) infinite;
+}
+@keyframes flow {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25%      { transform: translate3d(var(--fx), calc(var(--fy) * -1), 0); }
+  50%      { transform: translate3d(calc(var(--fx) * -.5), var(--fy), 0); }
+  75%      { transform: translate3d(calc(var(--fx) * -1), calc(var(--fy) * -.4), 0); }
+}
 .bubble__float {
   position: absolute; inset: 0;
   animation: bubble-bob var(--bob, 6s) ease-in-out var(--bob-delay, 0s) infinite;
@@ -668,6 +679,7 @@ html.intro-on { overflow: hidden; }
   filter: blur(.5px);
 }
 .bubble__item {
+  rotate: var(--r, 0deg);   /* each piece hangs at its own slight tilt */
   width: 78%; height: 78%; object-fit: contain;
   filter: drop-shadow(0 10px 14px rgba(11, 44, 71, .28));
   animation: item-drift calc(var(--bob, 6s) * 1.3) ease-in-out var(--bob-delay, 0s) infinite;
@@ -810,6 +822,9 @@ html.intro-on { overflow: hidden; }
   opacity: 0; transform: translate3d(0, 34%, 0) scale(.25);
   transition: opacity 300ms var(--ease-soft), transform 500ms var(--ease-lux);
 }
+/* Sand pieces float free in the warm air, no glass */
+.bubble--free .bubble__float { display: grid; place-items: center; }
+.bubble--free .bubble__item { width: 92%; height: 92%; filter: drop-shadow(0 22px 20px rgba(90, 60, 30, .3)); }
 .bubble--coconut .bubble__item { width: 100%; height: 100%; filter: drop-shadow(0 18px 18px rgba(90, 60, 30, .3)); }
 
 /* a few drops of coconut water */
@@ -924,7 +939,8 @@ html.intro-on { overflow: hidden; }
 @media (max-width: 760px) {
   .panels { flex-direction: column; }
   .panel { min-height: 86svh; }
-  .panel__fan { --size: 32vw; }
+  .panel__fan { --size: 27vw; }
+  .bubble { left: var(--mx, var(--x)); top: var(--my, var(--y)); transform: scale(var(--ms, var(--s))); }
 }
 
 /* drop filter chips */

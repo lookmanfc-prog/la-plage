@@ -485,43 +485,60 @@
       const items = products.filter((p) => p.collection === key);
       const fan = panel.querySelector('[data-fan]');
       const n = items.length;
-      // pieces are scattered across the whole panel, clear of the caption in the bottom-left corner
-      const slots = key === 'sand'
-        ? [[70, 14], [26, 19], [50, 41], [82, 60], [24, 44], [66, 80]]
-        : [[25, 17], [72, 14], [74, 55], [46, 37], [86, 80], [22, 44]];
-      if (key === 'sand') fan.removeAttribute('aria-hidden');   // the coconuts are buttons
-      fan.innerHTML = items.map((p, i) => {
-        const [x, y] = slots[i % slots.length];
-        const s = (1 - ((i * 37) % 4) * 0.07).toFixed(2);          // a little variety in size
+      // A loose, hand-placed scatter: no two pieces share a row or a column, sizes and tilts vary,
+      // and everything stays clear of the caption in the bottom-left. Only a few pieces show here
+      // (featured ones first); the full collection lives in the drop. Each slot is [x%, y%, size, tilt].
+      const layout = {
+        sea: {
+          desk:  [[24, 15, 1, -6], [67, 8, .78, 5], [84, 34, .88, -3], [46, 37, .7, 8], [77, 69, .95, -9]],
+          phone: [[22, 12, .95, -6], [74, 7, .8, 5], [57, 27, 1, -3], [87, 39, .72, 8], [21, 42, .82, -9]],
+        },
+        sand: {
+          desk:  [[27, 11, 1, -7], [74, 17, .82, 6], [53, 38, .92, -4]],
+          phone: [[25, 9, .95, -7], [77, 15, .8, 6], [52, 30, 1, -4]],
+          nuts:  [[15, 41, .92, 0], [83, 58, .85, 0]],
+          nutsPhone: [[17, 41, .9, 0], [83, 46, .82, 0]],
+        },
+      }[key];
+      const ranked = [...items].sort((p, q) => (q.featured ? 1 : 0) - (p.featured ? 1 : 0));
+      const shown = ranked.slice(0, layout.desk.length);
+      // the coconuts hide pieces that are not already on show; with a small collection they borrow from those on show
+      const extras = ranked.slice(shown.length);
+      const hidden = layout.nuts ? [...extras, ...shown].slice(0, layout.nuts.length) : [];
+      if (hidden.length) fan.removeAttribute('aria-hidden');   // the coconuts are buttons
+      const varsFor = (i, [x, y, s, r], [mx, my, ms]) => {
         const bob = (5.2 + ((i * 1.7) % 2.6)).toFixed(2);          // every piece on its own rhythm
-        const vars = `--i:${i};--x:${x}%;--y:${y}%;--dx:${((x - 50) / 50).toFixed(2)};--dy:${((y - 45) / 45).toFixed(2)};--s:${s};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s`;
+        const flow = (19 + ((i * 5) % 9)).toFixed(0);              // and its own slow drift
+        return `--i:${i};--x:${x}%;--y:${y}%;--mx:${mx}%;--my:${my}%;--ms:${ms};--r:${r}deg;--dx:${((x - 50) / 50).toFixed(2)};--dy:${((y - 45) / 45).toFixed(2)};--s:${s};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s;--flow:${flow}s;--flow-delay:${(-i * 4.7).toFixed(1)}s;--fx:${(i % 2 ? -1 : 1) * (2.2 + (i % 3) * 0.8)}vw;--fy:${(1.6 + ((i + 1) % 3) * 0.7).toFixed(1)}vw`;
+      };
+      const free = shown.map((p, i) => {
         const src = p.cutout || p.image.src;
-        if (key === 'sand') {
-          // Sand: each piece hides inside a coconut that cracks open when tapped
-          const crack = Array.from({ length: 4 }, (_, k) => `<span class="splash" data-motion style="--k:${k}"></span>`).join('');
-          return `<figure class="bubble bubble--coconut" style="${vars}" data-motion>
-            <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion>
-              <span class="coconut__shadow" data-motion></span>
-              <span class="nut__shell" data-motion>
-                <span class="nut__inside" data-motion></span>
-                <span class="nut__half nut__half--l" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
-                <span class="nut__half nut__half--r" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
-              </span>
-              <span class="nut__piece" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></span>
-              ${crack}
-            </button>
-            <figcaption>${p.title}</figcaption>
-          </figure>`;
-        }
-        return `<figure class="bubble" style="${vars}" data-motion>
-          <div class="bubble__float" data-motion>
-            <div class="bubble__glass" data-motion>
-              <img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">
-            </div>
-          </div>
+        const inner = key === 'sand'
+          ? `<img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">`
+          : `<div class="bubble__glass" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></div>`;
+        return `<figure class="bubble${key === 'sand' ? ' bubble--free' : ''}" style="${varsFor(i, layout.desk[i], layout.phone[i])}" data-motion>
+          <div class="bubble__flow" data-motion><div class="bubble__float" data-motion>${inner}</div></div>
           <figcaption>${p.title}</figcaption>
         </figure>`;
-      }).join('');
+      });
+      const nuts = hidden.map((p, j) => {
+        const src = p.cutout || p.image.src;
+        const crack = Array.from({ length: 4 }, (_, k) => `<span class="splash" data-motion style="--k:${k}"></span>`).join('');
+        return `<figure class="bubble bubble--coconut" style="${varsFor(shown.length + j, layout.nuts[j], layout.nutsPhone[j])}" data-motion>
+          <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion>
+            <span class="coconut__shadow" data-motion></span>
+            <span class="nut__shell" data-motion>
+              <span class="nut__inside" data-motion></span>
+              <span class="nut__half nut__half--l" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
+              <span class="nut__half nut__half--r" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
+            </span>
+            <span class="nut__piece" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></span>
+            ${crack}
+          </button>
+          <figcaption>${p.title}</figcaption>
+        </figure>`;
+      });
+      fan.innerHTML = free.join('') + nuts.join('');
       // tap a coconut: it shakes, cracks in two and the piece springs out; tap again to close it
       fan.querySelectorAll('.nut').forEach((nut) => {
         nut.addEventListener('click', () => {
