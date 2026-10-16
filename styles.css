@@ -777,13 +777,6 @@ html.intro-on { overflow: hidden; }
     url("assets/collections/sand.jpg") 0 0 / 512px 512px repeat,
     #E9D3A8;
 }
-/* our palm mark pressed into the sand, tinted the colour of wet sand, in a loose offset pattern */
-.panel--sand::before {
-  content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
-  background: url("assets/collections/sand-mark.png") 0 0 / 240px 240px repeat;
-  opacity: .55;   /* our palm logo pressed into the sand, clearly visible on the texture */
-}
-
 /* living light: drifting caustics on the sea, a warm sun glow and fine grain on the sand */
 .panel__light { position: absolute; inset: -10%; z-index: -2; pointer-events: none; transition: opacity 1200ms var(--ease-soft); }
 .panel--sea .panel__light {
@@ -819,7 +812,8 @@ html.intro-on { overflow: hidden; }
   transition: translate 1800ms var(--ease-lux), scale 1800ms var(--ease-lux), rotate 1800ms var(--ease-lux), opacity 1200ms var(--ease-soft);
 }
 .panel--sea .panel__palm  { color: var(--sea); }
-.panel--sand .panel__palm { color: var(--sand); }
+.panel--sand .panel__palm { color: #8A6236; }   /* one big palm, pressed into the sand like the one under the sea */
+.js .panel--sand .panel__palm[data-animate].is-visible { opacity: .2; }
 .js .panel__palm[data-animate].is-visible { opacity: .14; }
 
 /* the pieces, each floating in a glass bubble */
