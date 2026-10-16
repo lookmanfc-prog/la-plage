@@ -780,8 +780,8 @@ html.intro-on { overflow: hidden; }
 /* our palm mark pressed into the sand, tinted the colour of wet sand, in a loose offset pattern */
 .panel--sand::before {
   content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
-  background: url("assets/collections/sand-mark.png") 0 0 / 220px 220px repeat;
-  opacity: .22;
+  background: url("assets/collections/sand-mark.png") 0 0 / 240px 240px repeat;
+  opacity: .55;   /* our palm logo pressed into the sand, clearly visible on the texture */
 }
 
 /* living light: drifting caustics on the sea, a warm sun glow and fine grain on the sand */
