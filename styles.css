@@ -20,6 +20,7 @@
 
   /* ---- Type families ---- */
   --serif: "Lora", Georgia, "Times New Roman", serif;
+  --display: "Cormorant Garamond", "Lora", Georgia, serif;   /* big, light, high-contrast statements */
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
 
   /* ---- Type scale (fluid) ---- */
@@ -457,6 +458,7 @@ html.intro-on { overflow: hidden; }
    ========================================================================== */
 .drop { padding: clamp(70px, 12vh, 140px) 0 clamp(160px, 28vh, 320px); position: relative; }
 .drop__head {
+  max-width: 1360px; margin-inline: auto;
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;
   margin-bottom: clamp(44px, 7vh, 80px);
 }
@@ -582,38 +584,104 @@ html.intro-on { overflow: hidden; }
   .strip__item { width: 76vw; }
 }
 
-/* The drop as a tall editorial gallery: big pieces in a loose rhythm (wide left, smaller right set lower,
-   then one on its own in the middle), each with its number. The hover pop stays exactly as above. */
+/* The drop as a calm, ordered grid: smaller pieces in tidy rows, each with its number and a line
+   about its design detail. The hover pop stays exactly as above. */
 .strip--gallery .strip__viewport { overflow: visible; padding: 0; margin: 0; }
 .strip--gallery .strip__track {
-  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: clamp(16px, 3vw, 56px); row-gap: clamp(90px, 16vh, 200px);
-  width: auto; padding-inline: var(--gutter); padding-top: clamp(30px, 6vh, 70px);
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: clamp(20px, 2.4vw, 40px); row-gap: clamp(64px, 9vh, 104px);
+  width: auto; max-width: 1360px; margin-inline: auto; padding-inline: var(--gutter); padding-top: clamp(10px, 2vh, 24px);
   transform: none !important; will-change: auto;
   counter-reset: piece;
 }
-.strip--gallery .strip__item { width: auto; position: relative; counter-increment: piece; }
-.strip--gallery .strip__item:nth-child(3n + 1) { grid-column: 1 / span 6; }
-.strip--gallery .strip__item:nth-child(3n + 2) { grid-column: 8 / span 5; margin-top: clamp(120px, 22vw, 380px); }
-.strip--gallery .strip__item:nth-child(3n + 3) { grid-column: 4 / span 5; }
+.strip--gallery .strip__item { width: auto; counter-increment: piece; }
 .strip--gallery .strip__item::before {
-  content: counter(piece, decimal-leading-zero);
-  position: absolute; top: -.62em; left: -.04em; z-index: 1; pointer-events: none;
-  font-family: var(--serif); font-style: italic; font-weight: 400;
-  font-size: clamp(56px, 7vw, 124px); line-height: 1; letter-spacing: -.03em;
-  color: var(--sand); opacity: .55;
+  content: "N\B0  " counter(piece, decimal-leading-zero);
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  font-family: var(--sans); font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--sand-ink);
 }
-.strip--gallery .strip__item:nth-child(3n + 2)::before { left: auto; right: -.04em; }
-.strip--gallery .card__meta { padding-top: 22px; }
-.strip--gallery .card__name { font-size: clamp(20px, 1.8vw, 28px); }
-.strip--gallery .card__price { font-size: 14px; }
 .strip--gallery .strip__item[hidden] { display: none; }
+.card__detail {
+  margin-top: 10px; max-width: 34ch;
+  font-family: var(--serif); font-style: italic; font-size: 13.5px; line-height: 1.5; color: var(--ink-soft);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card__detail span {
+  font-family: var(--sans); font-style: normal; font-size: 10px; letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--sand-ink); margin-right: 8px;
+}
+/* a short note on where the pieces come from, beside the title */
+.drop__note { max-width: 36ch; font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+.drop__note span { display: block; margin-bottom: 8px; font-family: var(--sans); font-style: normal; font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--sand-ink); }
 
+@media (max-width: 1100px) { .strip--gallery .strip__track { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 760px) {
-  .strip--gallery .strip__track { grid-template-columns: minmax(0, 1fr); row-gap: 84px; }
-  .strip--gallery .strip__item:nth-child(n) { grid-column: 1; margin-top: 0; width: 88%; }
-  .strip--gallery .strip__item:nth-child(even) { justify-self: end; }
-  .strip--gallery .strip__item:nth-child(even)::before { left: auto; right: -.04em; }
+  .strip--gallery .strip__track { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; row-gap: 48px; }
+  .strip--gallery .card__name { font-size: 16px; }
+  .strip--gallery .card__meta { grid-template-columns: 1fr; }
+  .card__detail { font-size: 12.5px; }
+}
+
+/* ==========================================================================
+   Interlude: the tide rolls in
+   When it comes into view, four layers of water (foam, aqua, sea, deep sea) rush up the screen
+   one after another, each with a rolling crest, and the words rise out of the deep. It plays
+   again each time you come back down to it.
+   ========================================================================== */
+.tide {
+  position: relative; overflow: hidden; isolation: isolate;
+  min-height: 100vh; min-height: 100svh;
+  display: grid; place-items: center; text-align: center;
+  background: #fff;
+}
+.tide__sea { position: absolute; inset: 0; z-index: -1; }
+.tide__wave {
+  --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 80' preserveAspectRatio='none'%3E%3Cpath d='M0 80 V40 C 90 8, 180 8, 270 34 S 450 72, 540 44 S 660 10, 720 40 V80 Z'/%3E%3C/svg%3E");
+  position: absolute; left: 0; right: 0; bottom: 0; height: 100%;
+  background: var(--c);
+  transform: translate3d(0, 112%, 0);
+  transition: transform 1050ms cubic-bezier(.16, .84, .24, 1) var(--d);
+}
+/* the rolling crest riding on top of each layer */
+.tide__wave::before {
+  content: ""; position: absolute; left: 0; bottom: calc(100% - 1px); width: 200%; height: clamp(46px, 7vw, 110px);
+  background: var(--c);
+  -webkit-mask: var(--wave) 0 0 / 50% 100% repeat-x; mask: var(--wave) 0 0 / 50% 100% repeat-x;
+  animation: tide-roll var(--roll) linear infinite;
+}
+@keyframes tide-roll { to { transform: translate3d(-50%, 0, 0); } }
+.tide__wave--foam { --c: #F2FBFB; --d: 0ms;   --roll: 2.6s; }
+.tide__wave--aqua { --c: #8ED8DA; --d: 110ms; --roll: 3.4s; }
+.tide__wave--sea  { --c: var(--sea); --d: 220ms; --roll: 4.2s; }
+.tide__wave--deep { --c: var(--sea-deep); --d: 340ms; --roll: 5.6s; }
+.tide.is-in .tide__wave { transform: translate3d(0, 0, 0); }
+
+.tide__words { position: relative; color: var(--white); padding-block: 14vh; }
+.tide__kicker, .tide__sub {
+  opacity: 0; transform: translate3d(0, 18px, 0);
+  transition: opacity 900ms var(--ease-soft), transform 1100ms var(--ease-out);
+}
+.tide__kicker {
+  font-size: 10.5px; letter-spacing: .34em; text-transform: uppercase; color: var(--sand);
+  transition-delay: 700ms;
+}
+.tide__phrase {
+  margin: 26px 0 30px;
+  font-family: var(--display); font-weight: 300;
+  font-size: clamp(60px, 11vw, 196px); line-height: .92; letter-spacing: -.02em;
+}
+.tide__line { display: inline-block; opacity: 0; transform: translate3d(0, 40%, 0); filter: blur(10px); transition: opacity 1000ms var(--ease-soft), transform 1300ms var(--ease-out), filter 1000ms var(--ease-soft); }
+.tide__phrase span.tide__line { transition-delay: 760ms; }
+.tide__phrase em.tide__line { font-style: italic; color: var(--sand-light); transition-delay: 900ms; }
+.tide__sub {
+  font-family: var(--serif); font-style: italic; font-size: clamp(15px, 1.3vw, 19px); color: rgba(246, 238, 223, .82);
+  transition-delay: 1150ms;
+}
+.tide.is-in .tide__kicker, .tide.is-in .tide__sub { opacity: 1; transform: none; }
+.tide.is-in .tide__line { opacity: 1; transform: none; filter: blur(0); }
+@media (max-width: 760px) {
+  .tide__phrase em.tide__line { display: block; }
 }
 
 /* ==========================================================================
@@ -624,8 +692,10 @@ html.intro-on { overflow: hidden; }
 .panels { display: flex; position: relative; }
 /* the white page mists into the two collections instead of meeting them at a hard edge */
 .panels::before {
-  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: clamp(90px, 16vh, 170px); z-index: 3; pointer-events: none;
-  background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, .7) 35%, rgba(255, 255, 255, 0) 100%);
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: clamp(44px, 6vw, 96px); z-index: 3; pointer-events: none;
+  background: var(--sea-deep);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H1440 V44 C 1200 92, 960 92, 720 52 S 240 10, 0 58 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H1440 V44 C 1200 92, 960 92, 720 52 S 240 10, 0 58 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
 }
 .panel {
   --ease-lux: cubic-bezier(.2, .9, .25, 1);
