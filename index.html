@@ -76,16 +76,11 @@
         </div>
         <p class="drop__note" data-animate="fade-up" data-delay="200"><span>Inspiration</span>Faded beach-cabin stripes, hibiscus in two blues, and palms sketched by hand.</p>
       </div>
-      <!-- Three lines, each made for both the sand and the sea; they also filter the drop -->
-      <div class="lines wrap" role="group" aria-label="Filter by line" data-lines data-animate="fade-up" data-delay="250">
-        <button class="lines__all chip" type="button" aria-pressed="true" data-filter="all">All</button>
-      </div>
 
       <div class="strip strip--gallery" data-strip data-layout="gallery">
         <div class="strip__viewport" data-strip-viewport>
-          <ul class="strip__track" id="strip-track" data-strip-track aria-label="Drop 001 products">
-            <!-- Rendered from data/products.json -->
-          </ul>
+          <!-- One sandy row for each line (Lagon, Riva, Marée), rendered from data/products.json -->
+          <div class="strip__track rows" id="strip-track" data-strip-track></div>
         </div>
       </div>
     </section>

@@ -456,7 +456,7 @@ html.intro-on { overflow: hidden; }
 /* ==========================================================================
    The first drop
    ========================================================================== */
-.drop { padding: clamp(70px, 12vh, 140px) 0 clamp(160px, 28vh, 320px); position: relative; }
+.drop { padding: clamp(70px, 12vh, 140px) 0 0; position: relative; }
 .drop__head {
   max-width: 1360px; margin-inline: auto;
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;
@@ -584,24 +584,42 @@ html.intro-on { overflow: hidden; }
   .strip__item { width: 76vw; }
 }
 
-/* The drop as a calm, ordered grid: smaller pieces in tidy rows, each with its number and a line
-   about its design detail. The hover pop stays exactly as above. */
+/* The drop as three rows, one for each line (Lagon, Riva, Marée), each on its own stretch of sand.
+   The pieces float over the sand like the Sand collection; the hover pop stays exactly as above. */
 .strip--gallery .strip__viewport { overflow: visible; padding: 0; margin: 0; }
-.strip--gallery .strip__track {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: clamp(20px, 2.4vw, 40px); row-gap: clamp(64px, 9vh, 104px);
-  width: auto; max-width: 1360px; margin-inline: auto; padding-inline: var(--gutter); padding-top: clamp(10px, 2vh, 24px);
-  transform: none !important; will-change: auto;
+.strip--gallery .rows { display: grid; gap: 0; width: auto; padding: 0; transform: none !important; will-change: auto; }
+.row {
+  position: relative;
+  display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); gap: clamp(24px, 4vw, 72px); align-items: start;
+  padding: clamp(48px, 7vh, 76px) max(var(--gutter), calc((100% - 1360px) / 2));
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .38 0 0 0 0 .22 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 160px 160px, linear-gradient(180deg, #F8EEDB 0%, #F2E1C2 100%);
+}
+.row:nth-child(even) { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .38 0 0 0 0 .22 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 160px 160px, linear-gradient(180deg, #F3E3C6 0%, #EBD4AC 100%); }
+/* a wet ripple line where one stretch of sand meets the next */
+.row + .row::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 28px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 40' preserveAspectRatio='none'%3E%3Cpath d='M0 22 C 180 6, 360 6, 540 20 S 900 36, 1080 18 S 1320 8, 1440 20' fill='none' stroke='%23fff' stroke-opacity='.8' stroke-width='2'/%3E%3Cpath d='M0 30 C 200 16, 380 16, 560 28 S 920 40, 1100 26 S 1330 18, 1440 28' fill='none' stroke='%23B9965F' stroke-opacity='.25' stroke-width='1.5'/%3E%3C/svg%3E") 0 0 / 100% 100%; pointer-events: none; }
+.row__head { color: var(--sea-deep); padding-top: clamp(0px, 4vh, 48px); }
+.row__index { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--sand-ink); }
+.row__name { font-family: var(--display); font-weight: 300; font-size: clamp(52px, 5.4vw, 92px); line-height: .95; letter-spacing: -.01em; margin-top: 6px; }
+.row__kind { margin-top: 12px; font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--sand-ink); }
+.row__note { margin-top: 18px; max-width: 30ch; font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.55; color: var(--ink-soft); }
+.row__where { margin-top: 18px; font-size: 10px; letter-spacing: var(--track-label); text-transform: uppercase; color: rgba(11, 44, 71, .45); }
+.row__items {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(170px, 16vw, 240px), 1fr));
+  gap: clamp(28px, 4vh, 48px) clamp(18px, 2.2vw, 36px);
   counter-reset: piece;
 }
 .strip--gallery .strip__item { width: auto; counter-increment: piece; }
 .strip--gallery .strip__item::before {
-  content: "N\B0  " counter(piece, decimal-leading-zero) "  \B7  " attr(data-cat-label);
-  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
-  font-family: var(--sans); font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase;
-  color: var(--sand-ink);
+  content: "N\B0  " counter(piece, decimal-leading-zero);
+  display: block; margin-bottom: 6px;
+  font-size: 10px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--sand-ink);
 }
-.strip--gallery .strip__item[hidden] { display: none; }
+/* each piece floats a little above the sand, gently bobbing, at its own slight tilt, with its shadow on the sand */
+.row .card__media { background: transparent; aspect-ratio: 1 / 1; animation: sand-float 6.5s ease-in-out calc(var(--k, 0) * -1.6s) infinite; }
+@keyframes sand-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+.row .card__lift img { object-fit: contain; padding: 6%; rotate: var(--r, 0deg); filter: drop-shadow(0 16px 16px rgba(110, 80, 40, .22)); }
+.row .card__shadow { opacity: .6; transform: scale(.82); bottom: 6%; background: radial-gradient(closest-side, rgba(110, 80, 40, .3), rgba(110, 80, 40, 0)); }
+.row .card__meta { border-top-color: rgba(138, 106, 64, .25); }
 .card__detail {
   margin-top: 10px; max-width: 34ch;
   font-family: var(--serif); font-style: italic; font-size: 13.5px; line-height: 1.5; color: var(--ink-soft);
@@ -611,47 +629,16 @@ html.intro-on { overflow: hidden; }
   font-family: var(--sans); font-style: normal; font-size: 10px; letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--sand-ink); margin-right: 8px;
 }
-/* the three lines: Lagon, Riva, Marée. Each is a tile that filters the drop */
-.lines {
-  max-width: 1360px; margin: 0 auto clamp(56px, 9vh, 96px);
-  display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.4vw, 20px); align-items: stretch;
-}
-.lines__all { align-self: stretch; min-height: 0; }
-.line {
-  appearance: none; cursor: pointer; text-align: left; color: var(--sea-deep);
-  display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-content: start;
-  padding: 22px 24px 20px; border: 1px solid var(--line); background: var(--white);
-  transition: background-color 400ms var(--ease-soft), border-color 400ms var(--ease-soft), color 400ms var(--ease-soft), translate 500ms var(--ease-out);
-}
-.line:hover { border-color: var(--sea-deep); translate: 0 -3px; }
-.line[aria-pressed="true"] { background: var(--sea-deep); border-color: var(--sea-deep); color: var(--sand-light); }
-.line__index { grid-row: 1 / span 2; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--sand-ink); padding-top: 6px; }
-.line[aria-pressed="true"] .line__index { color: var(--sand); }
-.line__name { font-family: var(--display); font-weight: 300; font-size: clamp(30px, 2.8vw, 44px); line-height: 1; }
-.line__kind { font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--sand-ink); margin-top: 8px; }
-.line[aria-pressed="true"] .line__kind { color: var(--sand); }
-.line__note { grid-column: 1 / -1; margin-top: 14px; font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.5; opacity: .85; }
-.line__where { grid-column: 1 / -1; margin-top: 12px; font-size: 10px; letter-spacing: var(--track-label); text-transform: uppercase; opacity: .55; }
-@media (max-width: 900px) {
-  .lines { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .lines__all { grid-column: 1 / -1; justify-self: start; min-height: 36px; }
-}
-@media (max-width: 600px) {
-  .lines { gap: 8px; }
-  .line { padding: 14px 12px 12px; grid-template-columns: 1fr; }
-  .line__index { grid-row: auto; padding-top: 0; font-size: 12px; }
-  .line__name { font-size: 26px; margin-top: 4px; }
-  .line__kind { font-size: 9px; letter-spacing: .16em; }
-  .line__note, .line__where { display: none; }
-}
-
 /* a short note on where the pieces come from, beside the title */
 .drop__note { max-width: 36ch; font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
 .drop__note span { display: block; margin-bottom: 8px; font-family: var(--sans); font-style: normal; font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--sand-ink); }
 
-@media (max-width: 1100px) { .strip--gallery .strip__track { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 760px) {
-  .strip--gallery .strip__track { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; row-gap: 48px; }
+@media (max-width: 860px) {
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .row__note { max-width: 40ch; }
+}
+@media (max-width: 600px) {
+  .row__items { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 14px; }
   .strip--gallery .card__name { font-size: 16px; }
   .strip--gallery .card__meta { grid-template-columns: 1fr; }
   .card__detail { font-size: 12.5px; }
@@ -1046,6 +1033,35 @@ html.intro-on { overflow: hidden; }
 .bubble.is-open .nut__hint, .bubble.is-open .nut__ring { opacity: 0; animation: none; }
 .bubble.is-open .nut__piece { cursor: zoom-in; }
 
+/* Sea bubbles pop: the glass swells and bursts into droplets, and the piece is set free */
+.bubble[data-pop] .bubble__item { position: absolute; left: 11%; top: 11%; width: 78%; height: 78%; transition: translate 700ms var(--ease-out), scale 700ms var(--ease-out); }
+.bubble[data-pop] .bubble__glass { -webkit-backdrop-filter: none; backdrop-filter: none; transition: transform 260ms cubic-bezier(.3, 1.6, .5, 1), opacity 200ms ease-in 120ms; }
+.bubble.is-popped .bubble__glass { transform: scale(1.22); opacity: 0; }
+.bubble.is-popped .bubble__item { translate: 0 4%; scale: 1.1; filter: drop-shadow(0 18px 18px rgba(0, 10, 25, .45)); }
+.bubble:not(.is-popped) .bubble__glass { transition: transform 1400ms var(--ease-out), opacity 1400ms var(--ease-soft); }   /* forms again slowly */
+.pop-drop {
+  position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, rgba(200, 235, 255, .6));
+  opacity: 0; pointer-events: none;
+}
+.bubble.is-popped .pop-drop { animation: pop-drop 620ms cubic-bezier(.2, .7, .3, 1) both; }
+@keyframes pop-drop {
+  0%   { opacity: 1; transform: rotate(var(--a)) translate3d(0, -38%, 0) scale(1); }
+  100% { opacity: 0; transform: rotate(var(--a)) translate3d(0, calc(var(--l) * -2.2), 0) scale(.4); }
+}
+/* the same little tag the coconuts wear, on the first bubble */
+.tap-hint {
+  position: absolute; left: 50%; bottom: calc(100% + 4px); translate: -50% 0; white-space: nowrap; pointer-events: none;
+  padding: 7px 12px 6px; border-radius: 999px;
+  background: rgba(240, 250, 255, .9); box-shadow: 0 8px 22px -10px rgba(0, 20, 40, .6);
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--sea-deep);
+  animation: hint-bob 2.2s ease-in-out infinite;
+  transition: opacity 300ms var(--ease-soft);
+}
+.tap-hint::after { content: ""; position: absolute; left: 50%; top: 100%; width: 8px; height: 8px; margin: -4px 0 0 -4px; background: inherit; rotate: 45deg; }
+.bubble.is-popped .tap-hint { opacity: 0; }
+.bubble.is-popped { cursor: zoom-in; }
+
 /* the free pieces and sea bubbles can be tapped to see them */
 .bubble[data-view] { pointer-events: auto; cursor: pointer; }
 .bubble[data-view]:focus-visible { outline: 1px solid currentColor; outline-offset: 6px; border-radius: 50%; }
@@ -1402,21 +1418,43 @@ html.spot-on { overflow: hidden; }
 }
 
 /* ==========================================================================
-   Palm curtain: fronds sweep in from both sides and part to reveal a piece from the collections
+   Palm curtain: two palm trees sweep in from the sides (coconuts dropping from
+   their crowns), then part and fold away into the edges to reveal a piece.
    ========================================================================== */
 .palms { position: fixed; inset: 0; z-index: 160; pointer-events: none; overflow: hidden; }
 .palms__veil { position: absolute; inset: 0; background: var(--sand-light); opacity: 0; transition: opacity 500ms var(--ease-soft); }
-.palms__side {
-  position: absolute; top: -10%; bottom: -10%; width: 64%;
-  transition: transform 900ms cubic-bezier(.6, 0, .25, 1);
-}
-.palms__side img { width: 100%; height: 100%; object-fit: cover; object-position: left center; max-width: none; }
-.palms__side--l { left: 0; transform-origin: 0% 50%; transform: translate3d(-104%, 0, 0) rotate(-14deg); }
-.palms__side--r { right: 0; transform-origin: 100% 50%; transform: translate3d(104%, 0, 0) rotate(14deg); }
-.palms__side--r img { transform: scaleX(-1); }
+.palms__side { position: absolute; top: -6vh; height: 112vh; aspect-ratio: 1000 / 1400; }
+.palms__tree { width: 100%; height: 100%; max-width: none; filter: drop-shadow(0 30px 40px rgba(20, 50, 35, .25)); }
+.palms__side--l { left: 0;  transform-origin: 0% 100%; transform: translate3d(-100%, 0, 0) rotate(-16deg); }
+.palms__side--r { right: 0; transform-origin: 100% 100%; transform: translate3d(100%, 0, 0) rotate(16deg); }
+.palms__inner { position: absolute; inset: 0; }
+.palms__side--r .palms__inner { transform: scaleX(-1); }   /* the right tree is the left one, mirrored */
+/* coconuts hanging under each crown */
+.palms__nut { position: absolute; width: 5.4%; height: auto; top: 19.5%; left: 27.5%; filter: drop-shadow(0 6px 6px rgba(60, 40, 20, .35)); }
+.palms__nut--2 { left: 31.5%; top: 20.5%; }
+.palms__nut--3 { left: 29.4%; top: 22.6%; }
+
+/* sweep in: the trees swing in from the edges, and the coconuts let go and drop */
 .palms.is-shut .palms__veil { opacity: 1; }
-.palms.is-shut .palms__side { transform: translate3d(0, 0, 0) rotate(0deg); transition-duration: 600ms; transition-timing-function: cubic-bezier(.7, 0, .3, 1); }
-.palms.is-open .palms__veil { opacity: 0; transition-duration: 700ms; }
+.palms.is-shut .palms__side { transition: transform 620ms cubic-bezier(.2, .85, .25, 1); }
+.palms.is-shut .palms__side--l { transform: translate3d(0, 0, 0) rotate(0deg); }
+.palms.is-shut .palms__side--r { transform: translate3d(0, 0, 0) rotate(0deg); }
+.palms.is-shut .palms__nut { animation: nut-drop 1100ms cubic-bezier(.5, 0, .9, .6) both; }
+.palms.is-shut .palms__nut--1 { animation-delay: 300ms; }
+.palms.is-shut .palms__nut--2 { animation-delay: 420ms; }
+.palms.is-shut .palms__nut--3 { animation-delay: 540ms; }
+@keyframes nut-drop {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  10%  { transform: translate3d(0, -6px, 0) rotate(-8deg); }   /* a little tug before it lets go */
+  100% { transform: translate3d(14px, 110vh, 0) rotate(240deg); }
+}
+
+/* part and fold: each tree swings back to its edge and folds flat, like a fan closing */
+.palms.is-open .palms__veil { opacity: 0; transition-duration: 800ms; }
+.palms.is-open .palms__side { opacity: 0; transition: transform 1000ms cubic-bezier(.5, 0, .2, 1), opacity 500ms var(--ease-soft) 500ms; }
+.palms.is-open .palms__side--l { transform: perspective(1200px) translate3d(-22%, 0, 0) rotateY(78deg) rotate(-8deg); }
+.palms.is-open .palms__side--r { transform: perspective(1200px) translate3d(22%, 0, 0) rotateY(-78deg) rotate(8deg); }
+.palms.is-open .palms__nut { opacity: 0; }
 
 /* ==========================================================================
    Reduced motion: water and fades still play (as agreed), no movement elsewhere
