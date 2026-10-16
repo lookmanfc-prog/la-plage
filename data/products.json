@@ -14,13 +14,13 @@
     },
     {
       "key": "riva",
-      "name": "Tide",
+      "name": "Soleil",
       "kind": "Swim trunks",
       "note": "For the swim, from the first dip to the last light."
     },
     {
       "key": "maree",
-      "name": "Riviera",
+      "name": "Promenade",
       "kind": "Old money",
       "note": "Seersucker and quiet stripes for long lunches by the sea."
     }
@@ -255,7 +255,8 @@
       ],
       "collection": "sand",
       "category": "lagon",
-      "cutout": "assets/img/products/cutouts/tee-esprit-cotier-front.webp"
+      "cutout": "assets/img/products/cutouts/tee-esprit-cotier-front.webp",
+      "cutoutBack": "assets/img/products/cutouts/tee-esprit-cotier-back.webp"
     }
   ]
 }
