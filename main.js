@@ -284,11 +284,28 @@
     });
     $('[data-spot-close]').addEventListener('click', close);
 
-    // From the collections: palm fronds sweep in from both sides, then part to reveal the piece
-    let palms = null;
+    // From the collections. Sand: two palm trees sweep in, coconuts drop, then they part and fold away.
+    // Sea: the screen fills with deep water and a few sharks glide across from left to right.
+    let palms = null, sharks = null;
+    const sharkRun = (i, from) => {
+      if (!sharks) {
+        sharks = document.createElement('div');
+        sharks.className = 'sharks'; sharks.setAttribute('aria-hidden', 'true'); sharks.dataset.motion = '';
+        const fish = [[1, 38, 1, 0], [2, 62, .7, 140], [3, 22, .5, 260], [4, 78, .42, 330]]
+          .map(([k, top, size, delay]) => `<span class="sharks__fish" data-motion style="--top:${top}%;--size:${size};--delay:${delay}ms"><img src="assets/collections/shark.svg" alt="" width="400" height="160" data-motion></span>`).join('');
+        const bubbles = Array.from({ length: 16 }, (_, k) => `<span class="sharks__bubble" data-motion style="--x:${(k * 41) % 100}%;--s:${4 + (k * 5) % 9}px;--d:${(k * 70) % 900}ms"></span>`).join('');
+        sharks.innerHTML = `<div class="sharks__sea" data-motion></div>${bubbles}${fish}`;
+        document.body.appendChild(sharks);
+        void sharks.offsetWidth;
+      }
+      sharks.classList.remove('is-on'); void sharks.offsetWidth; sharks.classList.add('is-on');
+      setTimeout(() => open(i, from), 700);   // the piece is waiting underneath as the water clears
+      setTimeout(() => sharks.classList.remove('is-on'), 2300);
+    };
     document.addEventListener('laplage:view', (e) => {
-      const { index: i, from } = e.detail;
+      const { index: i, from, kind } = e.detail;
       if (Number.isNaN(i)) return;
+      if (kind === 'sea') { sharkRun(i, from); return; }
       if (!palms) {
         palms = document.createElement('div');
         palms.className = 'palms'; palms.setAttribute('aria-hidden', 'true'); palms.dataset.motion = '';
@@ -549,9 +566,9 @@
           phone: [[22, 12, .95, -6], [74, 7, .8, 5], [57, 27, 1, -3], [87, 39, .72, 8], [21, 42, .82, -9]],
         },
         sand: {
-          desk:  [[27, 11, 1, -7], [74, 17, .82, 6], [53, 38, .92, -4]],
+          desk:  [[24, 10, 1, -7], [70, 13, .82, 6], [47, 31, .92, -4]],
           phone: [[25, 9, .95, -7], [77, 15, .8, 6], [52, 30, 1, -4]],
-          nuts:  [[14, 33, 1, 0], [88, 36, .95, 0]],
+          nuts:  [[80, 37, 1, 0], [72, 67, .95, 0]],
           nutsPhone: [[25, 36, .95, 0], [76, 45, .88, 0]],
         },
       }[key];
@@ -602,7 +619,7 @@
       });
       fan.innerHTML = free.join('') + nuts.join('');
       // tap a piece: the palms part and it pops out in the spotlight, right here (no jump up the page)
-      const view = (el) => document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(el.dataset.view, 10), from: el } }));
+      const view = (el) => document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(el.dataset.view, 10), from: el, kind: key } }));
       // Sea bubbles pop first (glass bursts into droplets, the piece is set free); tap the piece again to see it.
       // A popped bubble slowly forms again a little later.
       const tap = (el) => {
@@ -626,7 +643,7 @@
       fan.querySelectorAll('.nut').forEach((nut) => {
         nut.addEventListener('click', (e) => {
           if (nut.getAttribute('aria-pressed') === 'true' && e.target.closest('.nut__piece')) {
-            document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(nut.dataset.piece, 10), from: nut } }));
+            document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(nut.dataset.piece, 10), from: nut, kind: 'sand' } }));
             return;
           }
           const open = nut.getAttribute('aria-pressed') !== 'true';
