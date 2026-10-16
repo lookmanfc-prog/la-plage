@@ -972,7 +972,7 @@
   initParallax();
   initAccess();
   initLocale();
-  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); initGlassRow(products); initAnimations(document.querySelector('[data-glass-row]')); });
+  loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); });
   initLogo3d();
   initSlogan();
   initTide();
