@@ -423,7 +423,7 @@ html.intro-on { overflow: hidden; }
 .hero__title .slogan__line {
   grid-area: 1 / 1;
   font-style: italic; white-space: nowrap;
-  padding-right: .12em;   /* room for the italic overhang */
+  padding: .04em .12em .26em 0; margin-bottom: -.22em;   /* room for the italic overhang and descenders (g, y), which the gradient would otherwise cut off */
   background: linear-gradient(100deg, #FFE7B0 0%, #FFC27A 22%, #FF9A7A 40%, #FFD9A0 55%, #8FF0E4 75%, #FFE7B0 100%);
   background-size: 260% 100%;
   background-position: var(--sun) 50%;
@@ -596,7 +596,7 @@ html.intro-on { overflow: hidden; }
 }
 .strip--gallery .strip__item { width: auto; counter-increment: piece; }
 .strip--gallery .strip__item::before {
-  content: "N\B0  " counter(piece, decimal-leading-zero);
+  content: "N\B0  " counter(piece, decimal-leading-zero) "  \B7  " attr(data-cat-label);
   display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
   font-family: var(--sans); font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--sand-ink);
@@ -611,6 +611,40 @@ html.intro-on { overflow: hidden; }
   font-family: var(--sans); font-style: normal; font-size: 10px; letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--sand-ink); margin-right: 8px;
 }
+/* the three lines: Lagon, Riva, Marée. Each is a tile that filters the drop */
+.lines {
+  max-width: 1360px; margin: 0 auto clamp(56px, 9vh, 96px);
+  display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.4vw, 20px); align-items: stretch;
+}
+.lines__all { align-self: stretch; min-height: 0; }
+.line {
+  appearance: none; cursor: pointer; text-align: left; color: var(--sea-deep);
+  display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-content: start;
+  padding: 22px 24px 20px; border: 1px solid var(--line); background: var(--white);
+  transition: background-color 400ms var(--ease-soft), border-color 400ms var(--ease-soft), color 400ms var(--ease-soft), translate 500ms var(--ease-out);
+}
+.line:hover { border-color: var(--sea-deep); translate: 0 -3px; }
+.line[aria-pressed="true"] { background: var(--sea-deep); border-color: var(--sea-deep); color: var(--sand-light); }
+.line__index { grid-row: 1 / span 2; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--sand-ink); padding-top: 6px; }
+.line[aria-pressed="true"] .line__index { color: var(--sand); }
+.line__name { font-family: var(--display); font-weight: 300; font-size: clamp(30px, 2.8vw, 44px); line-height: 1; }
+.line__kind { font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--sand-ink); margin-top: 8px; }
+.line[aria-pressed="true"] .line__kind { color: var(--sand); }
+.line__note { grid-column: 1 / -1; margin-top: 14px; font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.5; opacity: .85; }
+.line__where { grid-column: 1 / -1; margin-top: 12px; font-size: 10px; letter-spacing: var(--track-label); text-transform: uppercase; opacity: .55; }
+@media (max-width: 900px) {
+  .lines { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lines__all { grid-column: 1 / -1; justify-self: start; min-height: 36px; }
+}
+@media (max-width: 600px) {
+  .lines { gap: 8px; }
+  .line { padding: 14px 12px 12px; grid-template-columns: 1fr; }
+  .line__index { grid-row: auto; padding-top: 0; font-size: 12px; }
+  .line__name { font-size: 26px; margin-top: 4px; }
+  .line__kind { font-size: 9px; letter-spacing: .16em; }
+  .line__note, .line__where { display: none; }
+}
+
 /* a short note on where the pieces come from, beside the title */
 .drop__note { max-width: 36ch; font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
 .drop__note span { display: block; margin-bottom: 8px; font-family: var(--sans); font-style: normal; font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--sand-ink); }
@@ -723,7 +757,7 @@ html.intro-on { overflow: hidden; }
   background:
     radial-gradient(40% 32% at var(--gx, 70%) 22%, rgba(255, 214, 160, .55), rgba(255, 214, 160, 0) 70%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .38 0 0 0 0 .22 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 160px 160px;
-  opacity: .55;
+  opacity: .8;
   animation: sun-wander 18s ease-in-out infinite alternate;
 }
 @keyframes sun-wander { from { translate: -4% 0; } to { translate: 4% 2%; } }
@@ -981,6 +1015,42 @@ html.intro-on { overflow: hidden; }
   55%  { transform: translate3d(var(--sx), calc(-46px - var(--k) * 6px), 0) scale(1); opacity: 1; }
   100% { transform: translate3d(calc(var(--sx) * 1.5), 14px, 0) scale(.7); opacity: 0; }
 }
+
+/* a little mound of sand each coconut sits in, a pulsing ring and a "Tap to crack" tag so it is clear they open */
+.nut__mound {
+  position: absolute; left: 4%; right: 4%; bottom: -2%; height: 26%; border-radius: 50%; pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .33 0 0 0 0 .18 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 120px 120px,
+    radial-gradient(closest-side, #E9D2A6 0%, #E3C793 55%, rgba(227, 199, 147, 0) 100%);
+}
+.nut__ring {
+  position: absolute; left: 14%; right: 14%; bottom: 4%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  border: 1.5px solid rgba(138, 106, 64, .55);
+  animation: nut-ring 2.4s cubic-bezier(.2, .7, .3, 1) calc(var(--i) * .6s) infinite;
+}
+@keyframes nut-ring { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(1.35); opacity: 0; } }
+.nut__hint {
+  position: absolute; left: 50%; bottom: calc(100% - 4%); z-index: 2; pointer-events: none;
+  translate: -50% 0; white-space: nowrap;
+  padding: 7px 12px 6px; border-radius: 999px;
+  background: rgba(255, 250, 240, .92); box-shadow: 0 8px 22px -10px rgba(90, 60, 30, .45);
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--sand-ink);
+  animation: hint-bob 2.2s ease-in-out infinite;
+  transition: opacity 300ms var(--ease-soft);
+}
+.nut__hint::after {
+  content: ""; position: absolute; left: 50%; top: 100%; width: 8px; height: 8px; margin: -4px 0 0 -4px;
+  background: inherit; rotate: 45deg;
+}
+@keyframes hint-bob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -6px, 0); } }
+.bubble.is-open .nut__hint, .bubble.is-open .nut__ring { opacity: 0; animation: none; }
+.bubble.is-open .nut__piece { cursor: zoom-in; }
+
+/* the free pieces and sea bubbles can be tapped to see them */
+.bubble[data-view] { pointer-events: auto; cursor: pointer; }
+.bubble[data-view]:focus-visible { outline: 1px solid currentColor; outline-offset: 6px; border-radius: 50%; }
+.bubble[data-view]:hover .bubble__float { scale: 1.06; }
+.bubble__float { transition: scale 500ms var(--ease-out); }
 
 /* cracked open */
 .bubble.is-open { z-index: 2; }
@@ -1330,6 +1400,23 @@ html.spot-on { overflow: hidden; }
   .spotlight__close { top: 20px; right: 24px; }
   .spotlight__nav { top: calc(72px + 22vh); }
 }
+
+/* ==========================================================================
+   Palm curtain: fronds sweep in from both sides and part to reveal a piece from the collections
+   ========================================================================== */
+.palms { position: fixed; inset: 0; z-index: 160; pointer-events: none; overflow: hidden; }
+.palms__veil { position: absolute; inset: 0; background: var(--sand-light); opacity: 0; transition: opacity 500ms var(--ease-soft); }
+.palms__side {
+  position: absolute; top: -10%; bottom: -10%; width: 64%;
+  transition: transform 900ms cubic-bezier(.6, 0, .25, 1);
+}
+.palms__side img { width: 100%; height: 100%; object-fit: cover; object-position: left center; max-width: none; }
+.palms__side--l { left: 0; transform-origin: 0% 50%; transform: translate3d(-104%, 0, 0) rotate(-14deg); }
+.palms__side--r { right: 0; transform-origin: 100% 50%; transform: translate3d(104%, 0, 0) rotate(14deg); }
+.palms__side--r img { transform: scaleX(-1); }
+.palms.is-shut .palms__veil { opacity: 1; }
+.palms.is-shut .palms__side { transform: translate3d(0, 0, 0) rotate(0deg); transition-duration: 600ms; transition-timing-function: cubic-bezier(.7, 0, .3, 1); }
+.palms.is-open .palms__veil { opacity: 0; transition-duration: 700ms; }
 
 /* ==========================================================================
    Reduced motion: water and fades still play (as agreed), no movement elsewhere

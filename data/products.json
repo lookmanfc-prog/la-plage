@@ -5,6 +5,26 @@
     "title": "The first drop",
     "subtitle": "Drop 001 · Summer"
   },
+  "categories": [
+    {
+      "key": "lagon",
+      "name": "Lagon",
+      "kind": "Beach sport",
+      "note": "Shirts and shorts made to move on the sand and in the shallows."
+    },
+    {
+      "key": "riva",
+      "name": "Riva",
+      "kind": "Swim trunks",
+      "note": "For the swim, from the first dip to the last light."
+    },
+    {
+      "key": "maree",
+      "name": "Marée",
+      "kind": "Old money",
+      "note": "Seersucker and quiet stripes for long lunches by the sea."
+    }
+  ],
   "products": [
     {
       "id": "dune-short",
@@ -35,6 +55,7 @@
         "XL"
       ],
       "collection": "sand",
+      "category": "riva",
       "cutout": "assets/img/products/cutouts/shorts-white.webp"
     },
     {
@@ -66,6 +87,7 @@
         "XL"
       ],
       "collection": "sea",
+      "category": "riva",
       "cutout": "assets/img/products/cutouts/shorts-hibiscus.webp"
     },
     {
@@ -97,6 +119,7 @@
         "XL"
       ],
       "collection": "sea",
+      "category": "lagon",
       "cutout": "assets/img/products/cutouts/shorts-lagoon-floral.webp"
     },
     {
@@ -128,6 +151,7 @@
         "XL"
       ],
       "collection": "sea",
+      "category": "maree",
       "cutout": "assets/img/products/cutouts/shorts-blue-stripe.webp"
     },
     {
@@ -159,6 +183,7 @@
         "XL"
       ],
       "collection": "sand",
+      "category": "maree",
       "cutout": "assets/img/products/cutouts/shorts-pine-stripe.webp"
     },
     {
@@ -190,6 +215,7 @@
         "XL"
       ],
       "collection": "sand",
+      "category": "lagon",
       "cutout": "assets/img/products/cutouts/shorts-palm-print.webp"
     },
     {
@@ -228,6 +254,7 @@
         "XL"
       ],
       "collection": "sand",
+      "category": "lagon",
       "cutout": "assets/img/products/cutouts/tee-esprit-cotier-front.webp"
     }
   ]
