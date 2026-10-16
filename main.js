@@ -485,20 +485,31 @@
       const items = products.filter((p) => p.collection === key);
       const fan = panel.querySelector('[data-fan]');
       const n = items.length;
-      fan.style.setProperty('--spread', n > 3 ? '68%' : '88%');   // wider collections drift apart a little less
-      // each piece floats in its own glass bubble: clustered at rest, drifting apart on hover
+      // pieces are scattered across the whole panel, clear of the caption in the bottom-left corner
+      const slots = key === 'sand'
+        ? [[70, 14], [26, 19], [50, 41], [82, 60], [24, 44], [66, 80]]
+        : [[25, 17], [72, 14], [74, 55], [46, 37], [86, 80], [22, 44]];
+      if (key === 'sand') fan.removeAttribute('aria-hidden');   // the coconuts are buttons
       fan.innerHTML = items.map((p, i) => {
-        const o = i - (n - 1) / 2;
-        const a = Math.abs(o);
-        const bob = (5.2 + ((i * 1.7) % 2.6)).toFixed(2);          // every bubble on its own rhythm
-        const vars = `--i:${i};--o:${o};--a:${a};--s:${(1 - a * 0.07).toFixed(2)};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s`;
+        const [x, y] = slots[i % slots.length];
+        const s = (1 - ((i * 37) % 4) * 0.07).toFixed(2);          // a little variety in size
+        const bob = (5.2 + ((i * 1.7) % 2.6)).toFixed(2);          // every piece on its own rhythm
+        const vars = `--i:${i};--x:${x}%;--y:${y}%;--dx:${((x - 50) / 50).toFixed(2)};--dy:${((y - 45) / 45).toFixed(2)};--s:${s};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s`;
         const src = p.cutout || p.image.src;
         if (key === 'sand') {
-          // Sand: each piece hovers over a polished half coconut
+          // Sand: each piece hides inside a coconut that cracks open when tapped
+          const crack = Array.from({ length: 4 }, (_, k) => `<span class="splash" data-motion style="--k:${k}"></span>`).join('');
           return `<figure class="bubble bubble--coconut" style="${vars}" data-motion>
-            <div class="bubble__float" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></div>
-            <span class="coconut__shadow" data-motion></span>
-            <img class="coconut" src="assets/collections/coconut.svg" alt="" width="240" height="150" loading="lazy" decoding="async">
+            <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion>
+              <span class="coconut__shadow" data-motion></span>
+              <span class="nut__shell" data-motion>
+                <span class="nut__inside" data-motion></span>
+                <span class="nut__half nut__half--l" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
+                <span class="nut__half nut__half--r" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
+              </span>
+              <span class="nut__piece" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></span>
+              ${crack}
+            </button>
             <figcaption>${p.title}</figcaption>
           </figure>`;
         }
@@ -511,6 +522,14 @@
           <figcaption>${p.title}</figcaption>
         </figure>`;
       }).join('');
+      // tap a coconut: it shakes, cracks in two and the piece springs out; tap again to close it
+      fan.querySelectorAll('.nut').forEach((nut) => {
+        nut.addEventListener('click', () => {
+          const open = nut.getAttribute('aria-pressed') !== 'true';
+          nut.setAttribute('aria-pressed', String(open));
+          nut.closest('.bubble').classList.toggle('is-open', open);
+        });
+      });
       // tiny bubbles rising through the sea
       if (key === 'sea' && !panel.querySelector('.panel__rise')) {
         const rise = document.createElement('div');
@@ -563,7 +582,8 @@
       }
       const count = panel.querySelector('[data-count]');
       if (count) count.textContent = `${String(n).padStart(2, '0')} pieces`;
-      panel.setAttribute('aria-label', `${key === 'sea' ? 'Sea' : 'Sand'} collection, ${n} pieces. Shop the collection`);
+      const link = panel.querySelector('.panel__link');
+      link.setAttribute('aria-label', `${key === 'sea' ? 'Sea' : 'Sand'} collection, ${n} pieces. Shop the collection`);
 
       // a soft sheen that follows the cursor
       panel.addEventListener('pointermove', (e) => {
@@ -573,7 +593,7 @@
         panel.style.setProperty('--my', `${((e.clientY - r.top) / r.height * 100).toFixed(1)}%`);
       });
       // clicking a collection filters the drop to its pieces
-      panel.addEventListener('click', () => setFilter(key));
+      link.addEventListener('click', () => setFilter(key));
     });
   };
 
