@@ -148,12 +148,23 @@
           <span class="card__sizes">${(p.sizes || []).map((s) => `<span>${s}</span>`).join('')}</span>
           <span class="card__view">View</span>
         </div>
-      </a>`;
+      </a>
+      ${p.cutoutBack ? `<div class="card__sides" role="group" aria-label="Side of the ${p.title}">
+        <button type="button" class="card__side" aria-pressed="true" data-side="${p.cutout}">Front</button>
+        <button type="button" class="card__side" aria-pressed="false" data-side="${p.cutoutBack}">Back</button>
+      </div>` : ''}`;
+    // pieces printed on both sides can be turned around right on the card
+    li.querySelectorAll('.card__side').forEach((b) => b.addEventListener('click', () => {
+      const img = li.querySelector('.card__lift img');
+      li.querySelectorAll('.card__side').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+      img.classList.add('is-turning');
+      setTimeout(() => { img.src = b.dataset.side; img.classList.remove('is-turning'); }, 180);
+    }));
     return li;
   };
 
   let categories = [];
-  // one row per line (Shoreline, Tide, Riviera), each on its own stretch of sand
+  // one row per line (Shoreline, Soleil, Marée), each on its own stretch of sand
   const renderRows = (products) => {
     const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
     lines.forEach((c, n) => {
