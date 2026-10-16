@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/brand/mark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
   <link rel="stylesheet" href="styles.css">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
@@ -74,6 +74,7 @@
           <p class="label label--index" data-animate="fade-up"><span>01</span> The drop</p>
           <h2 class="display-2" id="drop-title" data-animate="words" data-delay="100">The first <em>drop</em></h2>
         </div>
+        <p class="drop__note" data-animate="fade-up" data-delay="200"><span>Inspiration</span>Faded beach-cabin stripes, hibiscus in two blues, and palms sketched by hand.</p>
         <div class="drop__filter" role="group" aria-label="Filter by collection" data-animate="fade" data-delay="250">
           <button class="chip" type="button" aria-pressed="true" data-filter="all">All</button>
           <button class="chip" type="button" aria-pressed="false" data-filter="sea">Sea</button>
@@ -87,6 +88,21 @@
             <!-- Rendered from data/products.json -->
           </ul>
         </div>
+      </div>
+    </section>
+
+    <!-- Interlude: a fast wave rushes up the screen and the tide rolls in -->
+    <section class="tide" aria-labelledby="tide-title" data-tide>
+      <div class="tide__sea" aria-hidden="true">
+        <span class="tide__wave tide__wave--foam" data-motion></span>
+        <span class="tide__wave tide__wave--aqua" data-motion></span>
+        <span class="tide__wave tide__wave--sea" data-motion></span>
+        <span class="tide__wave tide__wave--deep" data-motion></span>
+      </div>
+      <div class="tide__words wrap">
+        <p class="tide__kicker" data-motion>Drop 001 &nbsp;·&nbsp; Sea &amp; Sand</p>
+        <h2 class="tide__phrase" id="tide-title" data-motion><span class="tide__line" data-motion>The tide</span> <em class="tide__line" data-motion>rolls in.</em></h2>
+        <p class="tide__sub" data-motion>Two collections, washed up on the same shore.</p>
       </div>
     </section>
 

@@ -142,6 +142,7 @@
           <p class="card__price">${formatVND.format(p.price)}</p>
           <p class="card__color">${p.color.name}</p>
         </div>
+        ${p.description ? `<p class="card__detail" aria-hidden="true"><span>Detail</span>${p.description}</p>` : ''}
         <div class="card__quick" data-motion aria-hidden="true">
           <span class="card__sizes">${(p.sizes || []).map((s) => `<span>${s}</span>`).join('')}</span>
           <span class="card__view">View</span>
@@ -687,6 +688,18 @@
     });
   };
 
+  /* ---------------- Interlude: the wave rushes in each time the tide section comes into view ---------------- */
+  const initTide = () => {
+    const tide = document.querySelector('[data-tide]');
+    if (!tide || !('IntersectionObserver' in window)) { tide?.classList.add('is-in'); return; }
+    new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.intersectionRatio >= 0.3) tide.classList.add('is-in');
+        else if (!e.isIntersecting && e.boundingClientRect.top > 0) tide.classList.remove('is-in');   // reset only once it is below the screen again
+      });
+    }, { threshold: [0, 0.3] }).observe(tide);
+  };
+
   /* ---------------- Lookbook parallax ---------------- */
   const initParallax = () => {
     const imgs = [...document.querySelectorAll('[data-parallax]')];
@@ -747,5 +760,6 @@
   initLocale();
   loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); });
   initSlogan();
+  initTide();
   initSmoothScroll();
 })();
