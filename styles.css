@@ -655,6 +655,7 @@ html.intro-on { overflow: hidden; }
 .tide { position: relative; height: 190vh; background: #fff; }
 .tide__stage {
   position: sticky; top: 0; overflow: hidden; isolation: isolate;
+  --fade-bottom: 1;
   height: 100vh; height: 100svh;
   display: grid; place-items: center; text-align: center;
 }
@@ -680,6 +681,11 @@ html.intro-on { overflow: hidden; }
 .tide__wave--deep { --c: var(--sea-deep); --d: 340ms; --roll: 5.6s; }
 .tide.is-in .tide__wave { transform: translate3d(0, 0, 0); }
 
+/* the bottom of the stage settles back into deep sea, so it meets the collections with no line */
+.tide__stage::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%; pointer-events: none; z-index: 0;
+  background: linear-gradient(180deg, rgba(11, 44, 71, 0) 0%, var(--sea-deep) 100%);
+}
 /* once the deep sea has settled, it stays alive: drifting light, rolling swells, the words breathing */
 .tide__life { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 1200ms var(--ease-soft) 900ms; overflow: hidden; }
 .tide.is-in .tide__life { opacity: 1; }
@@ -750,12 +756,9 @@ html.intro-on { overflow: hidden; }
    its pieces fan out like swatch cards, and the light in it comes alive. */
 .panels { display: flex; position: relative; }
 /* the white page mists into the two collections instead of meeting them at a hard edge */
-.panels::before {
-  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: clamp(44px, 6vw, 96px); z-index: 3; pointer-events: none;
-  background: var(--sea-deep);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H1440 V44 C 1200 92, 960 92, 720 52 S 240 10, 0 58 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
-          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H1440 V44 C 1200 92, 960 92, 720 52 S 240 10, 0 58 Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
-}
+/* the tide's deep sea fades softly down into both collections: above the water light and the sand pattern, behind the pieces */
+.panel__fade { position: absolute; left: 0; right: 0; top: 0; height: clamp(200px, 33vh, 340px); z-index: 1; pointer-events: none; background: var(--tide-fade); }
+.panels { --tide-fade: linear-gradient(180deg, var(--sea-deep) 0, rgba(11, 44, 71, .8) clamp(40px, 7vh, 80px), rgba(11, 44, 71, .4) clamp(100px, 17vh, 190px), rgba(11, 44, 71, .12) clamp(150px, 25vh, 270px), rgba(11, 44, 71, 0) clamp(200px, 33vh, 340px)); }
 .panel {
   --ease-lux: cubic-bezier(.2, .9, .25, 1);
   position: relative; overflow: hidden; isolation: isolate;
@@ -766,7 +769,14 @@ html.intro-on { overflow: hidden; }
   transition: flex-grow 1100ms var(--ease-lux);
 }
 .panel--sea  { color: var(--sand-light); background: radial-gradient(120% 80% at 50% 0%, #174A72 0%, #0F3656 40%, var(--sea-deep) 85%); }
-.panel--sand { color: var(--sea-deep);  background: linear-gradient(180deg, #FBF1DE 0%, #F4E3C4 42%, #EED8B2 78%, #E8CFA4 100%); }
+.panel--sand {
+  color: var(--sea-deep);
+  /* real beach sand: wind ripples and grains, lit from the upper left, with a soft sunny wash on top */
+  background:
+    linear-gradient(180deg, rgba(255, 246, 228, .38) 0%, rgba(255, 246, 228, .12) 45%, rgba(170, 120, 60, .10) 100%),
+    url("assets/collections/sand.jpg") 0 0 / 512px 512px repeat,
+    #E9D3A8;
+}
 /* our palm mark pressed into the sand, tinted the colour of wet sand, in a loose offset pattern */
 .panel--sand::before {
   content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
@@ -1156,7 +1166,8 @@ html.intro-on { overflow: hidden; }
 }
 /* Sand: golden letters with a slow sunlit shimmer, settling gently */
 .panel--sand .ltr {
-  background-image: linear-gradient(100deg, #6E4F2B 0%, #A88152 26%, #E9CF9E 44%, #FFF3D9 50%, #E9CF9E 56%, #A88152 74%, #6E4F2B 100%);
+  background-image: linear-gradient(100deg, #4F3518 0%, #7A5527 26%, #B8894C 44%, #F2D7A2 50%, #B8894C 56%, #7A5527 74%, #4F3518 100%);
+  filter: drop-shadow(0 2px 10px rgba(255, 244, 222, .55));   /* lifts the title off the sand */
   animation: letter-settle 6s ease-in-out calc(var(--k) * .35s) infinite, letter-light 8s linear calc(var(--k) * .28s) infinite;
 }
 @keyframes letter-settle {
