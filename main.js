@@ -127,6 +127,8 @@
     const li = document.createElement('li');
     li.className = 'strip__item';
     li.dataset.collection = p.collection || '';
+    li.dataset.category = p.category || '';
+    li.dataset.catLabel = (categories.find((c) => c.key === p.category) || {}).name || '';
     li.dataset.animate = 'fade-up';   // each piece in the gallery rises in as it reaches the screen
     li.innerHTML = `
       <a class="card" data-motion href="#product/${p.handle}" data-index="${i}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}. View details">
@@ -151,11 +153,28 @@
     return li;
   };
 
+  let categories = [];
+  // the three lines (Lagon, Riva, Marée) become tiles above the drop that also filter it
+  const renderLines = () => {
+    const box = document.querySelector('[data-lines]');
+    if (!box || !categories.length) return;
+    box.insertAdjacentHTML('beforeend', categories.map((c, i) => `
+      <button class="line" type="button" aria-pressed="false" data-filter="${c.key}">
+        <span class="line__index">0${i + 1}</span>
+        <span class="line__name">${c.name}</span>
+        <span class="line__kind">${c.kind}</span>
+        <span class="line__note">${c.note}</span>
+        <span class="line__where">Sand &amp; sea</span>
+      </button>`).join(''));
+  };
+
   const loadProducts = async () => {
     try {
       const res = await fetch('data/products.json', { cache: 'no-cache' });
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
+      categories = data.categories || [];
+      renderLines();
       const frag = document.createDocumentFragment();
       data.products.forEach((p, i) => frag.appendChild(productCard(p, i)));
       track.appendChild(frag);
@@ -253,6 +272,27 @@
       open(parseInt(card.dataset.index, 10) || 0, card);
     });
     $('[data-spot-close]').addEventListener('click', close);
+
+    // From the collections: palm fronds sweep in from both sides, then part to reveal the piece
+    let palms = null;
+    document.addEventListener('laplage:view', (e) => {
+      const { index: i, from } = e.detail;
+      if (Number.isNaN(i)) return;
+      if (!palms) {
+        palms = document.createElement('div');
+        palms.className = 'palms'; palms.setAttribute('aria-hidden', 'true'); palms.dataset.motion = '';
+        const side = (s) => `<div class="palms__side palms__side--${s}" data-motion><img src="assets/collections/palm-fronds.svg" alt="" width="1000" height="1200" decoding="async"></div>`;
+        palms.innerHTML = `<div class="palms__veil" data-motion></div>${side('l')}${side('r')}`;
+        document.body.appendChild(palms);
+        void palms.offsetWidth;
+      }
+      palms.classList.remove('is-open'); palms.classList.add('is-shut');
+      setTimeout(() => {
+        open(i, from);
+        palms.classList.remove('is-shut'); palms.classList.add('is-open');
+        setTimeout(() => palms.classList.remove('is-open'), 1100);
+      }, 620);
+    });
     $('[data-spot-prev]').addEventListener('click', () => go(-1));
     $('[data-spot-next]').addEventListener('click', () => go(1));
     $('[data-spot-access]').addEventListener('click', close);
@@ -484,7 +524,7 @@
     const chips = [...document.querySelectorAll('[data-filter]')];
     const setFilter = (key) => {
       chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === key)));
-      track.querySelectorAll('.strip__item').forEach((li) => { li.hidden = key !== 'all' && li.dataset.collection !== key; });
+      track.querySelectorAll('.strip__item').forEach((li) => { li.hidden = key !== 'all' && li.dataset.collection !== key && li.dataset.category !== key; });
       document.dispatchEvent(new CustomEvent('laplage:filter', { detail: key }));
     };
     chips.forEach((c) => c.addEventListener('click', () => setFilter(c.dataset.filter)));
@@ -506,8 +546,8 @@
         sand: {
           desk:  [[27, 11, 1, -7], [74, 17, .82, 6], [53, 38, .92, -4]],
           phone: [[25, 9, .95, -7], [77, 15, .8, 6], [52, 30, 1, -4]],
-          nuts:  [[15, 41, .92, 0], [83, 58, .85, 0]],
-          nutsPhone: [[17, 41, .9, 0], [83, 46, .82, 0]],
+          nuts:  [[15, 41, 1, 0], [87, 41, .95, 0]],
+          nutsPhone: [[25, 36, .95, 0], [76, 45, .88, 0]],
         },
       }[key];
       const ranked = [...items].sort((p, q) => (q.featured ? 1 : 0) - (p.featured ? 1 : 0));
@@ -515,7 +555,8 @@
       // the coconuts hide pieces that are not already on show; with a small collection they borrow from those on show
       const extras = ranked.slice(shown.length);
       const hidden = layout.nuts ? [...extras, ...shown].slice(0, layout.nuts.length) : [];
-      if (hidden.length) fan.removeAttribute('aria-hidden');   // the coconuts are buttons
+      fan.removeAttribute('aria-hidden');   // the pieces and coconuts are buttons
+      const at = (p) => products.indexOf(p);
       const varsFor = (i, [x, y, s, r], [mx, my, ms]) => {
         const bob = (5.2 + ((i * 1.7) % 2.6)).toFixed(2);          // every piece on its own rhythm
         const flow = (19 + ((i * 5) % 9)).toFixed(0);              // and its own slow drift
@@ -526,7 +567,7 @@
         const inner = key === 'sand'
           ? `<img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">`
           : `<div class="bubble__glass" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></div>`;
-        return `<figure class="bubble${key === 'sand' ? ' bubble--free' : ''}" style="${varsFor(i, layout.desk[i], layout.phone[i])}" data-motion>
+        return `<figure class="bubble${key === 'sand' ? ' bubble--free' : ''}" style="${varsFor(i, layout.desk[i], layout.phone[i])}" data-motion data-view="${at(p)}" role="button" tabindex="0" aria-label="View the ${p.title}">
           <div class="bubble__flow" data-motion><div class="bubble__float" data-motion>${inner}</div></div>
           <figcaption>${p.title}</figcaption>
         </figure>`;
@@ -535,7 +576,10 @@
         const src = p.cutout || p.image.src;
         const crack = Array.from({ length: 4 }, (_, k) => `<span class="splash" data-motion style="--k:${k}"></span>`).join('');
         return `<figure class="bubble bubble--coconut" style="${varsFor(shown.length + j, layout.nuts[j], layout.nutsPhone[j])}" data-motion>
-          <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion>
+          <span class="nut__mound" aria-hidden="true"></span>
+          <span class="nut__hint" aria-hidden="true" data-motion>Tap to crack</span>
+          <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion data-piece="${at(p)}">
+            <span class="nut__ring" data-motion></span>
             <span class="coconut__shadow" data-motion></span>
             <span class="nut__shell" data-motion>
               <span class="nut__inside" data-motion></span>
@@ -549,9 +593,19 @@
         </figure>`;
       });
       fan.innerHTML = free.join('') + nuts.join('');
-      // tap a coconut: it shakes, cracks in two and the piece springs out; tap again to close it
+      // tap a piece: the palms part and it pops out in the spotlight, right here (no jump up the page)
+      const view = (el) => document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(el.dataset.view, 10), from: el } }));
+      fan.querySelectorAll('[data-view]').forEach((el) => {
+        el.addEventListener('click', () => view(el));
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); view(el); } });
+      });
+      // tap a coconut: it shakes, cracks in two and the piece springs out; tap the piece to see it, or the shell to close it
       fan.querySelectorAll('.nut').forEach((nut) => {
-        nut.addEventListener('click', () => {
+        nut.addEventListener('click', (e) => {
+          if (nut.getAttribute('aria-pressed') === 'true' && e.target.closest('.nut__piece')) {
+            document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(nut.dataset.piece, 10), from: nut } }));
+            return;
+          }
           const open = nut.getAttribute('aria-pressed') !== 'true';
           nut.setAttribute('aria-pressed', String(open));
           nut.closest('.bubble').classList.toggle('is-open', open);

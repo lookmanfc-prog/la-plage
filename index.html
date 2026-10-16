@@ -75,11 +75,10 @@
           <h2 class="display-2" id="drop-title" data-animate="words" data-delay="100">The first <em>drop</em></h2>
         </div>
         <p class="drop__note" data-animate="fade-up" data-delay="200"><span>Inspiration</span>Faded beach-cabin stripes, hibiscus in two blues, and palms sketched by hand.</p>
-        <div class="drop__filter" role="group" aria-label="Filter by collection" data-animate="fade" data-delay="250">
-          <button class="chip" type="button" aria-pressed="true" data-filter="all">All</button>
-          <button class="chip" type="button" aria-pressed="false" data-filter="sea">Sea</button>
-          <button class="chip" type="button" aria-pressed="false" data-filter="sand">Sand</button>
-        </div>
+      </div>
+      <!-- Three lines, each made for both the sand and the sea; they also filter the drop -->
+      <div class="lines wrap" role="group" aria-label="Filter by line" data-lines data-animate="fade-up" data-delay="250">
+        <button class="lines__all chip" type="button" aria-pressed="true" data-filter="all">All</button>
       </div>
 
       <div class="strip strip--gallery" data-strip data-layout="gallery">
