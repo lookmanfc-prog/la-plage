@@ -34,7 +34,8 @@
         "L",
         "XL"
       ],
-      "collection": "sand"
+      "collection": "sand",
+      "cutout": "assets/img/products/cutouts/shorts-white.webp"
     },
     {
       "id": "riva-short",
@@ -64,7 +65,8 @@
         "L",
         "XL"
       ],
-      "collection": "sea"
+      "collection": "sea",
+      "cutout": "assets/img/products/cutouts/shorts-hibiscus.webp"
     },
     {
       "id": "lagon-short",
@@ -94,7 +96,8 @@
         "L",
         "XL"
       ],
-      "collection": "sea"
+      "collection": "sea",
+      "cutout": "assets/img/products/cutouts/shorts-lagoon-floral.webp"
     },
     {
       "id": "maree-short",
@@ -124,7 +127,8 @@
         "L",
         "XL"
       ],
-      "collection": "sea"
+      "collection": "sea",
+      "cutout": "assets/img/products/cutouts/shorts-blue-stripe.webp"
     },
     {
       "id": "plage-short",
@@ -154,7 +158,8 @@
         "L",
         "XL"
       ],
-      "collection": "sand"
+      "collection": "sand",
+      "cutout": "assets/img/products/cutouts/shorts-pine-stripe.webp"
     },
     {
       "id": "palmier-short",
@@ -184,7 +189,8 @@
         "L",
         "XL"
       ],
-      "collection": "sand"
+      "collection": "sand",
+      "cutout": "assets/img/products/cutouts/shorts-palm-print.webp"
     },
     {
       "id": "esprit-cotier-tee",
@@ -221,7 +227,8 @@
         "L",
         "XL"
       ],
-      "collection": "sand"
+      "collection": "sand",
+      "cutout": "assets/img/products/cutouts/tee-esprit-cotier-front.webp"
     }
   ]
 }
