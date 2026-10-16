@@ -679,6 +679,7 @@ html.intro-on { overflow: hidden; }
   filter: blur(.5px);
 }
 .bubble__item {
+  rotate: var(--r, 0deg);   /* each piece hangs at its own slight tilt */
   width: 78%; height: 78%; object-fit: contain;
   filter: drop-shadow(0 10px 14px rgba(11, 44, 71, .28));
   animation: item-drift calc(var(--bob, 6s) * 1.3) ease-in-out var(--bob-delay, 0s) infinite;
@@ -939,7 +940,7 @@ html.intro-on { overflow: hidden; }
   .panels { flex-direction: column; }
   .panel { min-height: 86svh; }
   .panel__fan { --size: 27vw; }
-  .bubble { left: var(--mx, var(--x)); top: var(--my, var(--y)); }
+  .bubble { left: var(--mx, var(--x)); top: var(--my, var(--y)); transform: scale(var(--ms, var(--s))); }
 }
 
 /* drop filter chips */
