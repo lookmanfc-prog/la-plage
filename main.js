@@ -788,10 +788,10 @@
     if (!tide || !('IntersectionObserver' in window)) { tide?.classList.add('is-in'); return; }
     new IntersectionObserver((entries) => {
       entries.forEach((e) => {
-        if (e.intersectionRatio >= 0.3) tide.classList.add('is-in');
+        if (e.intersectionRatio >= 0.12) tide.classList.add('is-in');   // the wave starts as soon as the section is coming into view
         else if (!e.isIntersecting && e.boundingClientRect.top > 0) tide.classList.remove('is-in');   // reset only once it is below the screen again
       });
-    }, { threshold: [0, 0.3] }).observe(tide);
+    }, { threshold: [0, 0.12] }).observe(tide);
   };
 
   /* ---------------- Lookbook parallax ---------------- */
