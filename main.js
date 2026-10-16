@@ -171,7 +171,7 @@
       const items = products.map((p, i) => [p, i]).filter(([p]) => !c.key || p.category === c.key);
       if (!items.length) return;
       const row = document.createElement('section');
-      row.className = 'row'; row.dataset.line = c.key; row.dataset.animate = 'fade-up';
+      row.className = 'row float-card'; row.dataset.line = c.key; row.dataset.animate = 'fade-up'; row.dataset.motion = '';
       row.setAttribute('aria-label', `${c.name}, ${c.kind}`);
       row.innerHTML = `
         <header class="row__head">
@@ -251,8 +251,18 @@
       $('[data-spot-desc]').textContent = p.description || '';
       $('[data-spot-color]').textContent = p.color.name;
       $('[data-spot-price]').textContent = formatVND.format(p.price);
-      const src = view === 'back' && p.imageHover ? p.imageHover : p.image;
-      img.src = src.src; img.alt = view === 'back' && p.imageHover ? p.imageHover.alt : p.image.alt;
+      // the cut-out version floats on the frosted glass (the photos have a white backdrop)
+      const back = view === 'back' && p.imageHover;
+      const src = { src: back ? (p.cutoutBack || p.imageHover.src) : (p.cutout || p.image.src) };
+      // never show the previous piece while the next one loads: hide the image until the new one is ready
+      if (img.getAttribute('src') !== src.src) {
+        img.classList.add('is-loading');
+        const want = src.src;
+        img.onload = () => { if (img.getAttribute('src') === want) img.classList.remove('is-loading'); };
+        img.src = want;
+        if (img.complete && img.naturalWidth) img.classList.remove('is-loading');
+      }
+      img.alt = view === 'back' && p.imageHover ? p.imageHover.alt : p.image.alt;
       sizes.innerHTML = (p.sizes || []).map((s, i) => `<button type="button" class="size" role="radio" aria-checked="${i === 1}" data-size="${s}">${s}</button>`).join('');
       views.innerHTML = p.imageHover
         ? ['front', 'back'].map((v) => `<button type="button" class="view-btn" aria-pressed="${v === view}" data-view="${v}">${v === 'front' ? 'Front' : 'Back'}</button>`).join('')
@@ -263,6 +273,9 @@
       void stage.offsetWidth;
       spot.classList.add('is-switching');
     };
+
+    // warm the cache so every piece opens instantly
+    products.forEach((p) => { [p.cutout, p.cutoutBack].forEach((u) => { if (u) { const pre = new Image(); pre.decoding = 'async'; pre.src = u; } }); });
 
     const open = (i, from) => {
       clearTimeout(closeTimer);

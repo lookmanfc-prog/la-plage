@@ -10,10 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
-  <link rel="stylesheet" href="styles.css?v=35">
+  <link rel="stylesheet" href="styles.css?v=36">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
 <body>
+  <!-- the live ocean sits behind the whole page; every section floats over it -->
+  <canvas class="ocean-bg" data-ocean aria-hidden="true"></canvas>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <!-- Welcome wave: the page opens under water and the wave washes back -->
@@ -50,7 +52,6 @@
   <main id="main">
     <!-- Hero: a live ocean, the LA PLAGE logo in 3D (drag to turn it) and the drop behind glass -->
     <section class="hero hero--ocean" id="top" aria-labelledby="hero-title" data-hero>
-      <canvas class="hero__ocean" data-ocean aria-hidden="true"></canvas>
       <div class="hero__veil" aria-hidden="true"></div>
       <div class="hero__content wrap">
         <div class="logo3d" data-logo3d data-animate="fade" data-delay="150" role="img" aria-label="LA PLAGE logo. Drag to turn it around.">
@@ -144,7 +145,7 @@
     </section>
 
     <!-- Story -->
-    <section class="story section" id="story" aria-labelledby="story-title">
+    <section class="story section float-card" data-motion id="story" aria-labelledby="story-title">
       <div class="story__inner wrap">
         <img class="story__mark" src="assets/brand/mark.png" alt="" width="44" height="40" data-animate="fade-up">
         <p class="label label--index label--center" data-animate="fade-up" data-delay="80"><span>04</span> Story</p>
@@ -180,7 +181,7 @@
     </section>
 
     <!-- Lookbook -->
-    <section class="lookbook section" id="lookbook" aria-labelledby="lookbook-title">
+    <section class="lookbook section float-card" data-motion id="lookbook" aria-labelledby="lookbook-title">
       <div class="lookbook__head wrap">
         <p class="label label--index" data-animate="fade-up"><span>05</span> Lookbook</p>
         <h2 class="display-2" id="lookbook-title" data-animate="words" data-delay="100">Golden hour, <em>Mũi Né</em></h2>
@@ -202,7 +203,7 @@
     </section>
 
     <!-- Private access -->
-    <section class="access section" id="access" aria-labelledby="access-title">
+    <section class="access section float-card" data-motion id="access" aria-labelledby="access-title">
       <div class="access__inner wrap">
         <p class="label label--index label--center" data-animate="fade-up"><span>06</span> Private access</p>
         <h2 class="display-2" id="access-title" data-animate="words" data-delay="100">Before it opens to <em>everyone.</em></h2>
@@ -218,7 +219,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="footer">
+  <footer class="footer float-card float-card--dark" data-motion>
     <div class="footer__inner wrap" data-stagger="fade-up" data-stagger-step="90">
       <div class="footer__brand">
         <div class="footer__mark palm" aria-hidden="true"></div>
@@ -303,8 +304,8 @@
     </button>
   </div>
 
-  <script src="intro.js?v=35" defer></script>
-  <script src="ocean.js?v=35" defer></script>
-  <script src="main.js?v=35" defer></script>
+  <script src="intro.js?v=36" defer></script>
+  <script src="ocean.js?v=36" defer></script>
+  <script src="main.js?v=36" defer></script>
 </body>
 </html>
