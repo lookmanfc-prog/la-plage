@@ -1196,7 +1196,7 @@ html.intro-on { overflow: hidden; }
 }
 .story__inner {
   max-width: 1000px; margin: 0 auto; text-align: center;
-  padding-block: clamp(120px, 22vh, 240px);
+  padding-block: clamp(120px, 22vh, 240px) clamp(40px, 7vh, 80px);
   display: flex; flex-direction: column; align-items: center;
 }
 .story__mark { width: 44px; height: auto; margin-bottom: 28px; }
@@ -1205,6 +1205,33 @@ html.intro-on { overflow: hidden; }
   font-size: var(--fs-lead); line-height: 1.3; letter-spacing: -.012em;
   max-width: 24ch; margin: 30px 0 48px;
   text-wrap: balance;
+}
+
+/* Why LA PLAGE: what the brand is for, under the story line */
+.why {
+  max-width: 1200px; margin: 0 auto; padding-bottom: clamp(100px, 16vh, 180px);
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 110px); align-items: start;
+  text-align: left; color: var(--sea-deep);
+}
+.why__title {
+  margin: 18px 0 26px;
+  font-family: var(--display); font-weight: 300; font-size: clamp(38px, 4.2vw, 68px); line-height: 1.02; letter-spacing: -.01em;
+}
+.why__title em { font-style: italic; color: var(--sand-ink); }
+.why__lead { max-width: 46ch; font-family: var(--serif); font-size: 17px; line-height: 1.7; color: var(--ink-soft); }
+.why__lead + .why__lead { margin-top: 16px; }
+.why__points { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.why__point {
+  display: grid; grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 18px; row-gap: 8px; align-content: start;
+  padding: 26px 0; border-top: 1px solid rgba(138, 106, 64, .25);
+}
+.why__name, .why__text { grid-column: 2; margin: 0; }
+.why__point:last-child { border-bottom: 1px solid rgba(138, 106, 64, .25); }
+.why__num { grid-column: 1; grid-row: 1; font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--sand-ink); padding-top: 4px; }
+.why__name { font-family: var(--display); font-weight: 300; font-size: clamp(24px, 2.2vw, 32px); line-height: 1.15; }
+.why__text { font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); }
+@media (max-width: 860px) {
+  .why { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ==========================================================================
@@ -1474,7 +1501,7 @@ html.spot-on { overflow: hidden; }
 @keyframes shark-sea { 0% { opacity: 0; } 18% { opacity: 1; } 42% { opacity: 1; } 75%, 100% { opacity: 0; } }
 .sharks__fish {
   position: absolute; left: 0; top: var(--top);
-  width: calc(var(--size) * clamp(220px, 34vw, 560px));
+  width: calc(var(--size) * clamp(380px, 62vw, 1100px));
   transform: translate3d(-110%, -50%, 0);
 }
 .sharks__fish img { width: 100%; height: auto; display: block; filter: drop-shadow(0 18px 24px rgba(0, 15, 30, .45)); transform-origin: 70% 50%; }
