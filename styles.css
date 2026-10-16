@@ -607,29 +607,96 @@ html.intro-on { overflow: hidden; }
 .panel--sand .panel__palm { color: var(--sand); }
 .js .panel__palm[data-animate].is-visible { opacity: .14; }
 
-/* the fan of pieces */
+/* the pieces, each floating in a glass bubble */
 .panel__fan {
-  position: absolute; left: 50%; top: 13%; z-index: 0;
-  width: clamp(130px, 12.5vw, 210px); aspect-ratio: 4 / 5;
+  position: absolute; left: 50%; top: 11%; z-index: 0;
+  width: clamp(140px, 12vw, 210px); aspect-ratio: 1;
   translate: -50% 0;
   pointer-events: none;
 }
-.fan-card {
+.bubble {
   position: absolute; inset: 0; margin: 0;
-  background: var(--white);
-  box-shadow: 0 18px 40px -18px rgba(11, 44, 71, .45), 0 2px 6px rgba(11, 44, 71, .08);
-  transform-origin: 50% 110%;
-  transform: translate3d(calc(var(--o) * 9%), calc(var(--a) * 3%), 0) rotate(calc(var(--o) * 2.5deg)) scale(.9);
-  transition: transform 1100ms var(--ease-lux), box-shadow 1100ms var(--ease-lux);
-  transition-delay: calc(var(--i) * 55ms);
+  transform: translate3d(calc(var(--o) * 44%), calc(var(--a) * 16% + 4%), 0) scale(calc(var(--s) * .82));
+  transition: transform 1300ms var(--ease-lux);
+  transition-delay: calc(var(--i) * 70ms);
 }
-.fan-card img { width: 100%; height: 100%; object-fit: cover; }
-.fan-card figcaption {
-  position: absolute; left: 0; right: 0; top: calc(100% + 12px);
+.bubble__float {
+  position: absolute; inset: 0;
+  animation: bubble-bob var(--bob, 6s) ease-in-out var(--bob-delay, 0s) infinite;
+}
+@keyframes bubble-bob {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  30%      { transform: translate3d(3px, -9px, 0) rotate(1.5deg); }
+  65%      { transform: translate3d(-4px, -4px, 0) rotate(-1.2deg); }
+}
+.bubble__glass {
+  position: absolute; inset: 0; border-radius: 50%;
+  display: grid; place-items: center;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, .5) 0, rgba(255, 255, 255, .12) 16%, rgba(255, 255, 255, 0) 34%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .02) 0, rgba(255, 255, 255, .04) 55%, var(--rim) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .35),
+    inset -14px -20px 38px var(--deep-tint),
+    inset 12px 16px 30px rgba(255, 255, 255, .16),
+    0 34px 60px -34px var(--drop);
+  -webkit-backdrop-filter: blur(2px) saturate(1.35);
+          backdrop-filter: blur(2px) saturate(1.35);
+  overflow: hidden;
+}
+/* a faint rainbow film turning slowly around the rim */
+.bubble__glass::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(255, 170, 200, .35), rgba(170, 220, 255, .35), rgba(190, 255, 220, .32), rgba(255, 235, 170, .32), rgba(255, 170, 200, .35));
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 71%, transparent 74%);
+          mask: radial-gradient(circle, transparent 60%, #000 71%, transparent 74%);
+  mix-blend-mode: screen; opacity: .7;
+  animation: film-turn 14s linear infinite;
+}
+@keyframes film-turn { to { rotate: 360deg; } }
+/* the bright window reflection */
+.bubble__glass::after {
+  content: ""; position: absolute; left: 18%; top: 12%; width: 30%; height: 16%;
+  border-radius: 50%; rotate: -32deg;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0));
+  filter: blur(.5px);
+}
+.bubble__item {
+  width: 70%; height: 70%; object-fit: contain;
+  filter: drop-shadow(0 10px 14px rgba(11, 44, 71, .28));
+  animation: item-drift calc(var(--bob, 6s) * 1.3) ease-in-out var(--bob-delay, 0s) infinite;
+}
+@keyframes item-drift {
+  0%, 100% { transform: translate3d(0, 2%, 0) rotate(-2deg); }
+  50%      { transform: translate3d(0, -3%, 0) rotate(2deg); }
+}
+.panel--sea  { --rim: rgba(170, 220, 255, .3);  --deep-tint: rgba(70, 150, 210, .32); --drop: rgba(0, 10, 25, .7); }
+.panel--sand { --rim: rgba(199, 162, 114, .32); --deep-tint: rgba(199, 162, 114, .3); --drop: rgba(120, 90, 50, .45); }
+.panel--sand .bubble__glass { box-shadow: inset 0 0 0 1px rgba(199, 162, 114, .45), inset -14px -20px 38px var(--deep-tint), inset 12px 16px 30px rgba(255, 255, 255, .5), 0 34px 60px -34px var(--drop); }
+.bubble figcaption {
+  position: absolute; left: 0; right: 0; top: calc(100% + 10px);
   text-align: center; white-space: nowrap;
   font-family: var(--serif); font-style: italic; font-size: 13px;
   opacity: 0; translate: 0 -6px;
   transition: opacity 500ms var(--ease-soft), translate 700ms var(--ease-lux);
+}
+
+/* tiny bubbles rising through the sea */
+.panel__rise { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.panel__rise span {
+  position: absolute; left: var(--x); bottom: -20px;
+  width: var(--size); height: var(--size); border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .8), rgba(255, 255, 255, .08) 60%, rgba(255, 255, 255, .3) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35);
+  opacity: 0;
+  animation: rise var(--dur) linear var(--delay) infinite;
+}
+@keyframes rise {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  10%  { opacity: .7; }
+  50%  { transform: translate3d(var(--sway), -55vh, 0); }
+  90%  { opacity: .5; }
+  100% { transform: translate3d(0, -110vh, 0); opacity: 0; }
 }
 
 /* caption */
@@ -675,21 +742,20 @@ html.intro-on { overflow: hidden; }
 }
 /* fanned out: on hover with a mouse, always on touch screens */
 @media (hover: hover) and (pointer: fine) {
-  .panel:hover .fan-card, .panel:focus-visible .fan-card {
-    transform: translate3d(calc(var(--o) * var(--spread, 74%)), calc(var(--a) * 7% - 6%), 0) rotate(calc(var(--o) * 7deg)) scale(1);
-    box-shadow: 0 30px 60px -22px rgba(11, 44, 71, .55), 0 2px 8px rgba(11, 44, 71, .1);
+  .panel:hover .bubble, .panel:focus-visible .bubble {
+    transform: translate3d(calc(var(--o) * var(--spread, 82%)), calc(var(--a) * 12% - 6%), 0) scale(var(--s));
   }
-  .panel:hover .fan-card figcaption { opacity: .85; translate: 0 0; transition-delay: calc(300ms + var(--i) * 60ms); }
+  .panel:hover .bubble figcaption { opacity: .85; translate: 0 0; transition-delay: calc(350ms + var(--i) * 60ms); }
 }
 @media (hover: none), (pointer: coarse) {
-  .fan-card { transform: translate3d(calc(var(--o) * 58%), calc(var(--a) * 6% - 4%), 0) rotate(calc(var(--o) * 6deg)) scale(.92); }
+  .bubble { transform: translate3d(calc(var(--o) * 66%), calc(var(--a) * 12% - 4%), 0) scale(calc(var(--s) * .92)); }
   .panel__cta::after { transform: scaleX(1); }
 }
 
 @media (max-width: 760px) {
   .panels { flex-direction: column; }
   .panel { min-height: 86svh; }
-  .panel__fan { top: 9%; width: 34vw; }
+  .panel__fan { top: 9%; width: 30vw; }
 }
 
 /* drop filter chips */

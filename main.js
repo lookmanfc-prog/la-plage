@@ -485,15 +485,31 @@
       const items = products.filter((p) => p.collection === key);
       const fan = panel.querySelector('[data-fan]');
       const n = items.length;
-      fan.style.setProperty('--spread', n > 3 ? '58%' : '74%');   // wider collections fan a little tighter
-      // a fan of the collection's own pieces, stacked at rest and spread on hover
+      fan.style.setProperty('--spread', n > 3 ? '66%' : '82%');   // wider collections drift apart a little less
+      // each piece floats in its own glass bubble: clustered at rest, drifting apart on hover
       fan.innerHTML = items.map((p, i) => {
         const o = i - (n - 1) / 2;
-        return `<figure class="fan-card" style="--i:${i};--o:${o};--a:${Math.abs(o)}" data-motion>
-          <img src="${p.image.src}" alt="" width="${p.image.width}" height="${p.image.height}" loading="lazy" decoding="async">
+        const a = Math.abs(o);
+        const bob = (5.2 + ((i * 1.7) % 2.6)).toFixed(2);          // every bubble on its own rhythm
+        return `<figure class="bubble" style="--i:${i};--o:${o};--a:${a};--s:${(1 - a * 0.09).toFixed(2)};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s" data-motion>
+          <div class="bubble__float" data-motion>
+            <div class="bubble__glass" data-motion>
+              <img class="bubble__item" data-motion src="${p.cutout || p.image.src}" alt="" loading="lazy" decoding="async">
+            </div>
+          </div>
           <figcaption>${p.title}</figcaption>
         </figure>`;
       }).join('');
+      // tiny bubbles rising through the sea
+      if (key === 'sea' && !panel.querySelector('.panel__rise')) {
+        const rise = document.createElement('div');
+        rise.className = 'panel__rise'; rise.setAttribute('aria-hidden', 'true'); rise.dataset.motion = '';
+        rise.innerHTML = Array.from({ length: 14 }, (_, k) => {
+          const size = 4 + ((k * 7) % 11);
+          return `<span data-motion style="--x:${(k * 37) % 100}%;--size:${size}px;--dur:${(9 + (k * 3) % 8).toFixed(1)}s;--delay:${(-(k * 1.9)).toFixed(1)}s;--sway:${(k % 2 ? 1 : -1) * (8 + k % 5 * 3)}px"></span>`;
+        }).join('');
+        panel.insertBefore(rise, fan);
+      }
       const count = panel.querySelector('[data-count]');
       if (count) count.textContent = `${String(n).padStart(2, '0')} pieces`;
       panel.setAttribute('aria-label', `${key === 'sea' ? 'Sea' : 'Sand'} collection, ${n} pieces. Shop the collection`);
