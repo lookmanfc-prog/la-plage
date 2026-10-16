@@ -68,10 +68,14 @@
     walk(el);
   };
 
+  // A "clip" element starts fully clipped away, which browsers count as not on screen,
+  // so it is watched through its parent and revealed when that comes into view.
+  const proxies = new Map();
   const animIO = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
-      reveal(entry.target);
+      if (entry.target.dataset.animate || entry.target.hasAttribute('data-stagger')) reveal(entry.target);
+      (proxies.get(entry.target) || []).forEach(reveal);
       animIO.unobserve(entry.target);
     });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 }) : null;
@@ -109,7 +113,10 @@
     root.querySelectorAll('[data-animate]').forEach((el) => {
       if (el.parentElement && el.parentElement.hasAttribute('data-stagger')) return; // driven by the group
       prepare(el);
-      if (animIO) animIO.observe(el); else reveal(el);
+      if (!animIO) { reveal(el); return; }
+      const watch = el.dataset.animate === 'clip' && el.parentElement ? el.parentElement : el;
+      if (watch !== el) proxies.set(watch, [...(proxies.get(watch) || []), el]);
+      animIO.observe(watch);
     });
   };
 
@@ -120,6 +127,7 @@
     const li = document.createElement('li');
     li.className = 'strip__item';
     li.dataset.collection = p.collection || '';
+    li.dataset.animate = 'fade-up';   // each piece in the gallery rises in as it reaches the screen
     li.innerHTML = `
       <a class="card" data-motion href="#product/${p.handle}" data-index="${i}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}. View details">
         <div class="card__media" data-motion>
@@ -287,6 +295,7 @@
   /* ---------------- Strip: drag with inertia (fine pointers) / native swipe (touch) ---------------- */
   const initStrip = () => {
     const strip = document.querySelector('[data-strip]');
+    if (strip.dataset.layout === 'gallery') return;   // the vertical gallery scrolls with the page
     const viewport = strip.querySelector('[data-strip-viewport]');
     const progress = strip.querySelector('[data-strip-progress]');
     const prevBtn = document.querySelector('[data-strip-prev]');
@@ -614,6 +623,70 @@
     });
   };
 
+  /* ---------------- Hero slogan: a sunlit line that turns to the next every few seconds ---------------- */
+  const initSlogan = () => {
+    const box = document.querySelector('[data-slogan]');
+    if (!box) return;
+    const lines = ['golden hour.', 'salt & sun.', 'the shoreline.', 'barefoot days.', 'the open sea.', 'long weekends.'];
+    let i = 0;
+    const turn = () => {
+      const out = box.querySelector('.slogan__line.is-on');
+      i = (i + 1) % lines.length;
+      const next = document.createElement('em');
+      next.className = 'slogan__line'; next.dataset.motion = ''; next.textContent = lines[i];
+      box.appendChild(next);
+      void next.offsetWidth;
+      out.classList.remove('is-on'); out.classList.add('is-off');
+      next.classList.add('is-on');
+      setTimeout(() => out.remove(), 1200);
+    };
+    const start = () => setInterval(() => { if (!document.hidden) turn(); }, 3800);
+    if (window.laPlageIntro) window.laPlageIntro.then(() => setTimeout(start, 1600)); else setTimeout(start, 1600);
+  };
+
+  /* ---------------- Smooth scrolling: the wheel glides instead of jumping, and section links ease into place ---------------- */
+  const initSmoothScroll = () => {
+    const root = document.documentElement;
+    let target = window.scrollY, current = window.scrollY, raf = 0;
+    const maxY = () => root.scrollHeight - window.innerHeight;
+    const loop = () => {
+      current += (target - current) * 0.1;
+      if (Math.abs(target - current) < 0.5) current = target;
+      window.scrollTo(0, current);
+      raf = current === target ? 0 : requestAnimationFrame(loop);
+    };
+    const glide = (y) => {
+      if (!raf) current = window.scrollY;
+      target = clamp(y, 0, maxY());
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    root.classList.add('has-smooth');
+    if (finePointer.matches) {
+      window.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.defaultPrevented || root.classList.contains('intro-on') || root.classList.contains('spot-on')) return;
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+        e.preventDefault();
+        if (!raf) target = window.scrollY;
+        const unit = e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? window.innerHeight : 1;
+        glide(target + e.deltaY * unit);
+      }, { passive: false });
+    }
+    // keyboard, scrollbar or touch scrolling: follow along instead of fighting it
+    window.addEventListener('scroll', () => { if (!raf) target = current = window.scrollY; }, { passive: true });
+    // links to a section on the page glide there
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a || e.defaultPrevented || a.classList.contains('skip-link')) return;
+      const id = a.getAttribute('href').slice(1);
+      const el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      glide(el.getBoundingClientRect().top + window.scrollY - margin);
+      history.replaceState(null, '', `#${id}`);
+    });
+  };
+
   /* ---------------- Lookbook parallax ---------------- */
   const initParallax = () => {
     const imgs = [...document.querySelectorAll('[data-parallax]')];
@@ -673,4 +746,6 @@
   initAccess();
   initLocale();
   loadProducts().then((products) => { initAnimations(); initStrip(); initCardPop(); initSpotlight(products); initCollections(products); });
+  initSlogan();
+  initSmoothScroll();
 })();

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LA PLAGE · Summer, worn slowly.</title>
+  <title>LA PLAGE · Dressed for golden hour.</title>
   <meta name="description" content="LA PLAGE. Vietnamese beachwear. Few pieces, made well. Drop 001 · Summer.">
   <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" href="assets/brand/mark.png">
@@ -58,7 +58,11 @@
       </div>
       <div class="hero__content wrap">
         <p class="label" data-animate="fade-up" data-delay="200">Drop 001 · Summer</p>
-        <h1 class="hero__title" id="hero-title" data-animate="words" data-delay="320">Summer,<br> <em>worn slowly.</em></h1>
+        <h1 class="hero__title" id="hero-title">
+          <span class="visually-hidden">Dressed for golden hour.</span>
+          <span class="hero__lead" aria-hidden="true" data-animate="words" data-delay="320">Dressed for</span>
+          <span class="slogan" aria-hidden="true" data-slogan data-animate="fade-up" data-delay="640"><em class="slogan__line is-on" data-motion>golden hour.</em></span>
+        </h1>
         <a class="link link--underlined hero__cta" href="#drop" data-animate="fade-up" data-delay="900">Enter the collection</a>
       </div>
     </section>
@@ -75,22 +79,15 @@
           <button class="chip" type="button" aria-pressed="false" data-filter="sea">Sea</button>
           <button class="chip" type="button" aria-pressed="false" data-filter="sand">Sand</button>
         </div>
-        <div class="drop__controls" data-animate="fade" data-delay="300">
-          <button class="ui-btn link" type="button" data-strip-prev aria-controls="strip-track">Previous</button>
-          <span class="drop__divider" aria-hidden="true"></span>
-          <button class="ui-btn link" type="button" data-strip-next aria-controls="strip-track">Next</button>
-        </div>
       </div>
 
-      <div class="strip" data-strip>
+      <div class="strip strip--gallery" data-strip data-layout="gallery">
         <div class="strip__viewport" data-strip-viewport>
-          <ul class="strip__track" id="strip-track" data-strip-track aria-label="Drop 001 products" data-stagger="fade-up" data-stagger-step="90">
+          <ul class="strip__track" id="strip-track" data-strip-track aria-label="Drop 001 products">
             <!-- Rendered from data/products.json -->
           </ul>
         </div>
-        <div class="strip__progress wrap" aria-hidden="true" data-animate="line" data-delay="400"><span data-strip-progress></span></div>
       </div>
-      <div class="drag-cursor" aria-hidden="true" data-drag-cursor><span>Drag</span></div>
     </section>
 
     <!-- Sea / Sand -->
@@ -178,7 +175,7 @@
       <div class="footer__brand">
         <div class="footer__mark palm" aria-hidden="true"></div>
         <p class="footer__wordmark">LA PLAGE</p>
-        <p class="footer__tag">Summer, <em>worn slowly.</em></p>
+        <p class="footer__tag">Dressed for <em>golden hour.</em></p>
       </div>
       <nav class="footer__col" aria-label="Shop">
         <h3>Shop</h3>
