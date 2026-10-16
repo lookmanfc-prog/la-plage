@@ -485,16 +485,27 @@
       const items = products.filter((p) => p.collection === key);
       const fan = panel.querySelector('[data-fan]');
       const n = items.length;
-      fan.style.setProperty('--spread', n > 3 ? '66%' : '82%');   // wider collections drift apart a little less
+      fan.style.setProperty('--spread', n > 3 ? '68%' : '88%');   // wider collections drift apart a little less
       // each piece floats in its own glass bubble: clustered at rest, drifting apart on hover
       fan.innerHTML = items.map((p, i) => {
         const o = i - (n - 1) / 2;
         const a = Math.abs(o);
         const bob = (5.2 + ((i * 1.7) % 2.6)).toFixed(2);          // every bubble on its own rhythm
-        return `<figure class="bubble" style="--i:${i};--o:${o};--a:${a};--s:${(1 - a * 0.09).toFixed(2)};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s" data-motion>
+        const vars = `--i:${i};--o:${o};--a:${a};--s:${(1 - a * 0.07).toFixed(2)};--bob:${bob}s;--bob-delay:${(-i * 1.3).toFixed(1)}s`;
+        const src = p.cutout || p.image.src;
+        if (key === 'sand') {
+          // Sand: each piece hovers over a polished half coconut
+          return `<figure class="bubble bubble--coconut" style="${vars}" data-motion>
+            <div class="bubble__float" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></div>
+            <span class="coconut__shadow" data-motion></span>
+            <img class="coconut" src="assets/collections/coconut.svg" alt="" width="240" height="150" loading="lazy" decoding="async">
+            <figcaption>${p.title}</figcaption>
+          </figure>`;
+        }
+        return `<figure class="bubble" style="${vars}" data-motion>
           <div class="bubble__float" data-motion>
             <div class="bubble__glass" data-motion>
-              <img class="bubble__item" data-motion src="${p.cutout || p.image.src}" alt="" loading="lazy" decoding="async">
+              <img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">
             </div>
           </div>
           <figcaption>${p.title}</figcaption>
@@ -509,6 +520,46 @@
           return `<span data-motion style="--x:${(k * 37) % 100}%;--size:${size}px;--dur:${(9 + (k * 3) % 8).toFixed(1)}s;--delay:${(-(k * 1.9)).toFixed(1)}s;--sway:${(k % 2 ? 1 : -1) * (8 + k % 5 * 3)}px"></span>`;
         }).join('');
         panel.insertBefore(rise, fan);
+      }
+      // Sea: fine engraved swell lines rolling in, layer behind layer
+      if (key === 'sea' && !panel.querySelector('.panel__waves')) {
+        const waves = document.createElement('div');
+        waves.className = 'panel__waves'; waves.setAttribute('aria-hidden', 'true'); waves.dataset.motion = '';
+        const layer = (k) => {
+          const W = 2400, step = 300, lines = 5 - (k === 2 ? 1 : 0);
+          let d = '';
+          for (let j = 0; j < lines; j++) {
+            const y0 = 30 + j * (22 + k * 4), amp = 9 - j * 1.1 + k;
+            d += `M0 ${y0}`;
+            for (let x = 0; x <= W; x += step / 2) {
+              const up = (x / (step / 2)) % 2 === 0;
+              d += ` Q${x + step / 4} ${up ? y0 - amp : y0 + amp} ${x + step / 2} ${y0}`;
+            }
+          }
+          return `<div class="wave-layer wave-layer--${k}" data-motion><svg viewBox="0 0 2400 200" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg></div>`;
+        };
+        waves.innerHTML = layer(0) + layer(1) + layer(2);
+        panel.insertBefore(waves, fan);
+      }
+      // Sand: wind ripples, dunes and a turquoise shoreline lapping at the bottom
+      if (key === 'sand' && !panel.querySelector('.panel__shore')) {
+        const beach = document.createElement('div');
+        beach.className = 'panel__beach'; beach.setAttribute('aria-hidden', 'true'); beach.dataset.motion = '';
+        beach.innerHTML = `<span class="beach__dune beach__dune--a"></span><span class="beach__dune beach__dune--b"></span><span class="beach__ripples"></span>
+          <div class="panel__shore" data-motion><span class="shore__wet" data-motion></span><span class="shore__water" data-motion></span>
+          <svg class="shore__foam" data-motion viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20 Q 50 6 100 20 T 200 20 T 300 20 T 400 20 T 500 20 T 600 20 T 700 20 T 800 20 T 900 20 T 1000 20 T 1100 20 T 1200 20 V40 H0 Z"/></svg></div>`;
+        panel.insertBefore(beach, fan);
+      }
+      // titles: each letter moves on its own (a rolling wave for Sea, a slow gold shimmer for Sand)
+      const title = panel.querySelector('.panel__title');
+      if (title && !title.dataset.letters) {
+        title.dataset.letters = '1';
+        title.setAttribute('aria-label', title.textContent.trim());
+        title.querySelectorAll('.w__i, em').forEach((el) => {
+          if (el.querySelector('.w__i')) return;
+          const text = el.textContent;
+          el.innerHTML = [...text].map((ch, k) => `<span class="ltr" data-motion aria-hidden="true" style="--k:${k}">${ch}</span>`).join('');
+        });
       }
       const count = panel.querySelector('[data-count]');
       if (count) count.textContent = `${String(n).padStart(2, '0')} pieces`;
