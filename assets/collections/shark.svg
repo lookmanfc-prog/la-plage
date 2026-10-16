@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" width="400" height="160">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3E5F78"/>
+      <stop offset=".52" stop-color="#6F8FA6"/>
+      <stop offset=".62" stop-color="#D5E2EA"/>
+      <stop offset="1" stop-color="#EEF4F7"/>
+    </linearGradient>
+    <linearGradient id="fin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2F4C63"/>
+      <stop offset="1" stop-color="#557891"/>
+    </linearGradient>
+  </defs>
+  <!-- far pectoral fin -->
+  <path d="M236 104 Q 246 126, 238 140 Q 258 122, 262 106 Z" fill="#4A6B83" opacity=".7"/>
+  <!-- body, facing right: nose, back, dorsal fin, tail, belly -->
+  <path fill="url(#skin)" d="M394 88 C 380 70, 330 58, 262 58 L 238 18 Q 230 48, 214 60 C 166 62, 116 66, 72 76 L 20 30 Q 34 70, 46 86 L 12 130 Q 50 104, 76 98 C 130 106, 196 114, 252 110 C 310 108, 368 102, 394 88 Z"/>
+  <!-- second dorsal and tail shading -->
+  <path d="M110 70 L 104 58 Q 118 62, 124 69 Z" fill="url(#fin)"/>
+  <path d="M238 18 Q 230 48, 214 60 L 246 59 Z" fill="url(#fin)" opacity=".85"/>
+  <!-- near pectoral fin -->
+  <path d="M262 106 Q 268 128, 252 150 Q 282 132, 292 106 Z" fill="url(#fin)"/>
+  <!-- gills, eye, mouth -->
+  <g fill="none" stroke="#2D475C" stroke-opacity=".45" stroke-width="2" stroke-linecap="round">
+    <path d="M306 76 Q 300 88, 304 98"/><path d="M296 76 Q 290 88, 294 99"/><path d="M286 77 Q 280 89, 284 100"/>
+    <path d="M352 98 Q 368 100, 382 94"/>
+  </g>
+  <circle cx="356" cy="80" r="3.6" fill="#13212C"/>
+  <circle cx="357.2" cy="78.8" r="1.1" fill="#fff" opacity=".8"/>
+</svg>

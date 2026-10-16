@@ -722,7 +722,7 @@ html.intro-on { overflow: hidden; }
   --ease-lux: cubic-bezier(.2, .9, .25, 1);
   position: relative; overflow: hidden; isolation: isolate;
   flex: 1 1 0; min-width: 0;
-  min-height: clamp(680px, 104vh, 1140px);
+  min-height: clamp(780px, 128vh, 1400px);
   display: flex; align-items: flex-end;
   padding: clamp(32px, 5vw, 72px);
   transition: flex-grow 1100ms var(--ease-lux);
@@ -1090,7 +1090,7 @@ html.intro-on { overflow: hidden; }
 .panel__title {
   font-family: var(--serif); font-weight: 400;
   font-size: clamp(60px, 7.6vw, 128px); line-height: 1; letter-spacing: .2em;
-  text-transform: uppercase;
+  text-transform: uppercase; white-space: nowrap;   /* SAND and SEA stay on one line */
   margin: 16px -.2em 12px 0;
 }
 .panel__title em { font-style: normal; }
@@ -1455,6 +1455,42 @@ html.spot-on { overflow: hidden; }
 .palms.is-open .palms__side--l { transform: perspective(1200px) translate3d(-22%, 0, 0) rotateY(78deg) rotate(-8deg); }
 .palms.is-open .palms__side--r { transform: perspective(1200px) translate3d(22%, 0, 0) rotateY(-78deg) rotate(8deg); }
 .palms.is-open .palms__nut { opacity: 0; }
+
+/* ==========================================================================
+   Shark crossing: the screen fills with deep water and sharks glide across from
+   left to right (the Sea collection's way of opening a piece)
+   ========================================================================== */
+.sharks { position: fixed; inset: 0; z-index: 160; pointer-events: none; overflow: hidden; visibility: hidden; }
+.sharks.is-on { visibility: visible; }
+.sharks__sea {
+  position: absolute; inset: 0; opacity: 0;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(120, 200, 235, .35), rgba(120, 200, 235, 0) 70%),
+    linear-gradient(180deg, #1C5C86 0%, #114068 45%, #0B2C47 100%);
+}
+.sharks.is-on .sharks__sea { animation: shark-sea 2300ms ease-in-out both; }
+@keyframes shark-sea { 0% { opacity: 0; } 18% { opacity: 1; } 42% { opacity: 1; } 75%, 100% { opacity: 0; } }
+.sharks__fish {
+  position: absolute; left: 0; top: var(--top);
+  width: calc(var(--size) * clamp(220px, 34vw, 560px));
+  transform: translate3d(-110%, -50%, 0);
+}
+.sharks__fish img { width: 100%; height: auto; display: block; filter: drop-shadow(0 18px 24px rgba(0, 15, 30, .45)); transform-origin: 70% 50%; }
+.sharks.is-on .sharks__fish { animation: shark-swim 1900ms cubic-bezier(.45, .05, .55, .95) var(--delay) both; }
+.sharks.is-on .sharks__fish img { animation: shark-tail 420ms ease-in-out infinite alternate; }
+@keyframes shark-swim {
+  0%   { transform: translate3d(-110%, -50%, 0); }
+  50%  { transform: translate3d(calc(50vw - 50%), calc(-50% - 2vh), 0); }
+  100% { transform: translate3d(calc(100vw + 10%), -50%, 0); }
+}
+@keyframes shark-tail { from { transform: rotate(-2.5deg) skewX(-3deg); } to { transform: rotate(2deg) skewX(3deg); } }
+.sharks__bubble {
+  position: absolute; left: var(--x); bottom: -20px; width: var(--s); height: var(--s); border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .9), rgba(255, 255, 255, .15) 70%);
+  opacity: 0;
+}
+.sharks.is-on .sharks__bubble { animation: shark-bubble 1700ms ease-out var(--d) both; }
+@keyframes shark-bubble { 0% { opacity: 0; transform: translate3d(0, 0, 0); } 15% { opacity: .9; } 100% { opacity: 0; transform: translate3d(12px, -70vh, 0); } }
 
 /* ==========================================================================
    Reduced motion: water and fades still play (as agreed), no movement elsewhere
