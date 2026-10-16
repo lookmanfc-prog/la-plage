@@ -153,7 +153,7 @@
   };
 
   let categories = [];
-  // one row per line (Lagon, Riva, Marée), each on its own stretch of sand
+  // one row per line (Shoreline, Tide, Riviera), each on its own stretch of sand
   const renderRows = (products) => {
     const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
     lines.forEach((c, n) => {
