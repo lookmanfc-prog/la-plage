@@ -69,7 +69,7 @@ function render(user, profile, orders) {
       <p class="pf-lead">We use your Gmail only to tell you about your pre-orders. Your address is filled in for you next time.</p>
       <form class="pf-form" novalidate data-profile-form>
         <div class="pf-grid">
-          <label class="pf-field"><span>Gmail for notifications</span><input name="gmail" type="email" inputmode="email" maxlength="120" value="${esc(profile.gmail || '')}"></label>
+          <label class="pf-field"><span>Gmail for notifications</span><input name="gmail" type="email" inputmode="email" maxlength="120" required value="${esc(profile.gmail || '')}"></label>
           <label class="pf-field"><span>Phone</span><input name="phone" type="tel" inputmode="tel" maxlength="20" value="${esc(profile.phone || '')}"></label>
           <label class="pf-field pf-field--wide"><span>Street</span><input name="street" maxlength="120" value="${esc(a.street || '')}"></label>
           <label class="pf-field"><span>Ward</span><input name="ward" maxlength="60" value="${esc(a.ward || '')}"></label>
@@ -98,7 +98,8 @@ function render(user, profile, orders) {
     const clean = (k, n) => String(f[k] || '').trim().slice(0, n);
     const gmail = clean('gmail', 120).toLowerCase();
     msg.classList.remove('is-ok');
-    if (gmail && !GMAIL_RE.test(gmail)) { msg.textContent = 'That Gmail address does not look right.'; return; }
+    if (!gmail) { msg.textContent = 'Please add your Gmail. We send pre-order emails there.'; return; }
+    if (!GMAIL_RE.test(gmail)) { msg.textContent = 'That Gmail address does not look right.'; return; }
     btn.disabled = true;
     try {
       await updateDoc(doc(db, 'users', user.uid), {

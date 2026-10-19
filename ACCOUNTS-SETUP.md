@@ -39,3 +39,48 @@ Commit and push (Vercel deploys). Then:
 - The **Gmail** customers enter is saved for notifications only. Nothing sends email yet; that needs an email service (e.g. EmailJS or Firebase's paid plan) added later.
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
 - Prices are read from `data/products.json` in the browser. The rules check the 30.000 ₫ shipping and that total = subtotal + shipping, but cannot check each price, so glance at totals before confirming payment.
+
+## Emails (EmailJS, free up to 200 emails a month)
+Every pre-order sends two emails: one to all admins in `ADMIN_EMAILS`, and a confirmation to the customer's Gmail.
+1. Sign up at https://www.emailjs.com (free).
+2. **Email Services → Add New Service → Gmail → Connect account** with the Gmail that should send the emails. Note the **Service ID**.
+3. **Email Templates → Create New Template**, twice:
+   - **Admin template.** Settings: To Email `{{to_email}}`, Subject `New pre-order from {{customer_name}} · {{total}}`. Content:
+     ```
+     New pre-order {{order_id}} on {{order_date}}
+
+     Customer: {{customer_name}} (@{{customer_username}})
+     Gmail: {{customer_gmail}}   Phone: {{customer_phone}}
+     Ship to: {{shipping_address}}
+
+     {{items}}
+
+     Subtotal: {{subtotal}}
+     Shipping: {{shipping_fee}}
+     Total: {{total}}
+     Note: {{note}}
+
+     Open the admin panel: {{admin_link}}
+     ```
+   - **Customer template.** Settings: To Email `{{to_email}}`, Reply To `{{reply_to}}`, Subject `Your LA PLAGE pre-order is in`. Content:
+     ```
+     Hello {{customer_name}},
+
+     Thank you for your pre-order. It joins our next production batch.
+     We will be in touch to confirm the details and arrange payment.
+
+     {{items}}
+
+     Subtotal: {{subtotal}}
+     Shipping: {{shipping_fee}}
+     Total: {{total}}
+     Ship to: {{shipping_address}}
+
+     Follow your pre-order: {{account_link}}
+
+     LA PLAGE · made by students in Saigon
+     ```
+   Note each template's **Template ID**.
+4. **Account → General → Public Key**: copy it.
+5. **Account → Security**: tick "Allow EmailJS API for non-browser applications" OFF, and add `la-plage-eight.vercel.app` to the allowed domains, so nobody else can send with your key.
+6. Put the four values in the `EMAILJS` block of `firebase-config.js`.

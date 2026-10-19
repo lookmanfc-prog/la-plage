@@ -905,6 +905,8 @@
     if (finePointer.matches) {
       window.addEventListener('wheel', (e) => {
         if (e.ctrlKey || e.defaultPrevented || root.classList.contains('intro-on') || root.classList.contains('spot-on')) return;
+        // an open overlay (the pre-order form) scrolls itself; leave the page behind it alone
+        if (root.classList.contains('pf-lock') || (e.target.closest && e.target.closest('.pf-overlay'))) return;
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
         e.preventDefault();
         if (!raf) target = window.scrollY;

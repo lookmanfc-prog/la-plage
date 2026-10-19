@@ -8,6 +8,7 @@ const {
   onAuthStateChanged, doc, updateDoc, addDoc, collection, serverTimestamp,
 } = ready ? await import('./firebase.js') : { isConfigured: false };
 const { renderAuthForm, loadProfile } = ready ? await import('./auth-form.js') : {};
+const { sendOrderEmails } = ready ? await import('./emails.js') : {};
 
 const links = [...document.querySelectorAll('[data-account-link]')];
 const setLinks = (label) => links.forEach((a) => { a.textContent = label; });
@@ -96,6 +97,7 @@ if (isConfigured) {
           <div class="pf-grid">
             <label class="pf-field"><span>Full name</span><input name="name" autocomplete="name" required maxlength="80" value="${esc(profile.name || '')}"></label>
             <label class="pf-field"><span>Phone</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" value="${esc(profile.phone || '')}"></label>
+            <label class="pf-field"><span>Gmail <em>confirmation goes here</em></span><input name="gmail" type="email" inputmode="email" autocomplete="email" required maxlength="120" value="${esc(profile.gmail || '')}"></label>
           </div>
         </fieldset>
         <fieldset class="pf-set"><legend>Shipping address</legend>
@@ -163,13 +165,14 @@ if (isConfigured) {
     const f = Object.fromEntries(new FormData(form));
     const clean = (k, n) => String(f[k] || '').trim().slice(0, n);
     const data = {
-      name: clean('name', 80), phone: clean('phone', 20),
+      name: clean('name', 80), phone: clean('phone', 20), gmail: clean('gmail', 120).toLowerCase(),
       address: { street: clean('street', 120), ward: clean('ward', 60), district: clean('district', 60), city: clean('city', 60) },
       note: clean('note', 500),
     };
     err.textContent = '';
     if (!data.name) { err.textContent = 'Please add your full name.'; return; }
     if (!/^[0-9+\s().-]{8,20}$/.test(data.phone)) { err.textContent = 'Please add a phone number we can reach you on.'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.gmail)) { err.textContent = 'Please add your Gmail. We send your pre-order confirmation there.'; return; }
     if (Object.values(data.address).some((v) => !v)) { err.textContent = 'Please complete the street, ward, district and city.'; return; }
     const lines = items.map((it) => {
       const p = products.find((x) => x.id === it.productId);
@@ -178,23 +181,26 @@ if (isConfigured) {
     const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
     btn.disabled = true; btn.classList.add('is-busy');
     try {
-      await addDoc(collection(db, 'orders'), {
-        uid: user.uid, username: profile.username || '', gmail: profile.gmail || '',
+      const ref = await addDoc(collection(db, 'orders'), {
+        uid: user.uid, username: profile.username || '', gmail: data.gmail,
         customerName: data.name, phone: data.phone, address: data.address, note: data.note,
         items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE,
         status: 'preordered', createdAt: serverTimestamp(),
       });
       if (f.save) {
         try {
-          await updateDoc(doc(db, 'users', user.uid), { phone: data.phone, address: data.address });
-          profile = { ...profile, phone: data.phone, address: data.address };
+          await updateDoc(doc(db, 'users', user.uid), { phone: data.phone, address: data.address, gmail: data.gmail });
+          profile = { ...profile, phone: data.phone, address: data.address, gmail: data.gmail };
         } catch (e2) { /* the pre-order is placed; saving the address is a nicety */ }
       }
+      // emails to the admins and to the customer; the pre-order is already saved, so a failure here never undoes it
+      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE, username: profile.username || '' })
+        .catch((e3) => console.warn('[LA PLAGE] order emails', e3));
       items = []; pending = null;
       body().innerHTML = `
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
-          <p class="pf-lead">We will be in touch to confirm the details and arrange payment. You can follow its status in your account.</p>
+          <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. We will be in touch to confirm the details and arrange payment, and you can follow its status in your account.</p>
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
     } catch (ex) {

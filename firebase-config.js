@@ -30,4 +30,14 @@ window.LAPLAGE_CONFIG = {
     'ryannguyen101209@gmail.com',
   ],
   SHIPPING_FEE: 30000,
+
+  /* Pre-order emails (EmailJS, free up to 200 emails a month). See ACCOUNTS-SETUP.md, "Emails".
+     EmailJS dashboard → Account → API keys → Public key; Email Services → Service ID;
+     Email Templates → each template's ID. Leave the PASTE_ values to switch emails off. */
+  EMAILJS: {
+    PUBLIC_KEY: 'PASTE_EMAILJS_PUBLIC_KEY',
+    SERVICE_ID: 'PASTE_SERVICE_ID',
+    ADMIN_TEMPLATE_ID: 'PASTE_ADMIN_TEMPLATE_ID',
+    CUSTOMER_TEMPLATE_ID: 'PASTE_CUSTOMER_TEMPLATE_ID',
+  },
 };
