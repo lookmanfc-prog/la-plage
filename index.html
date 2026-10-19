@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
-  <link rel="stylesheet" href="styles.css?v=39">
+  <link rel="stylesheet" href="styles.css?v=40">
+  <link rel="stylesheet" href="portal/portal.css?v=40">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
 <body>
@@ -44,8 +45,10 @@
           <li><a href="#collections" data-spy="collections">Collections</a></li>
           <li><a href="#story" data-spy="story">Story</a></li>
           <li><a href="#lookbook" data-spy="lookbook">Lookbook</a></li>
+          <li class="nav__account-item"><a href="account.html" data-account-link>Sign in</a></li>
         </ul>
       </nav>
+      <a class="nav__account" href="account.html" data-account-link>Sign in</a>
     </div>
   </header>
 
@@ -306,7 +309,7 @@
       <p class="label">Size</p>
       <div class="spotlight__sizes" role="radiogroup" aria-label="Size" data-spot-sizes></div>
       <div class="spotlight__views" data-spot-views></div>
-      <a class="btn-outline spotlight__cta" href="#access" data-spot-access>Request access</a>
+      <a class="btn-outline spotlight__cta" href="#access" data-spot-access>Pre-order</a>
     </div>
     <button class="spotlight__nav spotlight__nav--prev" type="button" aria-label="Previous product" data-spot-prev>
       <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M40 6H1M6 1L1 6l5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
@@ -316,8 +319,10 @@
     </button>
   </div>
 
-  <script src="intro.js?v=39" defer></script>
-  <script src="ocean.js?v=39" defer></script>
-  <script src="main.js?v=39" defer></script>
+  <script src="intro.js?v=40" defer></script>
+  <script src="ocean.js?v=40" defer></script>
+  <script src="main.js?v=40" defer></script>
+  <script src="firebase-config.js?v=40"></script>
+  <script type="module" src="portal/site.js?v=40"></script>
 </body>
 </html>

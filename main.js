@@ -349,7 +349,19 @@
     });
     $('[data-spot-prev]').addEventListener('click', () => go(-1));
     $('[data-spot-next]').addEventListener('click', () => go(1));
-    $('[data-spot-access]').addEventListener('click', close);
+    // "Pre-order": opens the pre-order form with this piece and size (portal/site.js); until accounts
+    // are set up it keeps its old behaviour and leads to Private access
+    $('[data-spot-access]').addEventListener('click', (e) => {
+      if (typeof window.laPlagePreorder === 'function') {
+        e.preventDefault();
+        const chosen = sizes.querySelector('.size[aria-checked="true"]');
+        const p = products[index];
+        close();
+        window.laPlagePreorder(p, chosen ? chosen.dataset.size : null);
+        return;
+      }
+      close();
+    });
     sizes.addEventListener('click', (e) => {
       const b = e.target.closest('.size'); if (!b) return;
       sizes.querySelectorAll('.size').forEach((o) => o.setAttribute('aria-checked', String(o === b)));

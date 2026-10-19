@@ -1,0 +1,221 @@
+/* LA PLAGE · admin panel. The page only checks the admin list to decide what to show;
+   the real protection is firestore.rules, which refuses every admin read and write to anyone else. */
+import {
+  isConfigured, auth, db, STATUSES, esc, fmtVND, fmtDate, fmtAddress, titleCase, authMessage, isAdminUser,
+  onAuthStateChanged, signOut, doc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp,
+} from './firebase.js';
+import { renderAuthForm } from './auth-form.js';
+
+const root = document.querySelector('[data-admin]');
+const state = (html) => { root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">${html}</p></div>`; };
+
+let users = [], orders = [], tab = 'accounts';
+const view = { q: '', sort: 'newest', status: 'all', oq: '' };
+
+if (!isConfigured) {
+  state('The admin panel is not set up yet. Fill in firebase-config.js first.');
+} else {
+  state('Loading…');
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      root.innerHTML = '<div class="pf-card pf-card--narrow"><h1 class="pf-title">Admin <em>sign in.</em></h1><div data-auth></div></div>';
+      renderAuthForm(root.querySelector('[data-auth]'), { adminOnly: true });
+      return;
+    }
+    if (!isAdminUser(user)) {
+      root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">This account does not have admin access.</p>
+        <p class="pf-actions"><a class="link link--underlined" href="index.html">Back to LA PLAGE</a> <button type="button" class="ui-btn link" data-signout>Sign out</button></p></div>`;
+      root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
+      return;
+    }
+    await load(user);
+  });
+}
+
+async function load(user) {
+  state('Loading accounts and pre-orders…');
+  try {
+    const [u, o] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders'))]);
+    users = u.docs.map((d) => ({ id: d.id, ...d.data() }));
+    orders = o.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    state(`Could not load the data. ${esc(authMessage(e))} If this persists, check that firestore.rules has your admin Gmail.`);
+    return;
+  }
+  shell(user);
+}
+
+const ts = (t) => (t && t.seconds) || 0;
+const ordersOf = (uid) => orders.filter((o) => o.uid === uid);
+const accountStatus = (uid) => (ordersOf(uid).some((o) => o.status !== 'cancelled') ? 'Preordered' : 'No pre-order yet');
+
+function shell(user) {
+  root.innerHTML = `
+    <div class="pf-adminbar">
+      <div>
+        <p class="label">Admin · ${esc(user.email)}</p>
+        <h1 class="pf-title">LA PLAGE <em>admin.</em></h1>
+      </div>
+      <button type="button" class="ui-btn link" data-signout>Sign out</button>
+    </div>
+    <div class="pf-tabs" role="tablist">
+      <button type="button" role="tab" class="pf-tab" data-tab="accounts">Accounts <span data-count-accounts></span></button>
+      <button type="button" role="tab" class="pf-tab" data-tab="orders">Pre-orders <span data-count-orders></span></button>
+    </div>
+    <div data-panel></div>`;
+  root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
+  root.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; draw(); }));
+  draw();
+}
+
+function draw() {
+  root.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  root.querySelector('[data-count-accounts]').textContent = `(${users.length})`;
+  root.querySelector('[data-count-orders]').textContent = `(${orders.length})`;
+  const panel = root.querySelector('[data-panel]');
+  if (tab === 'accounts') drawAccounts(panel); else drawOrders(panel);
+}
+
+/* ---------------- Accounts ---------------- */
+function drawAccounts(panel) {
+  panel.innerHTML = `
+    <div class="pf-toolbar">
+      <label class="pf-field pf-field--grow"><span>Search</span><input type="search" data-q placeholder="Name, username or Gmail" value="${esc(view.q)}"></label>
+      <label class="pf-field"><span>Sort</span><select data-sort>
+        ${[['newest', 'Newest first'], ['oldest', 'Oldest first'], ['name', 'Name A–Z'], ['orders', 'Most pre-orders']].map(([v, l]) => `<option value="${v}"${view.sort === v ? ' selected' : ''}>${l}</option>`).join('')}
+      </select></label>
+    </div>
+    <div data-list></div>`;
+  const list = panel.querySelector('[data-list]');
+  const paint = () => {
+    const q = view.q.trim().toLowerCase();
+    let rows = users.filter((u) => !q || [u.name, u.username, u.gmail].some((v) => String(v || '').toLowerCase().includes(q)));
+    const by = {
+      newest: (a, b) => ts(b.createdAt) - ts(a.createdAt),
+      oldest: (a, b) => ts(a.createdAt) - ts(b.createdAt),
+      name: (a, b) => String(a.name || '').localeCompare(String(b.name || '')),
+      orders: (a, b) => ordersOf(b.id).length - ordersOf(a.id).length,
+    }[view.sort];
+    rows = rows.sort(by);
+    if (!users.length) { list.innerHTML = '<p class="pf-state">No accounts yet.</p>'; return; }
+    if (!rows.length) { list.innerHTML = '<p class="pf-state">No accounts match that search.</p>'; return; }
+    list.innerHTML = `
+      <table class="pf-table">
+        <thead><tr><th>Name</th><th>Gmail</th><th>Joined</th><th>Status</th><th>Pre-orders</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>${rows.map((u) => `
+          <tr class="${u.disabled ? 'is-disabled' : ''}">
+            <td data-label="Name">${esc(u.name || '—')}<small>@${esc(u.username || '')}</small></td>
+            <td data-label="Gmail">${esc(u.gmail || '—')}</td>
+            <td data-label="Joined">${esc(fmtDate(u.createdAt))}</td>
+            <td data-label="Status"><span class="pf-badge${accountStatus(u.id) === 'Preordered' ? ' is-on' : ''}">${esc(accountStatus(u.id))}</span>${u.disabled ? '<span class="pf-badge is-off">Disabled</span>' : ''}</td>
+            <td data-label="Pre-orders">${ordersOf(u.id).length}</td>
+            <td class="pf-table__actions">
+              <button type="button" class="ui-btn link" data-toggle="${esc(u.id)}">${u.disabled ? 'Enable' : 'Disable'}</button>
+              <button type="button" class="ui-btn link pf-danger" data-delete="${esc(u.id)}">Delete</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  };
+  panel.querySelector('[data-q]').addEventListener('input', (e) => { view.q = e.target.value; paint(); });
+  panel.querySelector('[data-sort]').addEventListener('change', (e) => { view.sort = e.target.value; paint(); });
+  list.addEventListener('click', async (e) => {
+    const t = e.target.closest('[data-toggle]'), d = e.target.closest('[data-delete]');
+    if (t) {
+      const u = users.find((x) => x.id === t.dataset.toggle);
+      t.disabled = true;
+      try { await updateDoc(doc(db, 'users', u.id), { disabled: !u.disabled }); u.disabled = !u.disabled; paint(); }
+      catch (ex) { alert(authMessage(ex)); t.disabled = false; }
+    }
+    if (d) {
+      const u = users.find((x) => x.id === d.dataset.delete);
+      if (!confirm(`Delete the account record for ${u.name || u.username}?\n\nTheir pre-orders stay in the Orders tab. They will no longer be able to sign in to the site.`)) return;
+      d.disabled = true;
+      try { await deleteDoc(doc(db, 'users', u.id)); users = users.filter((x) => x.id !== u.id); draw(); }
+      catch (ex) { alert(authMessage(ex)); d.disabled = false; }
+    }
+  });
+  paint();
+}
+
+/* ---------------- Pre-orders ---------------- */
+const filteredOrders = () => {
+  const q = view.oq.trim().toLowerCase();
+  return orders
+    .filter((o) => view.status === 'all' || o.status === view.status)
+    .filter((o) => !q || [o.customerName, o.phone, o.username, fmtAddress(o.address)].some((v) => String(v || '').toLowerCase().includes(q)))
+    .sort((a, b) => ts(b.createdAt) - ts(a.createdAt));
+};
+
+function drawOrders(panel) {
+  panel.innerHTML = `
+    <div class="pf-toolbar">
+      <label class="pf-field pf-field--grow"><span>Search</span><input type="search" data-oq placeholder="Customer, phone or address" value="${esc(view.oq)}"></label>
+      <label class="pf-field"><span>Status</span><select data-status>
+        <option value="all">All</option>${STATUSES.map((s) => `<option value="${esc(s)}"${view.status === s ? ' selected' : ''}>${esc(titleCase(s))}</option>`).join('')}
+      </select></label>
+      <button type="button" class="btn-outline pf-export" data-export>Export CSV</button>
+    </div>
+    <div data-list></div>`;
+  const list = panel.querySelector('[data-list]');
+  const paint = () => {
+    const rows = filteredOrders();
+    if (!orders.length) { list.innerHTML = '<p class="pf-state">No pre-orders yet.</p>'; return; }
+    if (!rows.length) { list.innerHTML = '<p class="pf-state">No pre-orders match these filters.</p>'; return; }
+    list.innerHTML = `
+      <table class="pf-table pf-table--orders">
+        <thead><tr><th>Date</th><th>Customer</th><th>Shipping address</th><th>Pieces</th><th>Subtotal</th><th>Shipping</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>${rows.map((o) => `
+          <tr>
+            <td data-label="Date">${esc(fmtDate(o.createdAt))}</td>
+            <td data-label="Customer">${esc(o.customerName)}<small>${esc(o.phone)}${o.gmail ? ` · ${esc(o.gmail)}` : ''}</small></td>
+            <td data-label="Address">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
+            <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)} · ${esc(it.size)} × ${esc(it.quantity)}`).join('<br>')}</td>
+            <td data-label="Subtotal">${esc(fmtVND(o.subtotal))}</td>
+            <td data-label="Shipping">${esc(fmtVND(o.shippingFee))}</td>
+            <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong></td>
+            <td data-label="Status"><select class="pf-status-select" data-order="${esc(o.id)}" aria-label="Status for ${esc(o.customerName)}">
+              ${STATUSES.map((s) => `<option value="${esc(s)}"${o.status === s ? ' selected' : ''}>${esc(titleCase(s))}</option>`).join('')}
+            </select></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  };
+  panel.querySelector('[data-oq]').addEventListener('input', (e) => { view.oq = e.target.value; paint(); });
+  panel.querySelector('[data-status]').addEventListener('change', (e) => { view.status = e.target.value; paint(); });
+  panel.querySelector('[data-export]').addEventListener('click', exportCSV);
+  list.addEventListener('change', async (e) => {
+    const sel = e.target.closest('[data-order]'); if (!sel) return;
+    const o = orders.find((x) => x.id === sel.dataset.order);
+    const prev = o.status;
+    sel.disabled = true;
+    try { await updateDoc(doc(db, 'orders', o.id), { status: sel.value, updatedAt: serverTimestamp() }); o.status = sel.value; }
+    catch (ex) { alert(authMessage(ex)); sel.value = prev; }
+    sel.disabled = false;
+    if (view.status !== 'all') paint();
+  });
+  paint();
+}
+
+function exportCSV() {
+  // quote every cell, and neutralise values a spreadsheet would treat as a formula
+  const cell = (v) => {
+    let s = String(v == null ? '' : v);
+    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    return `"${s.replace(/"/g, '""')}"`;
+  };
+  const head = ['Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Shipping (VND)', 'Total (VND)', 'Status', 'Note'];
+  const rows = filteredOrders().map((o) => {
+    const a = o.address || {};
+    const d = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : '';
+    return [o.id, d, o.customerName, o.username, o.phone, o.gmail, a.street, a.ward, a.district, a.city,
+      (o.items || []).map((it) => `${it.title} (${it.size}) x${it.quantity}`).join('; '),
+      o.subtotal, o.shippingFee, o.total, o.status, o.note];
+  });
+  const csv = '﻿' + [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = `la-plage-preorders-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
