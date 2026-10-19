@@ -18,12 +18,12 @@
    ========================================================================== */
 window.LAPLAGE_CONFIG = {
   FIREBASE_CONFIG: {
-    apiKey: 'PASTE_API_KEY_HERE',
-    authDomain: 'PASTE_PROJECT_ID.firebaseapp.com',
-    projectId: 'PASTE_PROJECT_ID',
-    storageBucket: 'PASTE_PROJECT_ID.appspot.com',
-    messagingSenderId: 'PASTE_SENDER_ID',
-    appId: 'PASTE_APP_ID',
+    apiKey: 'AIzaSyCgqIiVDwmWR5ZSPdlipOI28X7JdakIUcc',
+    authDomain: 'la-plage-a53db.firebaseapp.com',
+    projectId: 'la-plage-a53db',
+    storageBucket: 'la-plage-a53db.firebasestorage.app',
+    messagingSenderId: '412725896195',
+    appId: '1:412725896195:web:0f18234f9eabd84e3ada36',
   },
   ADMIN_EMAILS: [
     'lookmanfc@gmail.com',
