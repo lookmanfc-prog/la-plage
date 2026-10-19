@@ -27,6 +27,7 @@ window.LAPLAGE_CONFIG = {
   },
   ADMIN_EMAILS: [
     'lookmanfc@gmail.com',
+    'ryannguyen101209@gmail.com',
   ],
   SHIPPING_FEE: 30000,
 };
