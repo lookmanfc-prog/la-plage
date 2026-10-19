@@ -10,7 +10,7 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email in [
-          'PASTE_ADMIN_GMAIL@gmail.com'
+          'lookmanfc@gmail.com'
         ];
     }
     function signedIn() { return request.auth != null; }
