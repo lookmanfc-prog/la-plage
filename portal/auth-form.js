@@ -95,7 +95,8 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
     btn.disabled = true; btn.classList.add('is-busy');
     try {
       const cred = await signInWithEmailAndPassword(auth, loginEmailFor(username), f.password);
-      if (adminOnly && !isAdminUser(cred.user)) { await signOut(auth); return fail('This account does not have admin access.'); }
+      // a non-admin on /admin stays signed in; the admin page then explains there is no access
+      if (adminOnly && !isAdminUser(cred.user)) return;
       if (!isAdminUser(cred.user)) {
         const profile = await loadProfile(cred.user);
         if (!profile) { await signOut(auth); return fail('This account is no longer active. Please contact us.'); }

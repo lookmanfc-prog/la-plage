@@ -91,7 +91,8 @@ html.pf-lock { overflow: hidden; }
 }
 .pf-overlay.is-open .pf-panel { transform: none; }
 .pf-close { position: absolute; top: 22px; right: 26px; font-size: 11px; letter-spacing: .22em; }
-.pf-item { display: grid; grid-template-columns: minmax(0, 1fr) 90px 80px auto; gap: 12px; align-items: end; }
+[data-items] { display: grid; gap: 14px; }
+.pf-item { display: grid; grid-template-columns: minmax(0, 1fr) 90px 80px 74px; gap: 12px; align-items: end; }
 .pf-remove { font-size: 11px; min-height: 44px; }
 .pf-add { justify-self: start; font-size: 11px; letter-spacing: .16em; }
 .pf-done { display: grid; gap: 14px; padding: 10px 0; }
@@ -147,7 +148,8 @@ body.portal { background: var(--foam); min-height: 100vh; }
   .pf-table { background: transparent; }
   .pf-table tr { margin-bottom: 14px; padding: 8px 4px; border-radius: 16px; background: rgba(255, 255, 255, .9); box-shadow: 0 20px 40px -34px rgba(2, 20, 36, .5); }
   .pf-table td { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; border-bottom: 0; padding: 8px 14px; }
-  .pf-table td::before { content: attr(data-label); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); padding-top: 3px; }
+  .pf-table td > * { grid-column: 2; }
+  .pf-table td::before { content: attr(data-label); grid-row: 1 / span 4; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); padding-top: 3px; }
   .pf-table td.pf-table__actions { display: flex; justify-content: flex-end; }
   .pf-table td.pf-table__actions::before { content: none; }
 }
