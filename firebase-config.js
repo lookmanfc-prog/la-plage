@@ -26,7 +26,7 @@ window.LAPLAGE_CONFIG = {
     appId: 'PASTE_APP_ID',
   },
   ADMIN_EMAILS: [
-    'PASTE_ADMIN_GMAIL@gmail.com',
+    'lookmanfc@gmail.com',
   ],
   SHIPPING_FEE: 30000,
 };
