@@ -33,9 +33,9 @@ Commit and push (Vercel deploys). Then:
 
 ## Good to know
 - Customers sign in with a **username**. Firebase stores it as a private address `username@members.laplage.app`
-  (never shown, never emailed). There is no self-service "forgot password": reset it for them in
-  **Authentication → Users → ⋮ → Reset password** isn't available for these addresses, so instead
-  delete the user there and ask them to create a new account, or set a new password with the Firebase Admin SDK.
+  (never shown, never emailed). Because that address has no inbox, there is no self-service
+  "forgot password". If someone forgets theirs: in **Authentication → Users** delete their login, then in
+  **Firestore → users** delete their record (their pre-orders stay), and ask them to sign up again with the same username.
 - The **Gmail** customers enter is saved for notifications only. Nothing sends email yet; that needs an email service (e.g. EmailJS or Firebase's paid plan) added later.
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
 - Prices are read from `data/products.json` in the browser. The rules check the 30.000 ₫ shipping and that total = subtotal + shipping, but cannot check each price, so glance at totals before confirming payment.
