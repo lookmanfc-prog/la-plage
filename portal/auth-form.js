@@ -42,8 +42,8 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
             <input name="password" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" required></label>
           ${signup ? `
           <label class="pf-field"><span>Re-enter password</span><input name="password2" type="password" autocomplete="new-password" required></label>
-          <label class="pf-field"><span>Gmail <em>for notifications · optional</em></span>
-            <input name="gmail" type="email" autocomplete="email" inputmode="email" maxlength="120"></label>
+          <label class="pf-field"><span>Gmail <em>for pre-order emails</em></span>
+            <input name="gmail" type="email" autocomplete="email" inputmode="email" maxlength="120" required></label>
           <p class="pf-hint">3–20 characters for the username: lowercase letters, numbers, dots or underscores. Passwords need 8 characters or more.</p>` : ''}
           <p class="pf-error" role="alert" data-auth-error></p>
           <button class="btn-outline pf-submit" type="submit">${signup ? 'Create account' : 'Sign in'}</button>
@@ -70,7 +70,8 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
       if (String(f.password || '').length < 8) return fail('Please use a password of at least 8 characters.');
       if (f.password !== f.password2) return fail('The two passwords do not match.');
       const gmail = String(f.gmail || '').trim().toLowerCase();
-      if (gmail && !GMAIL_RE.test(gmail)) return fail('That Gmail address does not look right.');
+      if (!gmail) return fail('Please add your Gmail. We send your pre-order confirmation there.');
+      if (!GMAIL_RE.test(gmail)) return fail('That Gmail address does not look right.');
       btn.disabled = true; btn.classList.add('is-busy');
       let cred = null;
       try {
