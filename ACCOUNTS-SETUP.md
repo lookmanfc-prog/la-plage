@@ -36,7 +36,7 @@ Commit and push (Vercel deploys). Then:
   (never shown, never emailed). Because that address has no inbox, there is no self-service
   "forgot password". If someone forgets theirs: in **Authentication → Users** delete their login, then in
   **Firestore → users** delete their record (their pre-orders stay), and ask them to sign up again with the same username.
-- The **Gmail** customers enter is saved for notifications only. Nothing sends email yet; that needs an email service (e.g. EmailJS or Firebase's paid plan) added later.
+- Every customer must give a **Gmail**. It receives their pre-order confirmation (see Emails below); their login still uses the username.
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
 - Prices are read from `data/products.json` in the browser. The rules check the 30.000 ₫ shipping and that total = subtotal + shipping, but cannot check each price, so glance at totals before confirming payment.
 
