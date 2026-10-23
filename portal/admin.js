@@ -1,7 +1,7 @@
 /* LA PLAGE · admin panel. The page only checks the admin list to decide what to show;
    the real protection is firestore.rules, which refuses every admin read and write to anyone else. */
 import {
-  isConfigured, auth, db, STATUSES, esc, fmtVND, fmtDate, fmtAddress, titleCase, authMessage, isAdminUser,
+  isConfigured, auth, db, STATUSES, esc, fmtVND, fmtDate, fmtAddress, titleCase, authMessage, isAdminUser, loadProducts,
   onAuthStateChanged, signOut, doc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp,
 } from './firebase.js';
 import { renderAuthForm } from './auth-form.js';
@@ -9,7 +9,7 @@ import { renderAuthForm } from './auth-form.js';
 const root = document.querySelector('[data-admin]');
 const state = (html) => { root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">${html}</p></div>`; };
 
-let users = [], orders = [], tab = 'accounts';
+let users = [], orders = [], products = [], tab = 'overview';
 const view = { q: '', sort: 'newest', status: 'all', oq: '' };
 
 if (!isConfigured) {
@@ -35,7 +35,8 @@ if (!isConfigured) {
 async function load(user) {
   state('Loading accounts and pre-orders…');
   try {
-    const [u, o] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders'))]);
+    const [u, o, p] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders')), loadProducts({ includeHidden: true }).catch(() => [])]);
+    products = p;
     users = u.docs.map((d) => ({ id: d.id, ...d.data() }));
     orders = o.docs.map((d) => ({ id: d.id, ...d.data() }));
   } catch (e) {
@@ -53,12 +54,14 @@ function shell(user) {
   root.innerHTML = `
     <div class="pf-adminbar">
       <div>
-        <p class="label">Admin · ${esc(user.email)}</p>
-        <h1 class="pf-title">LA PLAGE <em>admin.</em></h1>
+        <p class="label">The bridge · ${esc(user.email)}</p>
+        <h1 class="pf-title">${esc(greeting())}<em> Here is the tide.</em></h1>
+        <p class="adm-date">${esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Ho_Chi_Minh' }))} · Saigon</p>
       </div>
       <button type="button" class="ui-btn link" data-signout>Sign out</button>
     </div>
     <div class="pf-tabs" role="tablist">
+      <button type="button" role="tab" class="pf-tab" data-tab="overview">Tide report</button>
       <button type="button" role="tab" class="pf-tab" data-tab="accounts">Accounts <span data-count-accounts></span></button>
       <button type="button" role="tab" class="pf-tab" data-tab="orders">Pre-orders <span data-count-orders></span></button>
     </div>
@@ -73,7 +76,84 @@ function draw() {
   root.querySelector('[data-count-accounts]').textContent = `(${users.length})`;
   root.querySelector('[data-count-orders]').textContent = `(${orders.length})`;
   const panel = root.querySelector('[data-panel]');
-  if (tab === 'accounts') drawAccounts(panel); else drawOrders(panel);
+  if (tab === 'overview') drawOverview(panel);
+  else if (tab === 'accounts') drawAccounts(panel);
+  else drawOrders(panel);
+}
+
+/* ---------------- Tide report: the shop at a glance ---------------- */
+function greeting() {
+  const h = Number(new Date().toLocaleString('en-GB', { hour: 'numeric', hour12: false, timeZone: 'Asia/Ho_Chi_Minh' }));
+  return h < 12 ? 'Good morning.' : h < 18 ? 'Good afternoon.' : 'Good evening.';
+}
+const live = (o) => o.status !== 'cancelled';
+const toMake = (o) => o.status === 'preordered' || o.status === 'in production';
+const qtyOf = (o) => (o.items || []).reduce((n, it) => n + (Number(it.quantity) || 0), 0);
+
+function drawOverview(panel) {
+  const open = orders.filter((o) => toMake(o) || o.status === 'shipped');
+  const pieces = orders.filter(toMake).reduce((n, o) => n + qtyOf(o), 0);
+  const value = orders.filter(live).reduce((n, o) => n + (Number(o.total) || 0), 0);
+  const weekAgo = Date.now() / 1000 - 7 * 86400;
+  const newUsers = users.filter((u) => ts(u.createdAt) > weekAgo).length;
+  const count = (s) => orders.filter((o) => o.status === s).length;
+
+  // what to make: every piece in pre-orders not yet made, by size
+  const board = new Map();
+  orders.filter(toMake).forEach((o) => (o.items || []).forEach((it) => {
+    const row = board.get(it.productId) || { id: it.productId, title: it.title, total: 0, sizes: {} };
+    row.total += Number(it.quantity) || 0;
+    row.sizes[it.size] = (row.sizes[it.size] || 0) + (Number(it.quantity) || 0);
+    board.set(it.productId, row);
+  }));
+  const rows = [...board.values()].sort((a, b) => b.total - a.total);
+  const most = Math.max(1, ...rows.map((r) => r.total));
+  const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const cutout = (id) => { const p = products.find((x) => x.id === id); return p ? (p.cutout || p.image.src) : ''; };
+  const recent = [...orders].sort((a, b) => ts(b.createdAt) - ts(a.createdAt)).slice(0, 6);
+
+  panel.innerHTML = `
+    <section class="adm-stats" aria-label="At a glance">
+      <div class="adm-stat"><p class="adm-stat__label">Open pre-orders</p><p class="adm-stat__value">${open.length}</p><p class="adm-stat__sub">not yet delivered</p></div>
+      <div class="adm-stat"><p class="adm-stat__label">Pieces to make</p><p class="adm-stat__value">${pieces}</p><p class="adm-stat__sub">for the next batch</p></div>
+      <div class="adm-stat adm-stat--gold"><p class="adm-stat__label">Pre-order value</p><p class="adm-stat__value">${esc(fmtVND(value))}</p><p class="adm-stat__sub">incl. shipping, excl. cancelled</p></div>
+      <div class="adm-stat"><p class="adm-stat__label">Accounts</p><p class="adm-stat__value">${users.length}</p><p class="adm-stat__sub">${newUsers} new this week</p></div>
+    </section>
+
+    <section class="adm-card" aria-labelledby="adm-pipe">
+      <h2 class="adm-h" id="adm-pipe">The voyage <span>every pre-order, stage by stage</span></h2>
+      <ol class="adm-pipe">
+        ${STATUSES.map((st, i) => `
+          <li><button type="button" class="adm-stage adm-stage--${i}" data-goto="${esc(st)}" aria-label="${esc(titleCase(st))}: ${count(st)}. Show these pre-orders">
+            <span class="adm-stage__n">${count(st)}</span><span class="adm-stage__l">${esc(titleCase(st))}</span>
+          </button></li>`).join('')}
+      </ol>
+    </section>
+
+    <div class="adm-split">
+      <section class="adm-card" aria-labelledby="adm-make">
+        <h2 class="adm-h" id="adm-make">To make <span>pre-ordered and in production, by size</span></h2>
+        ${rows.length ? `<ul class="adm-board">${rows.map((r) => `
+          <li class="adm-board__row">
+            ${cutout(r.id) ? `<img src="${esc(cutout(r.id))}" alt="" loading="lazy">` : '<span class="adm-board__ph"></span>'}
+            <div class="adm-board__main">
+              <p class="adm-board__name">${esc(r.title)} <span>${r.total} ${r.total === 1 ? 'piece' : 'pieces'}</span></p>
+              <span class="adm-board__bar" title="${r.total} pieces"><span style="width:${(r.total / most * 100).toFixed(1)}%"></span></span>
+              <p class="adm-board__sizes">${Object.keys(r.sizes).sort((a, b) => sizeOrder.indexOf(a) - sizeOrder.indexOf(b)).map((sz) => `<span><b>${esc(sz)}</b> ${r.sizes[sz]}</span>`).join('')}</p>
+            </div>
+          </li>`).join('')}</ul>` : '<p class="pf-state">Nothing to make yet. Pre-orders will gather here, piece by piece.</p>'}
+      </section>
+
+      <section class="adm-card" aria-labelledby="adm-recent">
+        <h2 class="adm-h" id="adm-recent">Latest arrivals <span>newest pre-orders</span></h2>
+        ${recent.length ? `<ul class="adm-recent">${recent.map((o) => `
+          <li><button type="button" class="adm-recent__row" data-goto="all">
+            <span class="adm-recent__who">${esc(o.customerName)}<small>${esc(fmtDate(o.createdAt))} · ${qtyOf(o)} ${qtyOf(o) === 1 ? 'piece' : 'pieces'}</small></span>
+            <span class="adm-recent__amt">${esc(fmtVND(o.total))}<small class="adm-dot adm-dot--${STATUSES.indexOf(o.status)}">${esc(titleCase(o.status || ''))}</small></span>
+          </button></li>`).join('')}</ul>` : '<p class="pf-state">The shore is quiet. New pre-orders will wash up here.</p>'}
+      </section>
+    </div>`;
+  panel.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => { view.status = b.dataset.goto; tab = 'orders'; draw(); }));
 }
 
 /* ---------------- Accounts ---------------- */

@@ -199,8 +199,10 @@
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
       categories = data.categories || [];
-      renderRows(data.products);
-      return data.products;
+      // pieces marked "hidden" in products.json are resting between drops: kept in the data, not shown in the shop
+      const live = (data.products || []).filter((p) => !p.hidden);
+      renderRows(live);
+      return live;
     } catch (err) {
       track.innerHTML = '<p class="eyebrow">The collection could not be loaded. Serve the site over http to read data/products.json.</p>';
       console.error('[LA PLAGE] products', err);
@@ -825,11 +827,12 @@
   const initGlassRow = (products) => {
     const row = document.querySelector('[data-glass-row]');
     if (!row || !products.length) return;
-    // one from each line, then the tee
+    // favourites first; any that are resting between drops are skipped and the row fills up with the rest
     const picks = [];
     ['rivage-short', 'corail-short', 'riva-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
       const p = products.find((x) => x.id === id); if (p) picks.push(p);
     });
+    products.forEach((p) => { if (picks.length < 6 && !picks.includes(p)) picks.push(p); });
     row.innerHTML = picks.map((p, k) => `
       <li class="glass" style="--k:${k};--lift:${[0, 34, 8, 46, 14, 28][k % 6]}px;--tilt:${[-3, 2, -1.5, 3, -2.5, 1.5][k % 6]}deg" data-animate="fade-up" data-delay="${k * 110}" data-motion>
         <div class="glass__bob" data-motion>

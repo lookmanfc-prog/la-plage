@@ -66,10 +66,12 @@ export const authMessage = (err) => {
   return 'Something went wrong. Please try again.';
 };
 
-export async function loadProducts() {
+// hidden pieces are left out of the pre-order form; the admin panel asks for them too, for past orders
+export async function loadProducts({ includeHidden = false } = {}) {
   const res = await fetch('data/products.json', { cache: 'no-cache' });
   if (!res.ok) throw new Error(`products ${res.status}`);
-  return (await res.json()).products || [];
+  const all = (await res.json()).products || [];
+  return includeHidden ? all : all.filter((p) => !p.hidden);
 }
 
 export {
