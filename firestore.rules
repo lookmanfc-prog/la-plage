@@ -62,7 +62,7 @@ service cloud.firestore {
       allow read: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
 
       // a signed-in customer with an active (not disabled) account, ordering for themselves,
-      // always starting as "preordered", with the flat 30,000 VND shipping added to the total
+      // always starting as "preordered", with the flat 50,000 VND shipping added to the total
       allow create: if signedIn()
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
@@ -75,8 +75,8 @@ service cloud.firestore {
         && request.resource.data.note is string && request.resource.data.note.size() <= 500
         && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 10
         && request.resource.data.subtotal is int && request.resource.data.subtotal > 0
-        && request.resource.data.shippingFee == 30000
-        && request.resource.data.total == request.resource.data.subtotal + 30000
+        && request.resource.data.shippingFee == 50000
+        && request.resource.data.total == request.resource.data.subtotal + 50000
         && request.resource.data.status == 'preordered'
         && request.resource.data.createdAt == request.time;
 
