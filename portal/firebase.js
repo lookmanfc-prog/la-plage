@@ -11,7 +11,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export const CONFIG = window.LAPLAGE_CONFIG || {};
-export const SHIPPING_FEE = Number(CONFIG.SHIPPING_FEE) || 30000;
+export const SHIPPING_FEE = Number(CONFIG.SHIPPING_FEE) || 50000;
 export const ADMIN_EMAILS = (CONFIG.ADMIN_EMAILS || []).map((e) => String(e).trim().toLowerCase());
 export const STATUSES = ['preordered', 'in production', 'shipped', 'delivered', 'cancelled'];
 

@@ -777,7 +777,7 @@
     html += '</div>';
     obj.innerHTML = html;
 
-    let ry = -18, rx = 6, vy = 0, dragging = false, lastX = 0, lastY = 0, idle = 0, raf = 0;
+    let ry = 0, rx = 6, vy = 0, dragging = false, lastX = 0, lastY = 0, idle = 0, raf = 0;
     const t0 = performance.now();
     const render = () => {
       obj.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
@@ -789,12 +789,15 @@
     const loop = (now) => {
       raf = requestAnimationFrame(loop);
       if (dragging) return render();
-      if (Math.abs(vy) > 0.02) { ry += vy; vy *= 0.95; idle = now; }
-      else if (now - idle > 1600) {
-        // at rest: a slow, continuous turn with a gentle nod
-        ry += 0.18;
-        rx += ((6 + Math.sin((now - t0) / 1800) * 4) - rx) * 0.03;
-      }
+      // never let it turn side-on: seen edge-first, the stacked slices read as a dark bar and flicker.
+      // At rest it sways gently around facing forward; after a drag it eases back into that sway.
+      const t = (now - t0) / 1000;
+      const swayY = Math.sin(t * 0.55) * 24;
+      const swayX = 6 + Math.sin(t * 0.37) * 4;
+      if (Math.abs(vy) > 0.02) { ry = clamp(ry + vy, -55, 55); vy *= 0.9; idle = now; }
+      const ease = now - idle > 600 ? 0.035 : 0.012;
+      ry += (swayY - ry) * ease;
+      rx += (swayX - rx) * ease;
       render();
     };
     root.addEventListener('pointerdown', (e) => {
@@ -804,7 +807,7 @@
     root.addEventListener('pointermove', (e) => {
       if (!dragging) return;
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
-      ry += dx * 0.45; rx = clamp(rx - dy * 0.3, -35, 35);
+      ry = clamp(ry + dx * 0.45, -55, 55); rx = clamp(rx - dy * 0.3, -25, 25);
       vy = vy * 0.5 + dx * 0.45 * 0.5;
       lastX = e.clientX; lastY = e.clientY;
     });

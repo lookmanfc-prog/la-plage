@@ -14,7 +14,7 @@
       ⚠ The same list must also be pasted into firestore.rules (function isAdmin),
       because the database enforces it, not this file.
 
-   3. Leave SHIPPING_FEE at 30000 unless you also change it in firestore.rules.
+   3. Leave SHIPPING_FEE at 50000 unless you also change it in firestore.rules.
    ========================================================================== */
 window.LAPLAGE_CONFIG = {
   FIREBASE_CONFIG: {
@@ -29,7 +29,7 @@ window.LAPLAGE_CONFIG = {
     'lookmanfc@gmail.com',
     'ryannguyen101209@gmail.com',
   ],
-  SHIPPING_FEE: 30000,
+  SHIPPING_FEE: 50000,
 
   /* Pre-order emails (EmailJS, free up to 200 emails a month). See ACCOUNTS-SETUP.md, "Emails".
      EmailJS dashboard → Account → API keys → Public key; Email Services → Service ID;
