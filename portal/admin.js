@@ -35,7 +35,7 @@ if (!isConfigured) {
 async function load(user) {
   state('Loading accounts and pre-orders…');
   try {
-    const [u, o, p] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders')), loadProducts().catch(() => [])]);
+    const [u, o, p] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders')), loadProducts({ includeHidden: true }).catch(() => [])]);
     products = p;
     users = u.docs.map((d) => ({ id: d.id, ...d.data() }));
     orders = o.docs.map((d) => ({ id: d.id, ...d.data() }));
