@@ -1587,6 +1587,52 @@ html.spot-on { overflow: hidden; }
 .spotlight__views:empty { display: none; }
 .spotlight__cta { display: block; text-align: center; }
 
+/* "Pattern & colours": the print from the colour guide, laid over the stage */
+.spotlight__guide-btn {
+  appearance: none; background: none; border: 0; cursor: pointer; padding: 0; margin: -6px 0 22px;
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--sans); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sea-deep);
+}
+.spotlight__guide-btn::before {
+  content: ""; width: 22px; height: 22px; border-radius: 50%;
+  background: conic-gradient(#0A6294 0 25%, #F65FA5 0 50%, #7BD6FB 0 75%, #84744F 0);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .7), 0 0 0 1px var(--line);
+}
+.spotlight__guide-btn:hover, .spotlight__guide-btn[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 5px; }
+.spotlight__guide-btn[hidden] { display: none; }
+.spotlight__float, .spotlight__shadow { transition: opacity 400ms var(--ease-soft), transform 600ms var(--ease-out); }
+.spotlight.is-guide .spotlight__float, .spotlight.is-guide .spotlight__shadow { opacity: 0; pointer-events: none; }
+.spotlight__guide {
+  position: absolute; inset: 2% 0; z-index: 2;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(16px, 2.4vw, 32px);
+  padding: clamp(14px, 2vw, 24px);
+  background: rgba(255, 255, 255, .72); border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  overflow-y: auto; overscroll-behavior: contain;
+  animation: sg-in 500ms var(--ease-out) both;
+}
+.spotlight__guide[hidden] { display: none; }
+@keyframes sg-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+.sg__pattern { min-height: 220px; background-size: 340px auto; background-repeat: repeat; background-position: center; border: 1px solid var(--line); }
+.sg__info { display: grid; align-content: start; gap: 12px; min-width: 0; }
+.sg__h { font-family: var(--serif); font-style: italic; font-size: 17px; margin-top: 4px; }
+.sg__bar { display: flex; height: 14px; border: 1px solid var(--line); }
+.sg__bar span { flex-basis: 0; }
+.sg__chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px 12px; }
+.sg__chips li { display: grid; grid-template-columns: 22px 1fr; column-gap: 9px; align-items: center; font-size: 11px; line-height: 1.35; }
+.sg__chips i { grid-row: span 2; width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(11, 44, 71, .18); }
+.sg__chips b { font-weight: 500; }
+.sg__chips span { color: var(--sand-ink); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.sg__patch { display: grid; grid-template-columns: minmax(90px, 140px) 1fr; gap: 14px; align-items: center; margin-top: 4px; }
+.sg__patch img { width: 100%; height: auto; }
+.sg__more { justify-self: start; font-size: 12px; margin-top: 4px; }
+@media (max-width: 860px) {
+  /* on phones the panel takes the stage's place in the page flow and scrolls with it */
+  .spotlight.is-guide .spotlight__stage { height: auto; }
+  .spotlight__guide { position: relative; inset: auto; grid-template-columns: 1fr; overflow: visible; }
+  .sg__pattern { min-height: 140px; background-size: 220px auto; }
+}
+
 .spotlight__nav {
   position: absolute; top: 50%; translate: 0 -50%;
   width: 64px; height: 44px; display: grid; place-items: center;
