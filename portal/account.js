@@ -120,7 +120,7 @@ function orderCard(o) {
         <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(titleCase(o.status || 'preordered'))}</span>
       </header>
       <ul class="pf-order__items">${(o.items || []).map((it) => `
-        <li><span>${esc(it.title)} · ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
+        <li><span>${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
       </ul>
       <dl class="pf-sum pf-sum--small">
         <div><dt>Subtotal</dt><dd>${esc(fmtVND(o.subtotal))}</dd></div>

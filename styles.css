@@ -651,6 +651,8 @@ html.intro-on { overflow: hidden; }
   font-size: 10.5px; font-weight: 400; letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--sand-ink);
 }
+.card__dots { display: inline-flex; gap: 4px; margin-right: 8px; vertical-align: -1px; }
+.card__dots i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(11, 44, 71, .18); }
 
 .strip__progress { margin-top: clamp(36px, 5vh, 56px); }
 .strip__progress::before { content: ""; display: block; height: 1px; background: var(--line); }
@@ -1570,6 +1572,18 @@ html.spot-on { overflow: hidden; }
 .size:hover, .view-btn:hover { border-color: var(--sea-deep); }
 .size[aria-checked="true"], .view-btn[aria-pressed="true"] { background: var(--sea-deep); color: var(--white); border-color: var(--sea-deep); }
 .spotlight__views { display: flex; gap: 8px; margin-bottom: 22px; }
+.spotlight__swatches { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; }
+.swatch {
+  appearance: none; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 12px 0 8px;
+  border: 1px solid var(--line); color: var(--sea-deep);
+  font-family: var(--sans); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  transition: border-color 200ms var(--ease-soft), box-shadow 200ms var(--ease-soft);
+}
+.swatch i { width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(11, 44, 71, .2); }
+.swatch:hover { border-color: var(--sea-deep); }
+.swatch[aria-checked="true"] { border-color: var(--sea-deep); box-shadow: inset 0 0 0 1px var(--sea-deep); }
 .spotlight__views:empty { display: none; }
 .spotlight__cta { display: block; text-align: center; }
 

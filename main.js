@@ -123,6 +123,15 @@
   /* ---------------- Products: render from JSON ---------------- */
   const track = document.querySelector('[data-strip-track]');
 
+  // a piece made in more than one colour lists them in "colors"; this gives the piece as seen in one of them
+  const inColor = (p, k) => {
+    const c = p.colors && p.colors[k];
+    return c ? { ...p, color: { name: c.name, hex: c.hex }, image: c.image || p.image, cutout: c.cutout || p.cutout } : p;
+  };
+  const colorLabel = (p) => (p.colors && p.colors.length > 1
+    ? `<span class="card__dots" aria-hidden="true">${p.colors.map((c) => `<i style="background:${c.hex}"></i>`).join('')}</span>${p.colors.length} colours`
+    : p.color.name);
+
   const productCard = (p, i) => {
     const li = document.createElement('li');
     li.className = 'strip__item';
@@ -131,7 +140,7 @@
     li.dataset.catLabel = (categories.find((c) => c.key === p.category) || {}).name || '';
     li.dataset.animate = 'fade-up';   // each piece in the gallery rises in as it reaches the screen
     li.innerHTML = `
-      <a class="card" data-motion href="#product/${p.handle}" data-index="${i}" aria-label="${p.title}, ${p.color.name}, ${formatVND.format(p.price)}. View details">
+      <a class="card" data-motion href="#product/${p.handle}" data-index="${i}" aria-label="${p.title}, ${p.colors && p.colors.length > 1 ? p.colors.map((c) => c.name).join(' or ') : p.color.name}, ${formatVND.format(p.price)}. View details">
         <div class="card__media" data-motion>
           <div class="card__shadow" data-motion aria-hidden="true"></div>
           <div class="card__lift" data-motion>
@@ -141,7 +150,7 @@
         <div class="card__meta" aria-hidden="true">
           <h3 class="card__name">${p.title}</h3>
           <p class="card__price">${formatVND.format(p.price)}</p>
-          <p class="card__color">${p.color.name}</p>
+          <p class="card__color">${colorLabel(p)}</p>
         </div>
         ${p.description ? `<p class="card__detail" aria-hidden="true"><span>Detail</span>${p.description}</p>` : ''}
         <div class="card__quick" data-motion aria-hidden="true">
@@ -244,10 +253,12 @@
     const img = $('[data-spot-img]');
     const views = $('[data-spot-views]');
     const sizes = $('[data-spot-sizes]');
-    let index = 0, view = 'front', opener = null, closeTimer = 0;
+    const tones = $('[data-spot-colors]');
+    let index = 0, tone = 0, view = 'front', opener = null, closeTimer = 0;
 
     const render = (dir = 0) => {
-      const p = products[index];
+      const base = products[index];
+      const p = inColor(base, tone);
       $('[data-spot-index]').textContent = `${String(index + 1).padStart(2, '0')} / ${String(products.length).padStart(2, '0')}`;
       $('[data-spot-title]').textContent = p.title;
       $('[data-spot-desc]').textContent = p.description || '';
@@ -265,7 +276,17 @@
         if (img.complete && img.naturalWidth) img.classList.remove('is-loading');
       }
       img.alt = view === 'back' && p.imageHover ? p.imageHover.alt : p.image.alt;
-      sizes.innerHTML = (p.sizes || []).map((s, i) => `<button type="button" class="size" role="radio" aria-checked="${i === 1}" data-size="${s}">${s}</button>`).join('');
+      // keep the chosen size when only the colour changes
+      const was = sizes.dataset.for === base.id && sizes.querySelector('.size[aria-checked="true"]');
+      const keep = was ? was.dataset.size : (p.sizes || [])[1];
+      sizes.dataset.for = base.id;
+      sizes.innerHTML = (p.sizes || []).map((s) => `<button type="button" class="size" role="radio" aria-checked="${s === keep}" data-size="${s}">${s}</button>`).join('');
+      // pieces made in more than one colour get a colour choice
+      const many = base.colors && base.colors.length > 1;
+      tones.hidden = !many;
+      tones.querySelector('[data-spot-swatches]').innerHTML = many
+        ? base.colors.map((c, k) => `<button type="button" class="swatch" role="radio" aria-checked="${k === tone}" data-tone="${k}"><i style="background:${c.hex}" aria-hidden="true"></i>${c.name}</button>`).join('')
+        : '';
       views.innerHTML = p.imageHover
         ? ['front', 'back'].map((v) => `<button type="button" class="view-btn" aria-pressed="${v === view}" data-view="${v}">${v === 'front' ? 'Front' : 'Back'}</button>`).join('')
         : '';
@@ -277,11 +298,11 @@
     };
 
     // warm the cache so every piece opens instantly
-    products.forEach((p) => { [p.cutout, p.cutoutBack].forEach((u) => { if (u) { const pre = new Image(); pre.decoding = 'async'; pre.src = u; } }); });
+    products.forEach((p) => { [p.cutout, p.cutoutBack, ...(p.colors || []).map((c) => c.cutout)].forEach((u) => { if (u) { const pre = new Image(); pre.decoding = 'async'; pre.src = u; } }); });
 
     const open = (i, from) => {
       clearTimeout(closeTimer);
-      index = i; view = 'front'; opener = from || null;
+      index = i; tone = 0; view = 'front'; sizes.dataset.for = ''; opener = from || null;
       spot.hidden = false;
       document.documentElement.classList.add('spot-on');
       render(0);
@@ -294,7 +315,7 @@
       closeTimer = setTimeout(() => { spot.hidden = true; }, 450);
       if (opener) opener.focus({ preventScroll: true });
     };
-    const go = (d) => { index = (index + d + products.length) % products.length; view = 'front'; render(d); };
+    const go = (d) => { index = (index + d + products.length) % products.length; tone = 0; view = 'front'; sizes.dataset.for = ''; render(d); };
 
     // The strip captures the pointer while dragging, so the click lands on the viewport:
     // remember which card the press started on.
@@ -359,7 +380,7 @@
         const chosen = sizes.querySelector('.size[aria-checked="true"]');
         const p = products[index];
         close();
-        window.laPlagePreorder(p, chosen ? chosen.dataset.size : null);
+        window.laPlagePreorder(p, chosen ? chosen.dataset.size : null, inColor(p, tone).color.name);
         return;
       }
       close();
@@ -367,6 +388,12 @@
     sizes.addEventListener('click', (e) => {
       const b = e.target.closest('.size'); if (!b) return;
       sizes.querySelectorAll('.size').forEach((o) => o.setAttribute('aria-checked', String(o === b)));
+    });
+    tones.addEventListener('click', (e) => {
+      const b = e.target.closest('.swatch'); if (!b) return;
+      const k = Number(b.dataset.tone);
+      if (k === tone) return;
+      tone = k; render(0);
     });
     views.addEventListener('click', (e) => {
       const b = e.target.closest('.view-btn'); if (!b) return;

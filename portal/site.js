@@ -56,10 +56,14 @@ if (isConfigured) {
 
   const body = () => overlay.querySelector('[data-pf-body]');
 
+  // pieces made in more than one colour list them in "colors"
+  const colorsOf = (id) => ((products.find((p) => p.id === id) || {}).colors || []);
   const itemRow = (it, k) => `
     <div class="pf-item" data-item="${k}">
       <label class="pf-field pf-field--grow"><span>Piece</span>
         <select name="product">${products.map((p) => `<option value="${esc(p.id)}"${p.id === it.productId ? ' selected' : ''}>${esc(p.title)} · ${esc(fmtVND(p.price))}</option>`).join('')}</select></label>
+      ${colorsOf(it.productId).length > 1 ? `<label class="pf-field"><span>Colour</span>
+        <select name="color">${colorsOf(it.productId).map((c) => `<option${c.name === it.color ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>` : ''}
       <label class="pf-field"><span>Size</span>
         <select name="size">${((products.find((p) => p.id === it.productId) || products[0] || {}).sizes || ['M']).map((s) => `<option${s === it.size ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select></label>
       <label class="pf-field pf-field--qty"><span>Qty</span>
@@ -125,6 +129,7 @@ if (isConfigured) {
     items = [...body().querySelectorAll('[data-item]')].map((row) => ({
       productId: row.querySelector('[name="product"]').value,
       size: row.querySelector('[name="size"]').value,
+      color: row.querySelector('[name="color"]') ? row.querySelector('[name="color"]').value : '',
       qty: Number(row.querySelector('[name="qty"]').value) || 1,
     }));
   };
@@ -176,7 +181,8 @@ if (isConfigured) {
     if (Object.values(data.address).some((v) => !v)) { err.textContent = 'Please complete the street, ward, district and city.'; return; }
     const lines = items.map((it) => {
       const p = products.find((x) => x.id === it.productId);
-      return { productId: p.id, title: p.title, size: it.size, quantity: it.qty, price: p.price, lineTotal: p.price * it.qty };
+      const color = (p.colors || []).some((c) => c.name === it.color) ? it.color : p.color.name;
+      return { productId: p.id, title: p.title, color, size: it.size, quantity: it.qty, price: p.price, lineTotal: p.price * it.qty };
     });
     const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
     btn.disabled = true; btn.classList.add('is-busy');
@@ -211,11 +217,11 @@ if (isConfigured) {
     }
   };
 
-  // the product view's "Pre-order" button calls this with the piece and size on screen
-  window.laPlagePreorder = (product, size) => {
+  // the product view's "Pre-order" button calls this with the piece, size and colour on screen
+  window.laPlagePreorder = (product, size, color) => {
     ensureOverlay();
     lastFocus = document.activeElement;
-    if (product) { pending = { productId: product.id, size: size || 'M', qty: 1 }; items = []; }
+    if (product) { pending = { productId: product.id, size: size || 'M', color: color || '', qty: 1 }; items = []; }
     overlay.hidden = false;
     document.documentElement.classList.add('pf-lock');
     requestAnimationFrame(() => overlay.classList.add('is-open'));
