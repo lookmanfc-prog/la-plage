@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
-  <link rel="stylesheet" href="styles.css?v=45">
+  <link rel="stylesheet" href="styles.css?v=47">
   <link rel="stylesheet" href="portal/portal.css?v=45">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
@@ -243,6 +243,7 @@
           <li><a class="link" href="#drop">Drop 001</a></li>
           <li><a class="link" href="#collections">Sea</a></li>
           <li><a class="link" href="#collections">Sand</a></li>
+          <li><a class="link" href="colour-guide.html">Colour guide</a></li>
         </ul>
       </nav>
       <nav class="footer__col" aria-label="House">
@@ -300,6 +301,7 @@
       <div class="spotlight__float" data-motion>
         <img class="spotlight__img" data-spot-img data-motion src="" alt="" width="1200" height="1500" decoding="async">
       </div>
+      <div class="spotlight__guide" data-spot-guide hidden></div>
     </figure>
     <div class="spotlight__buy" data-motion>
       <div class="spotlight__colors" data-spot-colors hidden>
@@ -309,6 +311,7 @@
       <p class="label">Size</p>
       <div class="spotlight__sizes" role="radiogroup" aria-label="Size" data-spot-sizes></div>
       <div class="spotlight__views" data-spot-views></div>
+      <button type="button" class="spotlight__guide-btn" aria-pressed="false" data-spot-guide-btn hidden>Pattern &amp; colours</button>
       <a class="btn-outline spotlight__cta" href="#access" data-spot-access>Pre-order</a>
     </div>
     <button class="spotlight__nav spotlight__nav--prev" type="button" aria-label="Previous product" data-spot-prev>
@@ -321,7 +324,7 @@
 
   <script src="intro.js?v=45" defer></script>
   <script src="ocean.js?v=45" defer></script>
-  <script src="main.js?v=46" defer></script>
+  <script src="main.js?v=47" defer></script>
   <script src="firebase-config.js?v=45"></script>
   <script type="module" src="portal/site.js?v=45"></script>
 </body>

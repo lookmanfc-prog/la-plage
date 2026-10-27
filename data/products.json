@@ -133,7 +133,7 @@
       "compareAtPrice": null,
       "color": {
         "name": "Sky Hibiscus",
-        "hex": "#7CCBEB"
+        "hex": "#7BD6FB"
       },
       "image": {
         "src": "assets/img/products/shorts-hibiscus.jpg",
@@ -159,7 +159,7 @@
       "colors": [
         {
           "name": "Sky Hibiscus",
-          "hex": "#7CCBEB",
+          "hex": "#7BD6FB",
           "image": {
             "src": "assets/img/products/shorts-hibiscus.jpg",
             "alt": "Riva Short in sky blue with a tonal hibiscus print and LA PLAGE palm",
@@ -170,7 +170,7 @@
         },
         {
           "name": "Pink Hibiscus",
-          "hex": "#F4A9C0",
+          "hex": "#FDADC3",
           "image": {
             "src": "assets/img/products/shorts-pink-hibiscus.jpg",
             "alt": "Riva Short in soft pink with a tonal hibiscus print and LA PLAGE palm",
@@ -188,8 +188,8 @@
       "price": 400000,
       "compareAtPrice": null,
       "color": {
-        "name": "Lagoon Floral",
-        "hex": "#2F6FAE"
+        "name": "Blue Camo Hibiscus",
+        "hex": "#0A6294"
       },
       "image": {
         "src": "assets/img/products/shorts-lagoon-floral.jpg",
@@ -216,16 +216,16 @@
     {
       "id": "corail-patch-short",
       "handle": "corail-patch-short",
-      "title": "Corail Patch Short",
+      "title": "Corail Short",
       "price": 400000,
       "compareAtPrice": null,
       "color": {
-        "name": "Coral Floral",
-        "hex": "#F07A8C"
+        "name": "Pink Floral",
+        "hex": "#F65FA5"
       },
       "image": {
         "src": "assets/img/products/shorts-coral-patch.jpg",
-        "alt": "Corail Patch Short with a pink and coral hand-drawn floral print and an embroidered LA PLAGE patch at the hem",
+        "alt": "Corail Short with a pink and coral hand-drawn floral print and an embroidered LA PLAGE patch at the hem",
         "width": 1200,
         "height": 1500
       },
@@ -234,7 +234,7 @@
         "short",
         "drop-001"
       ],
-      "description": "The new Corail: hand-drawn pink and coral florals with an embroidered LA PLAGE patch at the hem and an elastic waist.",
+      "description": "Hand-drawn pink and coral florals with an embroidered LA PLAGE patch at the hem and an elastic waist.",
       "sizes": [
         "S",
         "M",
@@ -317,7 +317,7 @@
       "compareAtPrice": null,
       "color": {
         "name": "Palm Print",
-        "hex": "#8A8F5C"
+        "hex": "#84744F"
       },
       "image": {
         "src": "assets/img/products/shorts-palm-print.jpg",

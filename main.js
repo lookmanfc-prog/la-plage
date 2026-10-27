@@ -254,7 +254,37 @@
     const views = $('[data-spot-views]');
     const sizes = $('[data-spot-sizes]');
     const tones = $('[data-spot-colors]');
-    let index = 0, tone = 0, view = 'front', opener = null, closeTimer = 0;
+    const guide = $('[data-spot-guide]');
+    const guideBtn = $('[data-spot-guide-btn]');
+    let index = 0, tone = 0, view = 'front', opener = null, closeTimer = 0, guideOpen = false;
+
+    // the colour guide (data/colour-guide.json): each print's pattern, colours and patch, shown over the stage
+    let prints = [];
+    fetch('data/colour-guide.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).then((g) => { prints = g.prints || []; if (!spot.hidden) render(0); }).catch(() => {});
+    const printFor = (p) => prints.find((g) => g.product === p.id && (!g.color || g.color === p.color.name));
+    const chips = (list) => list.map((c) => `<li><i style="background:${c.hex}" aria-hidden="true"></i><b>${c.role}</b><span>${c.hex}${c.share ? ` · ${c.share}%` : ''}</span></li>`).join('');
+    const drawGuide = (g) => {
+      guide.innerHTML = `
+        <div class="sg__pattern" style="background-image:url('${g.pattern}')" role="img" aria-label="The ${g.name} pattern"></div>
+        <div class="sg__info">
+          <p class="label">${g.name} · ${g.kind}</p>
+          <p class="sg__h">Pattern colours</p>
+          <div class="sg__bar" aria-hidden="true">${g.patternColours.map((c) => `<span style="background:${c.hex};flex-grow:${c.share}"></span>`).join('')}</div>
+          <ul class="sg__chips">${chips(g.patternColours)}</ul>
+          <div class="sg__patch">
+            <img src="${g.patch}" alt="The embroidered LA PLAGE patch in the ${g.name} colours" width="600" height="376" loading="lazy">
+            <div><p class="sg__h">Patch colours</p><ul class="sg__chips">${chips(g.patchColours)}</ul></div>
+          </div>
+          <a class="link link--underlined sg__more" href="colour-guide.html#${g.key}">The full colour guide</a>
+        </div>`;
+    };
+    const showGuide = (on) => {
+      guideOpen = on;
+      guide.hidden = !on;
+      spot.classList.toggle('is-guide', on);
+      guideBtn.setAttribute('aria-pressed', String(on));
+      guideBtn.textContent = on ? 'Back to the piece' : 'Pattern & colours';
+    };
 
     const render = (dir = 0) => {
       const base = products[index];
@@ -284,6 +314,11 @@
       // pieces made in more than one colour get a colour choice
       const many = base.colors && base.colors.length > 1;
       tones.hidden = !many;
+      // pieces in the colour guide get a "Pattern & colours" view; it stays open while the colour changes
+      const g = printFor(p);
+      guideBtn.hidden = !g;
+      if (g) drawGuide(g);
+      showGuide(!!g && guideOpen);
       tones.querySelector('[data-spot-swatches]').innerHTML = many
         ? base.colors.map((c, k) => `<button type="button" class="swatch" role="radio" aria-checked="${k === tone}" data-tone="${k}"><i style="background:${c.hex}" aria-hidden="true"></i>${c.name}</button>`).join('')
         : '';
@@ -300,9 +335,9 @@
     // warm the cache so every piece opens instantly
     products.forEach((p) => { [p.cutout, p.cutoutBack, ...(p.colors || []).map((c) => c.cutout)].forEach((u) => { if (u) { const pre = new Image(); pre.decoding = 'async'; pre.src = u; } }); });
 
-    const open = (i, from) => {
+    const open = (i, from, t = 0) => {
       clearTimeout(closeTimer);
-      index = i; tone = 0; view = 'front'; sizes.dataset.for = ''; opener = from || null;
+      index = i; tone = t; view = 'front'; sizes.dataset.for = ''; guideOpen = false; opener = from || null;
       spot.hidden = false;
       document.documentElement.classList.add('spot-on');
       render(0);
@@ -315,7 +350,7 @@
       closeTimer = setTimeout(() => { spot.hidden = true; }, 450);
       if (opener) opener.focus({ preventScroll: true });
     };
-    const go = (d) => { index = (index + d + products.length) % products.length; tone = 0; view = 'front'; sizes.dataset.for = ''; render(d); };
+    const go = (d) => { index = (index + d + products.length) % products.length; tone = 0; view = 'front'; sizes.dataset.for = ''; guideOpen = false; render(d); };
 
     // The strip captures the pointer while dragging, so the click lands on the viewport:
     // remember which card the press started on.
@@ -389,6 +424,21 @@
       const b = e.target.closest('.size'); if (!b) return;
       sizes.querySelectorAll('.size').forEach((o) => o.setAttribute('aria-checked', String(o === b)));
     });
+    guideBtn.addEventListener('click', () => {
+      showGuide(!guideOpen);
+      if (guideOpen && spot.scrollTop > 0) spot.scrollTo({ top: 0, behavior: 'smooth' });   // phones: the panel sits above the buttons
+    });
+    // links such as colour-guide.html's "Pre-order" arrive as #product/<handle>/<colour>
+    const fromHash = () => {
+      const m = /^#product\/([\w-]+)(?:\/([\w-]+))?/.exec(location.hash);
+      if (!m) return;
+      const i = products.findIndex((p) => p.handle === m[1]);
+      if (i < 0) return;
+      const slug = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const t = Math.max(0, (products[i].colors || []).findIndex((c) => slug(c.name) === m[2]));
+      open(i, null, t);
+    };
+    fromHash();
     tones.addEventListener('click', (e) => {
       const b = e.target.closest('.swatch'); if (!b) return;
       const k = Number(b.dataset.tone);
