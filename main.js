@@ -859,7 +859,7 @@
     if (!row || !products.length) return;
     // favourites first; any that are resting between drops are skipped and the row fills up with the rest
     const picks = [];
-    ['rivage-short', 'corail-short', 'riva-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
+    ['rivage-short', 'corail-patch-short', 'riva-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
       const p = products.find((x) => x.id === id); if (p) picks.push(p);
     });
     products.forEach((p) => { if (picks.length < 6 && !picks.includes(p)) picks.push(p); });
