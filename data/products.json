@@ -75,7 +75,8 @@
         "width": 1200,
         "height": 1500
       },
-      "available": true,
+      "available": false,
+      "hidden": true,
       "tags": [
         "short",
         "drop-001"
