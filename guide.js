@@ -48,6 +48,7 @@
       <section class="cg-hero">
         <h1 class="cg-hero__title">${first} <em>${rest.join(' ')}</em></h1>
         <p class="cg-hero__tag">${guide.tagline}</p>
+        ${guide.pdf ? `<a class="cg-download" href="${guide.pdf.href}" download>Download the colour guide <span>PDF · ${guide.pdf.size}</span></a>` : ''}
         <ul class="cg-index">${guide.prints.map((g) => `
           <li><a href="#${g.key}">
             <img src="${g.shorts}" alt="" width="900" height="798" loading="lazy">

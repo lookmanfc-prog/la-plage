@@ -13,6 +13,16 @@ body.guide { background: var(--white); color: var(--ink); }
 .cg-hero__title { font-family: "Playfair Display", var(--serif); font-size: clamp(56px, 9vw, 120px); line-height: .95; font-weight: 500; color: var(--sea-deep); letter-spacing: -.01em; }
 .cg-hero__title em { display: block; color: var(--sea); font-style: italic; }
 .cg-hero__tag { font-family: var(--serif); font-style: italic; color: var(--sand); font-size: clamp(16px, 1.6vw, 20px); margin-top: 14px; }
+.cg-download {
+  display: inline-flex; align-items: center; gap: 12px; margin-top: 22px;
+  padding: 12px 18px; border: 1px solid var(--sea-deep); color: var(--sea-deep);
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  transition: background-color 250ms var(--ease-out), color 250ms var(--ease-out);
+}
+.cg-download::before { content: "↓"; font-size: 14px; letter-spacing: 0; }
+.cg-download span { color: var(--sand-ink); letter-spacing: .08em; }
+.cg-download:hover { background: var(--sea-deep); color: var(--white); }
+.cg-download:hover span { color: var(--sand-light); }
 .cg-index { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(18px, 3vw, 36px); margin-top: clamp(32px, 6vh, 64px); }
 .cg-index a { display: grid; justify-items: center; text-align: center; gap: 6px; padding-bottom: 6px; }
 .cg-index img { width: 100%; height: auto; transition: transform 500ms var(--ease-out); }
