@@ -26,7 +26,7 @@ export async function sendOrderEmails(order) {
     customer_gmail: order.gmail,
     customer_phone: order.phone,
     shipping_address: fmtAddress(order.address),
-    items: order.items.map((it) => `${it.title} · size ${it.size} × ${it.quantity} = ${fmtVND(it.lineTotal)}`).join('\n'),
+    items: order.items.map((it) => `${it.title}${it.color ? ` · ${it.color}` : ''} · size ${it.size} × ${it.quantity} = ${fmtVND(it.lineTotal)}`).join('\n'),
     subtotal: fmtVND(order.subtotal),
     shipping_fee: fmtVND(order.shippingFee),
     total: fmtVND(order.total),

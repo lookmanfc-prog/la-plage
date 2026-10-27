@@ -100,16 +100,24 @@ function drawOverview(panel) {
 
   // what to make: every piece in pre-orders not yet made, by size
   const board = new Map();
+  // a piece made in more than one colour gets a row per colour, since each is cut from its own fabric
+  const multi = (id) => ((products.find((x) => x.id === id) || {}).colors || []).length > 1;
   orders.filter(toMake).forEach((o) => (o.items || []).forEach((it) => {
-    const row = board.get(it.productId) || { id: it.productId, title: it.title, total: 0, sizes: {} };
+    const tone = multi(it.productId) ? (it.color || '') : '';
+    const key = `${it.productId}|${tone}`;
+    const row = board.get(key) || { id: it.productId, tone, title: tone ? `${it.title} · ${tone}` : it.title, total: 0, sizes: {} };
     row.total += Number(it.quantity) || 0;
     row.sizes[it.size] = (row.sizes[it.size] || 0) + (Number(it.quantity) || 0);
-    board.set(it.productId, row);
+    board.set(key, row);
   }));
   const rows = [...board.values()].sort((a, b) => b.total - a.total);
   const most = Math.max(1, ...rows.map((r) => r.total));
   const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const cutout = (id) => { const p = products.find((x) => x.id === id); return p ? (p.cutout || p.image.src) : ''; };
+  const cutout = (id, tone) => {
+    const p = products.find((x) => x.id === id); if (!p) return '';
+    const c = (p.colors || []).find((x) => x.name === tone);
+    return (c && c.cutout) || p.cutout || p.image.src;
+  };
   const recent = [...orders].sort((a, b) => ts(b.createdAt) - ts(a.createdAt)).slice(0, 6);
 
   panel.innerHTML = `
@@ -135,7 +143,7 @@ function drawOverview(panel) {
         <h2 class="adm-h" id="adm-make">To make <span>pre-ordered and in production, by size</span></h2>
         ${rows.length ? `<ul class="adm-board">${rows.map((r) => `
           <li class="adm-board__row">
-            ${cutout(r.id) ? `<img src="${esc(cutout(r.id))}" alt="" loading="lazy">` : '<span class="adm-board__ph"></span>'}
+            ${cutout(r.id, r.tone) ? `<img src="${esc(cutout(r.id, r.tone))}" alt="" loading="lazy">` : '<span class="adm-board__ph"></span>'}
             <div class="adm-board__main">
               <p class="adm-board__name">${esc(r.title)} <span>${r.total} ${r.total === 1 ? 'piece' : 'pieces'}</span></p>
               <span class="adm-board__bar" title="${r.total} pieces"><span style="width:${(r.total / most * 100).toFixed(1)}%"></span></span>
@@ -250,7 +258,7 @@ function drawOrders(panel) {
             <td data-label="Date">${esc(fmtDate(o.createdAt))}</td>
             <td data-label="Customer">${esc(o.customerName)}<small>${esc(o.phone)}${o.gmail ? ` · ${esc(o.gmail)}` : ''}</small></td>
             <td data-label="Address">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
-            <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)} · ${esc(it.size)} × ${esc(it.quantity)}`).join('<br>')}</td>
+            <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · ${esc(it.size)} × ${esc(it.quantity)}`).join('<br>')}</td>
             <td data-label="Subtotal">${esc(fmtVND(o.subtotal))}</td>
             <td data-label="Shipping">${esc(fmtVND(o.shippingFee))}</td>
             <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong></td>
@@ -289,7 +297,7 @@ function exportCSV() {
     const a = o.address || {};
     const d = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : '';
     return [o.id, d, o.customerName, o.username, o.phone, o.gmail, a.street, a.ward, a.district, a.city,
-      (o.items || []).map((it) => `${it.title} (${it.size}) x${it.quantity}`).join('; '),
+      (o.items || []).map((it) => `${it.title}${it.color ? ` - ${it.color}` : ''} (${it.size}) x${it.quantity}`).join('; '),
       o.subtotal, o.shippingFee, o.total, o.status, o.note];
   });
   const csv = '﻿' + [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');

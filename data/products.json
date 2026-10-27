@@ -131,7 +131,7 @@
       "price": 430000,
       "compareAtPrice": null,
       "color": {
-        "name": "Hibiscus",
+        "name": "Sky Hibiscus",
         "hex": "#7CCBEB"
       },
       "image": {
@@ -145,7 +145,7 @@
         "short",
         "drop-001"
       ],
-      "description": "Sky-blue swim short with a tonal hibiscus print and an elastic waist.",
+      "description": "Swim short with a tonal hibiscus print, a LA PLAGE palm at the hem and an elastic waist. In sky blue or pink.",
       "sizes": [
         "S",
         "M",
@@ -154,7 +154,31 @@
       ],
       "collection": "sea",
       "category": "riva",
-      "cutout": "assets/img/products/cutouts/shorts-hibiscus.webp"
+      "cutout": "assets/img/products/cutouts/shorts-hibiscus.webp",
+      "colors": [
+        {
+          "name": "Sky Hibiscus",
+          "hex": "#7CCBEB",
+          "image": {
+            "src": "assets/img/products/shorts-hibiscus.jpg",
+            "alt": "Riva Short in sky blue with a tonal hibiscus print and LA PLAGE palm",
+            "width": 1200,
+            "height": 1500
+          },
+          "cutout": "assets/img/products/cutouts/shorts-hibiscus.webp"
+        },
+        {
+          "name": "Pink Hibiscus",
+          "hex": "#F4A9C0",
+          "image": {
+            "src": "assets/img/products/shorts-pink-hibiscus.jpg",
+            "alt": "Riva Short in soft pink with a tonal hibiscus print and LA PLAGE palm",
+            "width": 1200,
+            "height": 1500
+          },
+          "cutout": "assets/img/products/cutouts/shorts-pink-hibiscus.webp"
+        }
+      ]
     },
     {
       "id": "lagon-short",
@@ -187,6 +211,38 @@
       "collection": "sea",
       "category": "lagon",
       "cutout": "assets/img/products/cutouts/shorts-lagoon-floral.webp"
+    },
+    {
+      "id": "corail-patch-short",
+      "handle": "corail-patch-short",
+      "title": "Corail Patch Short",
+      "price": 430000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Coral Floral",
+        "hex": "#F07A8C"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-coral-patch.jpg",
+        "alt": "Corail Patch Short with a pink and coral hand-drawn floral print and an embroidered LA PLAGE patch at the hem",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "The new Corail: hand-drawn pink and coral florals with an embroidered LA PLAGE patch at the hem and an elastic waist.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "lagon",
+      "cutout": "assets/img/products/cutouts/shorts-coral-patch.webp"
     },
     {
       "id": "maree-short",
