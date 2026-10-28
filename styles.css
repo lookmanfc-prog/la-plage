@@ -872,10 +872,9 @@ html.intro-on { overflow: hidden; }
   --ease-lux: cubic-bezier(.2, .9, .25, 1);
   position: relative; overflow: hidden; isolation: isolate;
   flex: 1 1 0; min-width: 0;
-  min-height: clamp(780px, 128vh, 1400px);
+  min-height: clamp(620px, 92vh, 940px);
   display: flex; align-items: flex-end;
   padding: clamp(32px, 5vw, 72px);
-  transition: flex-grow 1100ms var(--ease-lux);
 }
 .panel--sea  { color: var(--sand-light); background: radial-gradient(120% 80% at 50% 0%, #174A72 0%, #0F3656 40%, var(--sea-deep) 85%); }
 .panel--sand {
@@ -1195,22 +1194,12 @@ html.intro-on { overflow: hidden; }
   0%   { opacity: 1; transform: rotate(var(--a)) translate3d(0, -38%, 0) scale(1); }
   100% { opacity: 0; transform: rotate(var(--a)) translate3d(0, calc(var(--l) * -2.2), 0) scale(.4); }
 }
-/* the same little tag the coconuts wear, on the first bubble */
-.tap-hint {
-  position: absolute; left: 50%; bottom: calc(100% + 4px); translate: -50% 0; white-space: nowrap; pointer-events: none;
-  padding: 7px 12px 6px; border-radius: 999px;
-  background: rgba(240, 250, 255, .9); box-shadow: 0 8px 22px -10px rgba(0, 20, 40, .6);
-  font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--sea-deep);
-  animation: hint-bob 2.2s ease-in-out infinite;
-  transition: opacity 300ms var(--ease-soft);
-}
-.tap-hint::after { content: ""; position: absolute; left: 50%; top: 100%; width: 8px; height: 8px; margin: -4px 0 0 -4px; background: inherit; rotate: 45deg; }
-.bubble.is-popped .tap-hint { opacity: 0; }
 .bubble.is-popped { cursor: zoom-in; }
 
 /* the free pieces and sea bubbles can be tapped to see them */
 .bubble[data-view] { pointer-events: auto; cursor: pointer; }
-.bubble[data-view]:focus-visible { outline: 1px solid currentColor; outline-offset: 6px; border-radius: 50%; }
+.bubble[data-view]:focus { outline: none; }
+.bubble[data-view]:focus-visible .bubble__float { outline: 1px solid currentColor; outline-offset: 6px; border-radius: 50%; }
 .bubble[data-view]:hover .bubble__float { scale: 1.06; }
 .bubble__float { transition: scale 500ms var(--ease-out); }
 
@@ -1287,8 +1276,6 @@ html.intro-on { overflow: hidden; }
 
 
 @media (hover: hover) and (pointer: fine) and (min-width: 761px) {
-  .panels:hover .panel { flex-grow: .78; }
-  .panels .panel:hover, .panels .panel:focus-within { flex-grow: 1.22; }
   .panel:hover::after { opacity: 1; }
   .panel--sea:hover .panel__light  { opacity: .2; }
   .panel--sand:hover .panel__light { opacity: .85; }
@@ -1649,83 +1636,6 @@ html.spot-on { overflow: hidden; }
   .spotlight__close { top: 20px; right: 24px; }
   .spotlight__nav { top: calc(72px + 22vh); }
 }
-
-/* ==========================================================================
-   Palm curtain: two palm trees sweep in from the sides (coconuts dropping from
-   their crowns), then part and fold away into the edges to reveal a piece.
-   ========================================================================== */
-.palms { position: fixed; inset: 0; z-index: 160; pointer-events: none; overflow: hidden; }
-.palms__veil { position: absolute; inset: 0; background: var(--sand-light); opacity: 0; transition: opacity 500ms var(--ease-soft); }
-.palms__side { position: absolute; top: -6vh; height: 112vh; aspect-ratio: 1000 / 1400; }
-.palms__tree { width: 100%; height: 100%; max-width: none; filter: drop-shadow(0 30px 40px rgba(20, 50, 35, .25)); }
-.palms__side--l { left: 0;  transform-origin: 0% 100%; transform: translate3d(-100%, 0, 0) rotate(-16deg); }
-.palms__side--r { right: 0; transform-origin: 100% 100%; transform: translate3d(100%, 0, 0) rotate(16deg); }
-.palms__inner { position: absolute; inset: 0; }
-.palms__side--r .palms__inner { transform: scaleX(-1); }   /* the right tree is the left one, mirrored */
-/* coconuts hanging under each crown */
-.palms__nut { position: absolute; width: 5.4%; height: auto; top: 19.5%; left: 27.5%; filter: drop-shadow(0 6px 6px rgba(60, 40, 20, .35)); }
-.palms__nut--2 { left: 31.5%; top: 20.5%; }
-.palms__nut--3 { left: 29.4%; top: 22.6%; }
-
-/* sweep in: the trees swing in from the edges, and the coconuts let go and drop */
-.palms.is-shut .palms__veil { opacity: 1; }
-.palms.is-shut .palms__side { transition: transform 620ms cubic-bezier(.2, .85, .25, 1); }
-.palms.is-shut .palms__side--l { transform: translate3d(0, 0, 0) rotate(0deg); }
-.palms.is-shut .palms__side--r { transform: translate3d(0, 0, 0) rotate(0deg); }
-.palms.is-shut .palms__nut { animation: nut-drop 1100ms cubic-bezier(.5, 0, .9, .6) both; }
-.palms.is-shut .palms__nut--1 { animation-delay: 300ms; }
-.palms.is-shut .palms__nut--2 { animation-delay: 420ms; }
-.palms.is-shut .palms__nut--3 { animation-delay: 540ms; }
-@keyframes nut-drop {
-  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
-  10%  { transform: translate3d(0, -6px, 0) rotate(-8deg); }   /* a little tug before it lets go */
-  100% { transform: translate3d(14px, 110vh, 0) rotate(240deg); }
-}
-
-/* part and fold: each tree swings back to its edge and folds flat, like a fan closing */
-.palms.is-open .palms__veil { opacity: 0; transition-duration: 800ms; }
-.palms.is-open .palms__side { opacity: 0; transition: transform 1000ms cubic-bezier(.5, 0, .2, 1), opacity 500ms var(--ease-soft) 500ms; }
-.palms.is-open .palms__side--l { transform: perspective(1200px) translate3d(-22%, 0, 0) rotateY(78deg) rotate(-8deg); }
-.palms.is-open .palms__side--r { transform: perspective(1200px) translate3d(22%, 0, 0) rotateY(-78deg) rotate(8deg); }
-.palms.is-open .palms__nut { opacity: 0; }
-
-/* ==========================================================================
-   Shark crossing: the screen fills with deep water and sharks glide across from
-   left to right (the Sea collection's way of opening a piece)
-   ========================================================================== */
-.sharks { position: fixed; inset: 0; z-index: 160; pointer-events: none; overflow: hidden; visibility: hidden; }
-.sharks.is-on { visibility: visible; }
-.sharks__sea {
-  position: absolute; inset: 0; opacity: 0;
-  background:
-    radial-gradient(80% 60% at 50% 0%, rgba(120, 200, 235, .35), rgba(120, 200, 235, 0) 70%),
-    linear-gradient(180deg, #1C5C86 0%, #114068 45%, #0B2C47 100%);
-}
-.sharks.is-on .sharks__sea { animation: shark-sea 2300ms ease-in-out both; }
-@keyframes shark-sea { 0% { opacity: 0; } 18% { opacity: 1; } 42% { opacity: 1; } 75%, 100% { opacity: 0; } }
-.sharks__fish {
-  position: absolute; left: 0; top: 52%;
-  width: clamp(560px, 96vw, 1600px);
-  transform: translate3d(-110%, -50%, 0);
-}
-/* deep in the water: a touch of blue haze over the dark body, and its shadow far below */
-.sharks__fish img { width: 100%; height: auto; display: block; opacity: .94; filter: drop-shadow(0 40px 46px rgba(0, 12, 24, .45)); transform-origin: 88% 50%; }
-.sharks.is-on .sharks__fish { animation: shark-swim 2100ms cubic-bezier(.45, .05, .55, .95) both; }
-.sharks.is-on .sharks__fish img { animation: shark-tail 700ms ease-in-out infinite alternate; }
-@keyframes shark-swim {
-  0%   { transform: translate3d(-110%, -50%, 0); }
-  50%  { transform: translate3d(calc(50vw - 50%), calc(-50% - 2vh), 0); }
-  100% { transform: translate3d(calc(100vw + 10%), -50%, 0); }
-}
-/* seen from above, the body sweeps gently from side to side behind the head */
-@keyframes shark-tail { from { transform: rotate(-1.6deg) skewY(-1.4deg); } to { transform: rotate(1.6deg) skewY(1.4deg); } }
-.sharks__bubble {
-  position: absolute; left: var(--x); bottom: -20px; width: var(--s); height: var(--s); border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .9), rgba(255, 255, 255, .15) 70%);
-  opacity: 0;
-}
-.sharks.is-on .sharks__bubble { animation: shark-bubble 1700ms ease-out var(--d) both; }
-@keyframes shark-bubble { 0% { opacity: 0; transform: translate3d(0, 0, 0); } 15% { opacity: .9; } 100% { opacity: 0; transform: translate3d(12px, -70vh, 0); } }
 
 .spotlight__img.is-loading { opacity: 0 !important; }
 
