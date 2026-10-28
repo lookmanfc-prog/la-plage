@@ -279,6 +279,38 @@
       "cutout": "assets/img/products/cutouts/shorts-maree-clean.webp"
     },
     {
+      "id": "sable-short",
+      "handle": "sable-short",
+      "title": "Sable Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Sand Stripe",
+        "hex": "#D4C2A8"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-sable-stripe.jpg",
+        "alt": "Sable Short in wide sand and white stripes with a white drawcord and an embroidered LA PLAGE patch",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Wide sand-and-white stripes, a white rope drawcord and an embroidered LA PLAGE patch at the hem.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "maree",
+      "cutout": "assets/img/products/cutouts/shorts-sable-stripe.webp"
+    },
+    {
       "id": "plage-short",
       "handle": "plage-short",
       "title": "Plage Short",
