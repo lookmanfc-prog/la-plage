@@ -978,7 +978,22 @@
     }
     // keyboard, scrollbar or touch scrolling: follow along instead of fighting it
     window.addEventListener('scroll', () => { if (!raf) target = current = window.scrollY; }, { passive: true });
-    // links to a section on the page glide there
+    // the menu (header and footer) loads its section: the palm spins once, quickly, while the page
+    // moves behind it; other links to a section on the page glide there
+    let loader = null, loading = 0;
+    const load = (y) => {
+      if (!loader) {
+        loader = document.createElement('div');
+        loader.className = 'page-loader'; loader.setAttribute('aria-hidden', 'true');
+        loader.innerHTML = '<img src="assets/brand/mark.png" alt="" width="660" height="603">';
+        document.body.appendChild(loader);
+        void loader.offsetWidth;
+      }
+      clearTimeout(loading);
+      loader.classList.remove('is-on'); void loader.offsetWidth; loader.classList.add('is-on');
+      setTimeout(() => { cancelAnimationFrame(raf); raf = 0; target = current = clamp(y, 0, maxY()); window.scrollTo(0, current); }, 230);
+      loading = setTimeout(() => loader.classList.remove('is-on'), 560);
+    };
     document.addEventListener('click', (e) => {
       const a = e.target.closest('a[href^="#"]');
       if (!a || e.defaultPrevented || a.classList.contains('skip-link')) return;
@@ -987,7 +1002,8 @@
       if (!el) return;
       e.preventDefault();
       const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
-      glide(el.getBoundingClientRect().top + window.scrollY - margin);
+      const y = el.getBoundingClientRect().top + window.scrollY - margin;
+      if (a.closest('.nav, .footer') && !reduceMotion.matches) load(y); else glide(y);
       history.replaceState(null, '', `#${id}`);
     });
   };
