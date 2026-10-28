@@ -1704,19 +1704,21 @@ html.spot-on { overflow: hidden; }
 .sharks.is-on .sharks__sea { animation: shark-sea 2300ms ease-in-out both; }
 @keyframes shark-sea { 0% { opacity: 0; } 18% { opacity: 1; } 42% { opacity: 1; } 75%, 100% { opacity: 0; } }
 .sharks__fish {
-  position: absolute; left: 0; top: var(--top);
-  width: calc(var(--size) * clamp(380px, 62vw, 1100px));
+  position: absolute; left: 0; top: 52%;
+  width: clamp(560px, 96vw, 1600px);
   transform: translate3d(-110%, -50%, 0);
 }
-.sharks__fish img { width: 100%; height: auto; display: block; filter: drop-shadow(0 18px 24px rgba(0, 15, 30, .45)); transform-origin: 70% 50%; }
-.sharks.is-on .sharks__fish { animation: shark-swim 1900ms cubic-bezier(.45, .05, .55, .95) var(--delay) both; }
-.sharks.is-on .sharks__fish img { animation: shark-tail 420ms ease-in-out infinite alternate; }
+/* deep in the water: a touch of blue haze over the dark body, and its shadow far below */
+.sharks__fish img { width: 100%; height: auto; display: block; opacity: .94; filter: drop-shadow(0 40px 46px rgba(0, 12, 24, .45)); transform-origin: 88% 50%; }
+.sharks.is-on .sharks__fish { animation: shark-swim 2100ms cubic-bezier(.45, .05, .55, .95) both; }
+.sharks.is-on .sharks__fish img { animation: shark-tail 700ms ease-in-out infinite alternate; }
 @keyframes shark-swim {
   0%   { transform: translate3d(-110%, -50%, 0); }
   50%  { transform: translate3d(calc(50vw - 50%), calc(-50% - 2vh), 0); }
   100% { transform: translate3d(calc(100vw + 10%), -50%, 0); }
 }
-@keyframes shark-tail { from { transform: rotate(-2.5deg) skewX(-3deg); } to { transform: rotate(2deg) skewX(3deg); } }
+/* seen from above, the body sweeps gently from side to side behind the head */
+@keyframes shark-tail { from { transform: rotate(-1.6deg) skewY(-1.4deg); } to { transform: rotate(1.6deg) skewY(1.4deg); } }
 .sharks__bubble {
   position: absolute; left: var(--x); bottom: -20px; width: var(--s); height: var(--s); border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .9), rgba(255, 255, 255, .15) 70%);
@@ -1874,8 +1876,9 @@ body { background: #0B3A5C; }
   text-shadow: 0 2px 30px rgba(2, 20, 36, .45);
 }
 .drift__title em { font-style: italic; color: var(--sand-light); }
+/* as many columns as there are pieces, centred, and the cards grow so a short drop still fills the page */
 .drift__row.glass-row {
-  grid-template-columns: repeat(6, minmax(0, 1fr)); width: min(1500px, calc(100% - 2 * var(--gutter))); margin: 0 auto;
+  grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)); width: min(calc(var(--n, 6) * 340px), 1500px, calc(100% - 2 * var(--gutter))); margin: 0 auto;
   gap: clamp(14px, 1.8vw, 30px); padding-bottom: 60px;
 }
 .drift .glass__bob {

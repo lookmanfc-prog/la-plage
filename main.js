@@ -386,8 +386,8 @@
       if (!sharks) {
         sharks = document.createElement('div');
         sharks.className = 'sharks'; sharks.setAttribute('aria-hidden', 'true'); sharks.dataset.motion = '';
-        const fish = [[1, 38, 1, 0], [2, 62, .7, 140], [3, 22, .5, 260], [4, 78, .42, 330]]
-          .map(([k, top, size, delay]) => `<span class="sharks__fish" data-motion style="--top:${top}%;--size:${size};--delay:${delay}ms"><img src="assets/collections/shark.svg" alt="" width="400" height="160" data-motion></span>`).join('');
+        // one big hammerhead, seen from above, gliding across from the side
+        const fish = `<span class="sharks__fish" data-motion><img src="assets/collections/hammerhead.webp" alt="" width="1312" height="706" data-motion></span>`;
         const bubbles = Array.from({ length: 16 }, (_, k) => `<span class="sharks__bubble" data-motion style="--x:${(k * 41) % 100}%;--s:${4 + (k * 5) % 9}px;--d:${(k * 70) % 900}ms"></span>`).join('');
         sharks.innerHTML = `<div class="sharks__sea" data-motion></div>${bubbles}${fish}`;
         document.body.appendChild(sharks);
@@ -925,6 +925,7 @@
       const p = products.find((x) => x.id === id); if (p) picks.push(p);
     });
     products.forEach((p) => { if (picks.length < 6 && !picks.includes(p)) picks.push(p); });
+    row.style.setProperty('--n', picks.length);
     row.innerHTML = picks.map((p, k) => `
       <li class="glass" style="--k:${k};--lift:${[0, 34, 8, 46, 14, 28][k % 6]}px;--tilt:${[-3, 2, -1.5, 3, -2.5, 1.5][k % 6]}deg" data-animate="fade-up" data-delay="${k * 110}" data-motion>
         <div class="glass__bob" data-motion>
