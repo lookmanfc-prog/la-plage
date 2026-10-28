@@ -176,15 +176,17 @@
   // one row per line (Shoreline, Soleil, Marée), each on its own stretch of sand
   const renderRows = (products) => {
     const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
-    lines.forEach((c, n) => {
+    let n = 0;   // lines with nothing on show are left out, and the rest are numbered in order
+    lines.forEach((c) => {
       const items = products.map((p, i) => [p, i]).filter(([p]) => !c.key || p.category === c.key);
       if (!items.length) return;
+      n += 1;
       const row = document.createElement('section');
       row.className = 'row float-card'; row.dataset.line = c.key; row.dataset.animate = 'fade-up'; row.dataset.motion = '';
       row.setAttribute('aria-label', `${c.name}, ${c.kind}`);
       row.innerHTML = `
         <header class="row__head">
-          <p class="row__index">0${n + 1}</p>
+          <p class="row__index">0${n}</p>
           <h3 class="row__name">${c.name}</h3>
           <p class="row__kind">${c.kind}</p>
           <p class="row__note">${c.note}</p>
@@ -919,7 +921,7 @@
     if (!row || !products.length) return;
     // favourites first; any that are resting between drops are skipped and the row fills up with the rest
     const picks = [];
-    ['rivage-short', 'corail-patch-short', 'riva-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
+    ['rivage-short', 'corail-patch-short', 'lagon-short', 'maree-short', 'esprit-cotier-tee', 'palmier-short'].forEach((id) => {
       const p = products.find((x) => x.id === id); if (p) picks.push(p);
     });
     products.forEach((p) => { if (picks.length < 6 && !picks.includes(p)) picks.push(p); });
