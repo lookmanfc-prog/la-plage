@@ -403,7 +403,7 @@
       if (!palms) {
         palms = document.createElement('div');
         palms.className = 'palms'; palms.setAttribute('aria-hidden', 'true'); palms.dataset.motion = '';
-        const nut = (k) => `<img class="palms__nut palms__nut--${k}" data-motion src="assets/collections/coconut-whole.svg" alt="" width="200" height="200">`;
+        const nut = (k) => `<img class="palms__nut palms__nut--${k}" data-motion src="assets/collections/coconut-photo.webp" alt="" width="319" height="325">`;
         const side = (s) => `<div class="palms__side palms__side--${s}" data-motion><div class="palms__inner"><img class="palms__tree" src="assets/collections/palm-tree.svg" alt="" width="1000" height="1400" decoding="async">${nut(1)}${nut(2)}${nut(3)}</div></div>`;
         palms.innerHTML = `<div class="palms__veil" data-motion></div>${side('l')}${side('r')}`;
         document.body.appendChild(palms);
@@ -734,8 +734,8 @@
             <span class="coconut__shadow" data-motion></span>
             <span class="nut__shell" data-motion>
               <span class="nut__inside" data-motion></span>
-              <span class="nut__half nut__half--l" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
-              <span class="nut__half nut__half--r" data-motion><img src="assets/collections/coconut-whole.svg" alt="" width="200" height="200" loading="lazy" decoding="async"></span>
+              <span class="nut__half nut__half--l" data-motion><img src="assets/collections/coconut-photo.webp" alt="" width="319" height="325" loading="lazy" decoding="async"></span>
+              <span class="nut__half nut__half--r" data-motion><img src="assets/collections/coconut-photo.webp" alt="" width="319" height="325" loading="lazy" decoding="async"></span>
             </span>
             <span class="nut__piece" data-motion><img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"></span>
             ${crack}

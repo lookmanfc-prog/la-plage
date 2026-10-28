@@ -7,9 +7,13 @@
 (() => {
   'use strict';
   const GRID = 150;          // vertices across the garment; the outline itself comes from the texture, so it stays crisp
-  const DEPTH = 0.022;       // how much body the garment has, as a share of its width: a flat-laid piece, not a cushion
-  const ROUND = 0.09;        // how far in from the edge the fabric reaches full depth, as a share of the width
-  const TILT_Y = 0.5, TILT_X = 0.26;   // the furthest it tilts, in radians (about 29° and 15°)
+  // the garment's body: its seams round off over a short distance, and the panels between them swell
+  // gently, the way fabric sits over a body, without ever puffing up like an inflatable
+  const EDGE = 0.026;        // depth reached just inside the seams, as a share of the width
+  const ROUND = 0.11;        // how far in from the edge the seams finish rounding, as a share of the width
+  const SWELL = 0.026;       // the extra, gentle swell across each panel
+  const DEPTH = EDGE + SWELL;
+  const TILT_Y = 0.36, TILT_X = 0.2;   // the furthest it tilts, in radians (about 21° and 11°): enough to feel it, never edge-on
   const TEX = 1024;
 
   const vert = `
@@ -44,8 +48,8 @@
     vec3 key = normalize(vec3(-0.35, 0.5, 0.8));
     float d = dot(n, key);
     float sheen = pow(max(dot(n, normalize(key + vec3(0.0, 0.0, 1.0))), 0.0), 10.0);
-    vec3 light = col * (0.9 + 0.22 * (d - 0.8)) + vec3(1.0, 0.98, 0.94) * sheen * 0.05;
-    light *= mix(0.9, 1.0, smoothstep(0.0, 0.6, vDepth / ${DEPTH.toFixed(3)}));   // the seams turn slightly away from the light
+    vec3 light = col * (0.8 + 0.3 * d) + vec3(1.0, 0.98, 0.94) * sheen * 0.06;
+    light *= mix(0.74, 1.0, smoothstep(0.0, 0.55, vDepth / ${DEPTH.toFixed(3)}));   // the fabric darkens as it curves away at the seams
     float a = smoothstep(0.3, 0.7, shape);                        // soft outline (with alpha-to-coverage)
     gl_FragColor = vec4(light * a, a);
   }`;
@@ -111,7 +115,11 @@
       // a rounded profile, then softened so the light glides over it
       const R = ROUND * gx;
       let z = new Float32Array(gx * gy);
-      for (let i = 0; i < z.length; i++) { const t = Math.min(d[i] / R, 1); z[i] = DEPTH * Math.sqrt(1 - (1 - t) * (1 - t)); }
+      const R2 = R * 3.2;
+      for (let i = 0; i < z.length; i++) {
+        const t = Math.min(d[i] / R, 1), u = Math.min(d[i] / R2, 1);
+        z[i] = EDGE * Math.sqrt(1 - (1 - t) * (1 - t)) + SWELL * u * u * (3 - 2 * u);
+      }
       for (let pass = 0; pass < 2; pass++) {
         const o = new Float32Array(z.length);
         for (let y = 0; y < gy; y++) for (let x = 0; x < gx; x++) {
