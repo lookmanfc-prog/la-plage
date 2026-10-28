@@ -255,6 +255,11 @@
     const sizes = $('[data-spot-sizes]');
     const tones = $('[data-spot-colors]');
     const guide = $('[data-spot-guide]');
+    // the piece in 3D (piece3d.js): drag to turn it; the flat photo stays underneath as a fallback
+    let piece = null;
+    try { piece = window.LaPlage3D ? window.LaPlage3D.mount($('.spotlight__float')) : null; } catch (err) { piece = null; }
+    if (piece) spot.classList.add('has-3d');
+    let pieceId = '';
     const guideBtn = $('[data-spot-guide-btn]');
     let index = 0, tone = 0, view = 'front', opener = null, closeTimer = 0, guideOpen = false;
 
@@ -306,6 +311,11 @@
         if (img.complete && img.naturalWidth) img.classList.remove('is-loading');
       }
       img.alt = view === 'back' && p.imageHover ? p.imageHover.alt : p.image.alt;
+      if (piece) {
+        if (pieceId !== base.id) { pieceId = base.id; piece.reset(); }
+        piece.show(p.cutout || p.image.src, p.cutoutBack || null);
+        piece.face(view);
+      }
       // keep the chosen size when only the colour changes
       const was = sizes.dataset.for === base.id && sizes.querySelector('.size[aria-checked="true"]');
       const keep = was ? was.dataset.size : (p.sizes || [])[1];
@@ -340,6 +350,7 @@
       index = i; tone = t; view = 'front'; sizes.dataset.for = ''; guideOpen = false; opener = from || null;
       spot.hidden = false;
       document.documentElement.classList.add('spot-on');
+      if (piece) piece.start();
       render(0);
       requestAnimationFrame(() => spot.classList.add('is-open'));
       $('[data-spot-close]').focus({ preventScroll: true });
@@ -347,7 +358,7 @@
     const close = () => {
       spot.classList.remove('is-open');
       document.documentElement.classList.remove('spot-on');
-      closeTimer = setTimeout(() => { spot.hidden = true; }, 450);
+      closeTimer = setTimeout(() => { spot.hidden = true; if (piece) piece.stop(); }, 450);
       if (opener) opener.focus({ preventScroll: true });
     };
     const go = (d) => { index = (index + d + products.length) % products.length; tone = 0; view = 'front'; sizes.dataset.for = ''; guideOpen = false; render(d); };
@@ -462,7 +473,7 @@
     });
     // The garment leans toward the cursor
     stage.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
+      if (e.pointerType !== 'mouse' || piece) return;   // the 3D piece leans toward the cursor by itself
       const r = stage.getBoundingClientRect();
       stage.style.setProperty('--ry', `${(((e.clientX - r.left) / r.width - .5) * 16).toFixed(2)}deg`);
       stage.style.setProperty('--rx', `${(-((e.clientY - r.top) / r.height - .5) * 10).toFixed(2)}deg`);
@@ -689,10 +700,11 @@
         },
       }[key];
       const ranked = [...items].sort((p, q) => (q.featured ? 1 : 0) - (p.featured ? 1 : 0));
+      // every piece appears once: the coconuts hide pieces that are not already on show, and when the
+      // collection is too small to fill them, the last piece on show moves into a coconut instead
       const shown = ranked.slice(0, layout.desk.length);
-      // the coconuts hide pieces that are not already on show; with a small collection they borrow from those on show
-      const extras = ranked.slice(shown.length);
-      const hidden = layout.nuts ? [...extras, ...shown].slice(0, layout.nuts.length) : [];
+      let hidden = layout.nuts ? ranked.slice(shown.length, shown.length + layout.nuts.length) : [];
+      if (layout.nuts && !hidden.length && shown.length > 1) hidden = [shown.pop()];
       fan.removeAttribute('aria-hidden');   // the pieces and coconuts are buttons
       const at = (p) => products.indexOf(p);
       const varsFor = (i, [x, y, s, r], [mx, my, ms]) => {
