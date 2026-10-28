@@ -1114,7 +1114,7 @@ html.intro-on { overflow: hidden; }
   filter: drop-shadow(0 14px 14px rgba(70, 45, 20, .3));
   transition: transform 600ms var(--ease-lux), filter 400ms var(--ease-soft);
 }
-.nut__half img { width: 100%; height: 100%; display: block; }
+.nut__half img { width: 100%; height: 100%; display: block; object-fit: contain; }
 .nut__half--l { transform-origin: 30% 100%; }
 .nut__half--r { transform-origin: 70% 100%; }
 .nut__half--l img { clip-path: polygon(0 0, 53% 0, 48% 18%, 55% 34%, 47% 52%, 54% 70%, 48% 86%, 52% 100%, 0 100%); }
@@ -1130,11 +1130,11 @@ html.intro-on { overflow: hidden; }
 @keyframes nut-peek-r { 0%, 66%, 100% { transform: translate3d(5%, 1%, 0) rotate(5deg); } 78% { transform: translate3d(9%, 2%, 0) rotate(9deg); } }
 @keyframes nut-shake { 0%, 100% { rotate: 0deg; } 20% { rotate: -7deg; } 40% { rotate: 6deg; } 60% { rotate: -4deg; } 80% { rotate: 3deg; } }
 
-/* the white flesh glimpsed between the halves */
+/* once it is open, a half coconut with its white flesh sits where it stood */
 .nut__inside {
-  position: absolute; left: 22%; right: 22%; bottom: 8%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle at 50% 40%, #FFFDF7 0, #F3EADA 55%, #D9C7A6 100%);
-  box-shadow: inset 0 0 0 3px rgba(122, 78, 45, .5);
+  position: absolute; left: 10%; right: 10%; bottom: -2%; aspect-ratio: 327 / 311;
+  background: url("assets/collections/coconut-half.webp") center / contain no-repeat;
+  filter: drop-shadow(0 12px 12px rgba(70, 45, 20, .3));
   opacity: 0; scale: .4;
   transition: opacity 300ms var(--ease-soft), scale 500ms var(--ease-lux);
 }
@@ -1218,11 +1218,11 @@ html.intro-on { overflow: hidden; }
 .bubble.is-open { z-index: 2; }
 .is-open .nut__shell { animation: nut-shake 380ms ease-in-out; }
 .is-open .nut__half { transition: transform 900ms cubic-bezier(.3, 1.45, .55, 1) 380ms, filter 500ms var(--ease-soft) 380ms; }
-.is-open .nut__half--l { transform: translate3d(-36%, 10%, 0) rotate(-30deg); filter: drop-shadow(3px 0 0 #FBF6EC) drop-shadow(0 14px 14px rgba(70, 45, 20, .3)); }
-.is-open .nut__half--r { transform: translate3d(36%, 10%, 0) rotate(30deg); filter: drop-shadow(-3px 0 0 #FBF6EC) drop-shadow(0 14px 14px rgba(70, 45, 20, .3)); }
+.is-open .nut__half--l { transform: translate3d(-42%, 12%, 0) rotate(-32deg); filter: drop-shadow(3px 0 0 #FBF6EC) drop-shadow(0 14px 14px rgba(70, 45, 20, .3)); }
+.is-open .nut__half--r { transform: translate3d(42%, 12%, 0) rotate(32deg); filter: drop-shadow(-3px 0 0 #FBF6EC) drop-shadow(0 14px 14px rgba(70, 45, 20, .3)); }
 .is-open .nut__inside { opacity: 1; scale: 1; transition: opacity 400ms var(--ease-soft) 380ms, scale 700ms var(--ease-lux) 380ms; }
 .is-open .nut__piece {
-  z-index: 2; opacity: 1; transform: translate3d(0, 0, 0) scale(1);
+  z-index: 2; opacity: 1; transform: translate3d(0, -22%, 0) scale(.9);
   transition: opacity 400ms var(--ease-soft) 460ms, transform 1000ms cubic-bezier(.3, 1.5, .5, 1) 440ms;
 }
 .is-open .splash { animation: splash 900ms cubic-bezier(.2, .7, .4, 1) 400ms both; }

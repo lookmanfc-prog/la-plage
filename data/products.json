@@ -192,8 +192,8 @@
         "hex": "#0A6294"
       },
       "image": {
-        "src": "assets/img/products/shorts-lagoon-floral.jpg",
-        "alt": "Lagon Short in deep lagoon blue with white hibiscus and monstera leaves and a woven LA PLAGE label",
+        "src": "assets/img/products/shorts-lagon-patch.jpg",
+        "alt": "Lagon Short in a blue camo hibiscus print with an embroidered LA PLAGE patch",
         "width": 1200,
         "height": 1500
       },
@@ -202,7 +202,7 @@
         "short",
         "drop-001"
       ],
-      "description": "Lagoon-blue swim short with white hibiscus and monstera leaves and a woven palm label.",
+      "description": "Blue camo swim short with white hibiscus and monstera leaves and an embroidered LA PLAGE patch.",
       "sizes": [
         "S",
         "M",
@@ -211,7 +211,7 @@
       ],
       "collection": "sea",
       "category": "lagon",
-      "cutout": "assets/img/products/cutouts/shorts-lagoon-floral.webp"
+      "cutout": "assets/img/products/cutouts/shorts-lagon-patch.webp"
     },
     {
       "id": "corail-patch-short",
@@ -224,7 +224,7 @@
         "hex": "#F65FA5"
       },
       "image": {
-        "src": "assets/img/products/shorts-coral-patch.jpg",
+        "src": "assets/img/products/shorts-corail-patch.jpg",
         "alt": "Corail Short with a pink and coral hand-drawn floral print and an embroidered LA PLAGE patch at the hem",
         "width": 1200,
         "height": 1500
@@ -243,7 +243,7 @@
       ],
       "collection": "sand",
       "category": "lagon",
-      "cutout": "assets/img/products/cutouts/shorts-coral-patch.webp"
+      "cutout": "assets/img/products/cutouts/shorts-corail-patch.webp"
     },
     {
       "id": "maree-short",
@@ -275,7 +275,7 @@
       ],
       "collection": "sea",
       "category": "maree",
-      "cutout": "assets/img/products/cutouts/shorts-blue-stripe.webp"
+      "cutout": "assets/img/products/cutouts/shorts-maree-clean.webp"
     },
     {
       "id": "plage-short",
@@ -321,8 +321,8 @@
         "hex": "#84744F"
       },
       "image": {
-        "src": "assets/img/products/shorts-palm-print.jpg",
-        "alt": "Palmier Short in white with sketched olive and terracotta palm trees and a woven LA PLAGE label",
+        "src": "assets/img/products/shorts-palmier-patch.jpg",
+        "alt": "Palmier Short in white with hand-sketched olive and terracotta palms and an embroidered LA PLAGE patch",
         "width": 1200,
         "height": 1500
       },
@@ -331,7 +331,7 @@
         "short",
         "drop-001"
       ],
-      "description": "White swim short with hand-sketched palms in olive and terracotta and a woven palm label.",
+      "description": "White swim short with hand-sketched palms in olive and terracotta and an embroidered LA PLAGE patch.",
       "sizes": [
         "S",
         "M",
@@ -340,7 +340,7 @@
       ],
       "collection": "sand",
       "category": "lagon",
-      "cutout": "assets/img/products/cutouts/shorts-palm-print.webp"
+      "cutout": "assets/img/products/cutouts/shorts-palmier-patch.webp"
     },
     {
       "id": "esprit-cotier-tee",
