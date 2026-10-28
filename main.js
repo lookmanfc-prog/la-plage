@@ -379,44 +379,11 @@
     });
     $('[data-spot-close]').addEventListener('click', close);
 
-    // From the collections. Sand: two palm trees sweep in, coconuts drop, then they part and fold away.
-    // Sea: the screen fills with deep water and a few sharks glide across from left to right.
-    let palms = null, sharks = null;
-    const sharkRun = (i, from) => {
-      if (!sharks) {
-        sharks = document.createElement('div');
-        sharks.className = 'sharks'; sharks.setAttribute('aria-hidden', 'true'); sharks.dataset.motion = '';
-        // one big hammerhead, seen from above, gliding across from the side
-        const fish = `<span class="sharks__fish" data-motion><img src="assets/collections/hammerhead.webp" alt="" width="1312" height="706" data-motion></span>`;
-        const bubbles = Array.from({ length: 16 }, (_, k) => `<span class="sharks__bubble" data-motion style="--x:${(k * 41) % 100}%;--s:${4 + (k * 5) % 9}px;--d:${(k * 70) % 900}ms"></span>`).join('');
-        sharks.innerHTML = `<div class="sharks__sea" data-motion></div>${bubbles}${fish}`;
-        document.body.appendChild(sharks);
-        void sharks.offsetWidth;
-      }
-      sharks.classList.remove('is-on'); void sharks.offsetWidth; sharks.classList.add('is-on');
-      setTimeout(() => open(i, from), 700);   // the piece is waiting underneath as the water clears
-      setTimeout(() => sharks.classList.remove('is-on'), 2300);
-    };
+    // a piece tapped anywhere on the page (collections, featured row) opens straight away
     document.addEventListener('laplage:view', (e) => {
-      const { index: i, from, kind } = e.detail;
+      const { index: i, from } = e.detail;
       if (Number.isNaN(i)) return;
-      if (kind === 'sea') { sharkRun(i, from); return; }
-      if (kind === 'plain') { open(i, from); return; }
-      if (!palms) {
-        palms = document.createElement('div');
-        palms.className = 'palms'; palms.setAttribute('aria-hidden', 'true'); palms.dataset.motion = '';
-        const nut = (k) => `<img class="palms__nut palms__nut--${k}" data-motion src="assets/collections/coconut-photo.webp" alt="" width="319" height="325">`;
-        const side = (s) => `<div class="palms__side palms__side--${s}" data-motion><div class="palms__inner"><img class="palms__tree" src="assets/collections/palm-tree.svg" alt="" width="1000" height="1400" decoding="async">${nut(1)}${nut(2)}${nut(3)}</div></div>`;
-        palms.innerHTML = `<div class="palms__veil" data-motion></div>${side('l')}${side('r')}`;
-        document.body.appendChild(palms);
-        void palms.offsetWidth;
-      }
-      palms.classList.remove('is-open'); palms.classList.add('is-shut');
-      setTimeout(() => {
-        open(i, from);
-        palms.classList.remove('is-shut'); palms.classList.add('is-open');
-        setTimeout(() => palms.classList.remove('is-open'), 1300);
-      }, 1050);   // the trees sweep in, hold a beat while the coconuts drop, then part and fold away
+      open(i, from);
     });
     $('[data-spot-prev]').addEventListener('click', () => go(-1));
     $('[data-spot-next]').addEventListener('click', () => go(1));
@@ -719,8 +686,7 @@
         const inner = key === 'sand'
           ? `<img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async">`
           : `<img class="bubble__item" data-motion src="${src}" alt="" loading="lazy" decoding="async"><div class="bubble__glass" data-motion></div>
-             ${Array.from({ length: 10 }, (_, k) => `<span class="pop-drop" data-motion style="--a:${k * 36 + (k % 2) * 14}deg;--l:${(k % 3) * 8 + 52}%"></span>`).join('')}
-             ${i === shown.length - 1 ? '<span class="tap-hint" aria-hidden="true" data-motion>Tap to pop</span>' : ''}`;
+             ${Array.from({ length: 10 }, (_, k) => `<span class="pop-drop" data-motion style="--a:${k * 36 + (k % 2) * 14}deg;--l:${(k % 3) * 8 + 52}%"></span>`).join('')}`;
         const pop = key === 'sea';
         return `<figure class="bubble${key === 'sand' ? ' bubble--free' : ''}" style="${varsFor(i, layout.desk[i], layout.phone[i])}" data-motion data-view="${at(p)}"${pop ? ' data-pop' : ''} role="button" tabindex="0" aria-label="${pop ? `Pop the bubble to free the ${p.title}` : `View the ${p.title}`}">
           <div class="bubble__flow" data-motion><div class="bubble__float" data-motion>${inner}</div></div>
@@ -746,7 +712,7 @@
         </figure>`;
       });
       fan.innerHTML = free.join('') + nuts.join('');
-      // tap a piece: the palms part and it pops out in the spotlight, right here (no jump up the page)
+      // tap a piece: it opens in the spotlight, right here (no jump up the page)
       const view = (el) => document.dispatchEvent(new CustomEvent('laplage:view', { detail: { index: parseInt(el.dataset.view, 10), from: el, kind: key } }));
       // Sea bubbles pop first (glass bursts into droplets, the piece is set free); tap the piece again to see it.
       // A popped bubble slowly forms again a little later.
