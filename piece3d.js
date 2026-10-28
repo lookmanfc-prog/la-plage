@@ -1,14 +1,15 @@
 /* LA PLAGE · the piece in 3D
-   Turns a garment cut-out into a soft, lit, three-dimensional piece you can turn with a finger.
-   The outline of the photo is given depth (rounded like stuffed fabric, thickest in the middle,
-   meeting at the seams), front and back are built from it, and the fabric is lit by a key light,
-   a fill and a rim so it catches the light as it turns. Drawn with WebGL; no libraries.
-   window.LaPlage3D.mount(host) returns { show(front, back), face(side), start(), stop() }. */
+   Turns a garment cut-out into a real-looking piece of fabric you can tilt with a finger.
+   The outline of the photo is given a little body (a garment laid flat, softly rounded at the seams),
+   the photo itself carries the fabric's folds and colour, and a soft light glides across it as it
+   tilts. It tilts, it does not spin: the piece always faces you, like holding it up to the light.
+   Drawn with WebGL; no libraries. window.LaPlage3D.mount(host) returns { show(src), start(), stop(), reset() }. */
 (() => {
   'use strict';
   const GRID = 150;          // vertices across the garment; the outline itself comes from the texture, so it stays crisp
-  const DEPTH = 0.062;       // how full the garment is, as a share of its width
-  const ROUND = 0.16;        // how far in from the edge the fabric reaches full depth, as a share of the width
+  const DEPTH = 0.022;       // how much body the garment has, as a share of its width: a flat-laid piece, not a cushion
+  const ROUND = 0.09;        // how far in from the edge the fabric reaches full depth, as a share of the width
+  const TILT_Y = 0.5, TILT_X = 0.26;   // the furthest it tilts, in radians (about 29° and 15°)
   const TEX = 1024;
 
   const vert = `
@@ -38,14 +39,13 @@
     }
     vec3 col = c.rgb / max(c.a, 0.001);
     vec3 n = normalize(vNor);
-    vec3 key = normalize(vec3(-0.45, 0.6, 0.75));
-    vec3 fill = normalize(vec3(0.7, -0.2, 0.5));
-    float d = max(dot(n, key), 0.0), f = max(dot(n, fill), 0.0);
-    float rim = pow(1.0 - max(n.z, 0.0), 2.4);
-    float spec = pow(max(dot(n, normalize(key + vec3(0.0, 0.0, 1.0))), 0.0), 28.0);
-    vec3 light = col * (0.62 + 0.42 * d + 0.12 * f);
-    light += vec3(0.85, 0.93, 1.0) * rim * 0.16 + spec * 0.06;
-    light *= mix(0.86, 1.0, smoothstep(0.0, 0.35, vDepth / ${DEPTH.toFixed(3)}));   // a little shade where the fabric folds to the seam
+    // the photo already holds the fabric's folds and colour, so the light only breathes over it:
+    // a gentle key from the top left, and a soft woven sheen that slides across as it tilts
+    vec3 key = normalize(vec3(-0.35, 0.5, 0.8));
+    float d = dot(n, key);
+    float sheen = pow(max(dot(n, normalize(key + vec3(0.0, 0.0, 1.0))), 0.0), 10.0);
+    vec3 light = col * (0.9 + 0.22 * (d - 0.8)) + vec3(1.0, 0.98, 0.94) * sheen * 0.05;
+    light *= mix(0.9, 1.0, smoothstep(0.0, 0.6, vDepth / ${DEPTH.toFixed(3)}));   // the seams turn slightly away from the light
     float a = smoothstep(0.3, 0.7, shape);                        // soft outline (with alpha-to-coverage)
     gl_FragColor = vec4(light * a, a);
   }`;
@@ -145,7 +145,7 @@
     const load = (src) => new Promise((res, rej) => { const i = new Image(); i.decoding = 'async'; i.onload = () => res(i); i.onerror = rej; i.src = src; });
     let want = '';
     const show = (front, back) => {
-      const key = `${front}|${back || ''}`;
+      const key = `${front}|${back || ''}`;   // a back photo is optional; the piece only shows its front
       if (key === want) return Promise.resolve(ready);
       want = key; ready = false;
       return Promise.all([load(front), back ? load(back) : null]).then(([f, b]) => {
@@ -157,14 +157,13 @@
       }).catch((err) => { console.error('[LA PLAGE] 3D', err); return false; });
     };
 
-    /* ---- turning: drag to spin (it keeps a little momentum), it settles on the nearest side,
-       leans toward the cursor and sways gently when left alone ---- */
+    /* ---- tilting: drag to tilt it toward you (it gives a little resistance near the limit and
+       springs back when let go), it leans toward the cursor and sways gently when left alone ---- */
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let ry = 0, rx = 0, vy = 0, target = 0, drag = null, hover = [0, 0], idle = 0, last = 0, raf = 0, running = false;
-    const face = (side) => { target = side === 'back' ? Math.PI : 0; const k = Math.round((ry - target) / (2 * Math.PI)); target += k * 2 * Math.PI; };
+    let ry = 0, rx = 0, drag = null, hover = [0, 0], idle = 0, last = 0, raf = 0, running = false;
+    const give = (v, max) => max * Math.tanh(v / max);   // soft limit, like fabric held at the corners
     canvas.addEventListener('pointerdown', (e) => {
-      drag = { x: e.clientX, y: e.clientY, ry, rx, t: performance.now(), moved: false, id: e.pointerId };
-      vy = 0;
+      drag = { x: e.clientX, y: e.clientY, ry, rx, moved: false, id: e.pointerId };
     });
     canvas.addEventListener('pointermove', (e) => {
       const r = canvas.getBoundingClientRect();
@@ -176,17 +175,13 @@
         if (e.pointerType !== 'mouse' && Math.abs(dy) > Math.abs(dx)) { drag = null; return; }   // a vertical swipe scrolls the page
         drag.moved = true; canvas.setPointerCapture(drag.id); host.classList.add('is-turned');
       }
-      const now = performance.now(), nry = drag.ry + dx / r.width * Math.PI * 1.6;
-      vy = (nry - ry) / Math.max(16, now - drag.t) * 16; drag.t = now;
-      ry = nry; rx = Math.max(-0.45, Math.min(0.45, drag.rx + dy / r.height * 1.2));
+      ry = give(drag.ry + dx / r.width * 1.6, TILT_Y);
+      rx = give(drag.rx + dy / r.height * 0.9, TILT_X);
     });
     const end = () => {
       if (!drag) return;
       const moved = drag.moved; drag = null;
-      if (!moved) return;
-      // spin on, then come to rest on whichever side ends up facing you
-      target = Math.round((ry + vy * 18) / Math.PI) * Math.PI;
-      idle = 0;
+      if (moved) idle = 0;   // it springs back to face you (see frame)
     };
     canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
     canvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hover = [0, 0]; });
@@ -201,12 +196,14 @@
       raf = running ? requestAnimationFrame(frame) : 0;
       const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now; idle += dt;
       resize();
-      let showY = ry;
+      let showY = ry, showX = rx;
       if (!drag) {
-        ry += (target - ry) * Math.min(1, dt * 4.2);
-        const swayY = reduce ? 0 : Math.sin(now / 1000 * 0.6) * 0.16 * Math.min(1, idle / 2);
-        rx += (hover[1] * 0.32 - rx) * Math.min(1, dt * 3);
-        showY = ry + swayY + hover[0] * 0.5;
+        ry += (0 - ry) * Math.min(1, dt * 3.2);
+        rx += (0 - rx) * Math.min(1, dt * 3.2);
+        const swayY = reduce ? 0 : Math.sin(now / 1000 * 0.55) * 0.07 * Math.min(1, idle / 2);
+        const swayX = reduce ? 0 : Math.sin(now / 1000 * 0.4 + 1.3) * 0.03 * Math.min(1, idle / 2);
+        showY = give(ry + swayY + hover[0] * 0.42, TILT_Y);
+        showX = give(rx + swayX + hover[1] * 0.24, TILT_X);
       }
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -215,7 +212,7 @@
       // fit the piece inside the stage with a little air, whichever way the stage is shaped
       const halfH = Math.tan(fov / 2) * dist, fit = Math.min(halfH * asp * 2 * 0.86, halfH * 2 * 0.86 / aspect);
       const model = new Float32Array([fit, 0, 0, 0, 0, fit, 0, 0, 0, 0, fit, 0, 0, 0, 0, 1]);
-      const rot = rotXY(rx, showY);
+      const rot = rotXY(showX, showY);
       const view = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -dist, 1]);
       const mvp = mul(persp(fov, asp, 0.1, 20), mul(view, mul(rot, model)));
       gl.uniformMatrix4fv(U('uMvp'), false, mvp);
@@ -227,8 +224,8 @@
     };
     const start = () => { if (running) return; running = true; last = 0; raf = requestAnimationFrame(frame); };
     const stop = () => { running = false; cancelAnimationFrame(raf); raf = 0; };
-    const reset = () => { ry = 0; rx = 0; vy = 0; target = 0; idle = 0; };
-    return { canvas, show, face, start, stop, reset, isReady: () => ready };
+    const reset = () => { ry = 0; rx = 0; idle = 0; };
+    return { canvas, show, start, stop, reset, isReady: () => ready };
   }
 
   window.LaPlage3D = { mount };

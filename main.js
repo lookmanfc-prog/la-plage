@@ -313,8 +313,8 @@
       img.alt = view === 'back' && p.imageHover ? p.imageHover.alt : p.image.alt;
       if (piece) {
         if (pieceId !== base.id) { pieceId = base.id; piece.reset(); }
-        piece.show(p.cutout || p.image.src, p.cutoutBack || null);
-        piece.face(view);
+        // the 3D piece tilts but does not spin, so "Back" shows the back photo
+        piece.show(back ? (p.cutoutBack || p.imageHover.src) : (p.cutout || p.image.src));
       }
       // keep the chosen size when only the colour changes
       const was = sizes.dataset.for === base.id && sizes.querySelector('.size[aria-checked="true"]');
@@ -730,9 +730,7 @@
         const crack = Array.from({ length: 4 }, (_, k) => `<span class="splash" data-motion style="--k:${k}"></span>`).join('');
         return `<figure class="bubble bubble--coconut" style="${varsFor(shown.length + j, layout.nuts[j], layout.nutsPhone[j])}" data-motion>
           <span class="nut__mound" aria-hidden="true"></span>
-          <span class="nut__hint" aria-hidden="true" data-motion>Tap to crack</span>
           <button class="nut" type="button" aria-pressed="false" aria-label="Crack open the coconut to see the ${p.title}" data-motion data-piece="${at(p)}">
-            <span class="nut__ring" data-motion></span>
             <span class="coconut__shadow" data-motion></span>
             <span class="nut__shell" data-motion>
               <span class="nut__inside" data-motion></span>
