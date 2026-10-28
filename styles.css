@@ -1885,10 +1885,11 @@ body { background: #0B3A5C; }
 /* Loading a section from the menu: a frosted veil, and the palm turns once, quickly, while the page moves behind it */
 .page-loader {
   position: fixed; inset: 0; z-index: 170; display: grid; place-items: center; pointer-events: none;
-  background: rgba(244, 249, 252, .74); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
-  opacity: 0; transition: opacity 180ms var(--ease-soft);
+  background: rgba(244, 249, 252, .8); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
+  opacity: 0; visibility: hidden;
 }
-.page-loader.is-on { opacity: 1; pointer-events: auto; }
+.page-loader.is-on { visibility: visible; pointer-events: auto; animation: loader-veil 760ms ease-in-out both; }
+@keyframes loader-veil { 0% { opacity: 0; } 14% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 .page-loader img { width: clamp(56px, 6vw, 84px); height: auto; filter: drop-shadow(0 10px 18px rgba(11, 44, 71, .18)); }
-.page-loader.is-on img { animation: loader-turn 520ms cubic-bezier(.65, 0, .35, 1) both; }
+.page-loader.is-on img { animation: loader-turn 600ms cubic-bezier(.65, 0, .35, 1) 60ms both; }
 @keyframes loader-turn { from { rotate: 0deg; } to { rotate: 360deg; } }

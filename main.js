@@ -980,19 +980,22 @@
     window.addEventListener('scroll', () => { if (!raf) target = current = window.scrollY; }, { passive: true });
     // the menu (header and footer) loads its section: the palm spins once, quickly, while the page
     // moves behind it; other links to a section on the page glide there
-    let loader = null, loading = 0;
+    // The veil's fade is one animation (it keeps playing even while the page is busy), the page only
+    // moves once the veil is on screen, and the veil leaves when its own animation ends.
+    let loader = null, jump = 0;
     const load = (y) => {
       if (!loader) {
         loader = document.createElement('div');
         loader.className = 'page-loader'; loader.setAttribute('aria-hidden', 'true');
         loader.innerHTML = '<img src="assets/brand/mark.png" alt="" width="660" height="603">';
         document.body.appendChild(loader);
-        void loader.offsetWidth;
+        loader.addEventListener('animationend', (e) => { if (e.target === loader) loader.classList.remove('is-on'); });
       }
-      clearTimeout(loading);
+      clearTimeout(jump);
       loader.classList.remove('is-on'); void loader.offsetWidth; loader.classList.add('is-on');
-      setTimeout(() => { cancelAnimationFrame(raf); raf = 0; target = current = clamp(y, 0, maxY()); window.scrollTo(0, current); }, 230);
-      loading = setTimeout(() => loader.classList.remove('is-on'), 560);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        jump = setTimeout(() => { cancelAnimationFrame(raf); raf = 0; target = current = clamp(y, 0, maxY()); window.scrollTo(0, current); }, 160);
+      }));
     };
     document.addEventListener('click', (e) => {
       const a = e.target.closest('a[href^="#"]');
