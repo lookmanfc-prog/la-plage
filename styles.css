@@ -1103,10 +1103,10 @@ html.intro-on { overflow: hidden; }
 /* the whole coconut bobs and, every few seconds, gives a little wiggle */
 .nut__shell {
   position: absolute; left: 12%; right: 12%; bottom: 7%; aspect-ratio: 1;
-  transform-origin: 50% 90%;
+  transform-origin: 50% 90%; z-index: 1;
   animation:
     nut-bob var(--bob, 6s) ease-in-out var(--bob-delay, 0s) infinite,
-    nut-wiggle 6s ease-in-out calc(var(--i) * 1.5s + 2s) infinite;
+    nut-wiggle 3.2s ease-in-out calc(var(--i) * .8s + 1s) infinite;
 }
 /* its two halves, split along a jagged crack */
 .nut__half {
@@ -1121,7 +1121,13 @@ html.intro-on { overflow: hidden; }
 .nut__half--r img { clip-path: polygon(52% 0, 100% 0, 100% 100%, 51% 100%, 47% 86%, 53% 70%, 46% 52%, 54% 34%, 47% 18%); }
 @keyframes nut-bob { 0%, 100% { translate: 0 0; } 30% { translate: 0 -6px; } 65% { translate: 0 -3px; } }
 /* every few seconds the coconut gives a little wiggle, inviting a tap */
-@keyframes nut-wiggle { 0%, 86%, 100% { rotate: 0deg; } 89% { rotate: -5deg; } 92% { rotate: 4deg; } 95% { rotate: -2deg; } }
+/* every few seconds the coconut jiggles, as if the piece inside wants out */
+@keyframes nut-wiggle { 0%, 70%, 100% { rotate: 0deg; } 74% { rotate: -6deg; } 78% { rotate: 5deg; } 82% { rotate: -4deg; } 86% { rotate: 2deg; } 90% { rotate: 0deg; } }
+/* it already sits a little cracked, and the crack widens with each jiggle */
+.bubble--coconut:not(.is-open) .nut__half--l { animation: nut-peek-l 3.2s ease-in-out calc(var(--i) * .8s + 1s) infinite; }
+.bubble--coconut:not(.is-open) .nut__half--r { animation: nut-peek-r 3.2s ease-in-out calc(var(--i) * .8s + 1s) infinite; }
+@keyframes nut-peek-l { 0%, 66%, 100% { transform: translate3d(-5%, 1%, 0) rotate(-5deg); } 78% { transform: translate3d(-9%, 2%, 0) rotate(-9deg); } }
+@keyframes nut-peek-r { 0%, 66%, 100% { transform: translate3d(5%, 1%, 0) rotate(5deg); } 78% { transform: translate3d(9%, 2%, 0) rotate(9deg); } }
 @keyframes nut-shake { 0%, 100% { rotate: 0deg; } 20% { rotate: -7deg; } 40% { rotate: 6deg; } 60% { rotate: -4deg; } 80% { rotate: 3deg; } }
 
 /* the white flesh glimpsed between the halves */
@@ -1133,13 +1139,16 @@ html.intro-on { overflow: hidden; }
   transition: opacity 300ms var(--ease-soft), scale 500ms var(--ease-lux);
 }
 
-/* the piece waiting inside */
+/* the piece waiting inside: a corner of it peeks out of the crack and over the rim */
 .nut__piece {
-  position: absolute; left: 6%; right: 6%; top: -12%; bottom: 22%; z-index: 1;
+  position: absolute; left: 6%; right: 6%; top: -12%; bottom: 22%; z-index: 0;
   display: grid; place-items: center;
-  opacity: 0; transform: translate3d(0, 34%, 0) scale(.25);
+  opacity: 1; transform: translate3d(0, 16%, 0) scale(.66) rotate(-6deg);
   transition: opacity 300ms var(--ease-soft), transform 500ms var(--ease-lux);
 }
+.bubble--coconut:not(.is-open) .nut__piece { animation: nut-peek-piece 3.2s ease-in-out calc(var(--i) * .8s + 1s) infinite; }
+@keyframes nut-peek-piece { 0%, 66%, 100% { translate: 0 0; } 78% { translate: 0 -7%; } }
+
 /* Sand pieces float free in the warm air, no glass */
 .bubble--free .bubble__float { display: grid; place-items: center; }
 .bubble--free .bubble__item { width: 92%; height: 92%; filter: drop-shadow(0 22px 20px rgba(90, 60, 30, .3)); }
@@ -1160,34 +1169,14 @@ html.intro-on { overflow: hidden; }
   100% { transform: translate3d(calc(var(--sx) * 1.5), 14px, 0) scale(.7); opacity: 0; }
 }
 
-/* a little mound of sand each coconut sits in, a pulsing ring and a "Tap to crack" tag so it is clear they open */
+/* a little mound of sand each coconut sits in */
 .nut__mound {
   position: absolute; left: 4%; right: 4%; bottom: -2%; height: 26%; border-radius: 50%; pointer-events: none;
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .33 0 0 0 0 .18 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 120px 120px,
     radial-gradient(closest-side, #E9D2A6 0%, #E3C793 55%, rgba(227, 199, 147, 0) 100%);
 }
-.nut__ring {
-  position: absolute; left: 14%; right: 14%; bottom: 4%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
-  border: 1.5px solid rgba(138, 106, 64, .55);
-  animation: nut-ring 2.4s cubic-bezier(.2, .7, .3, 1) calc(var(--i) * .6s) infinite;
-}
-@keyframes nut-ring { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(1.35); opacity: 0; } }
-.nut__hint {
-  position: absolute; left: 50%; bottom: calc(100% - 4%); z-index: 2; pointer-events: none;
-  translate: -50% 0; white-space: nowrap;
-  padding: 7px 12px 6px; border-radius: 999px;
-  background: rgba(255, 250, 240, .92); box-shadow: 0 8px 22px -10px rgba(90, 60, 30, .45);
-  font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--sand-ink);
-  animation: hint-bob 2.2s ease-in-out infinite;
-  transition: opacity 300ms var(--ease-soft);
-}
-.nut__hint::after {
-  content: ""; position: absolute; left: 50%; top: 100%; width: 8px; height: 8px; margin: -4px 0 0 -4px;
-  background: inherit; rotate: 45deg;
-}
 @keyframes hint-bob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -6px, 0); } }
-.bubble.is-open .nut__hint, .bubble.is-open .nut__ring { opacity: 0; animation: none; }
 .bubble.is-open .nut__piece { cursor: zoom-in; }
 
 /* Sea bubbles pop: the glass swells and bursts into droplets, and the piece is set free */
@@ -1233,7 +1222,7 @@ html.intro-on { overflow: hidden; }
 .is-open .nut__half--r { transform: translate3d(36%, 10%, 0) rotate(30deg); filter: drop-shadow(-3px 0 0 #FBF6EC) drop-shadow(0 14px 14px rgba(70, 45, 20, .3)); }
 .is-open .nut__inside { opacity: 1; scale: 1; transition: opacity 400ms var(--ease-soft) 380ms, scale 700ms var(--ease-lux) 380ms; }
 .is-open .nut__piece {
-  opacity: 1; transform: translate3d(0, 0, 0) scale(1);
+  z-index: 2; opacity: 1; transform: translate3d(0, 0, 0) scale(1);
   transition: opacity 400ms var(--ease-soft) 460ms, transform 1000ms cubic-bezier(.3, 1.5, .5, 1) 440ms;
 }
 .is-open .splash { animation: splash 900ms cubic-bezier(.2, .7, .4, 1) 400ms both; }
