@@ -3,12 +3,24 @@
    Firebase is only downloaded once firebase-config.js has been filled in. */
 const cfg = (window.LAPLAGE_CONFIG || {}).FIREBASE_CONFIG || {};
 const ready = !!(cfg.apiKey && !/^PASTE_/.test(cfg.apiKey));
-const {
-  isConfigured, auth, db, SHIPPING_FEE, esc, fmtVND, authMessage, loadProducts,
-  onAuthStateChanged, doc, updateDoc, addDoc, collection, serverTimestamp,
-} = ready ? await import('./firebase.js') : { isConfigured: false };
-const { renderAuthForm, loadProfile } = ready ? await import('./auth-form.js') : {};
-const { sendOrderEmails } = ready ? await import('./emails.js') : {};
+// if the SDK can't be reached (a content blocker, a bad connection) the shop carries on without accounts
+const load = async () => {
+  if (!ready) return [{ isConfigured: false }, {}, {}];
+  try {
+    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js')]);
+  } catch (e) {
+    console.warn('[LA PLAGE] accounts unavailable', e);
+    return [{ isConfigured: false }, {}, {}];
+  }
+};
+const [
+  {
+    isConfigured, auth, db, SHIPPING_FEE, esc, fmtVND, authMessage, loadProducts,
+    onAuthStateChanged, doc, updateDoc, addDoc, collection, serverTimestamp,
+  },
+  { renderAuthForm, loadProfile },
+  { sendOrderEmails },
+] = await load();
 
 const links = [...document.querySelectorAll('[data-account-link]')];
 const setLinks = (label) => links.forEach((a) => { a.textContent = label; });
