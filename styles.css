@@ -1703,7 +1703,9 @@ body { background: #0B3A5C; }
 .drop__head, .drop__head .display-2 { color: var(--white); text-shadow: 0 2px 20px rgba(2, 20, 36, .45); }
 .drop__head .display-2 em { color: var(--sand-light); }
 .drop__head .label, .drop__head .label--index span { color: var(--sand-light); }
-.drop__note, .drop__note span { color: rgba(255, 255, 255, .88); }
+.drop__note, .drop__note span { color: rgba(255, 255, 255, .92); }
+/* small italic text over the sun glitter: a tighter shadow keeps it legible on the brightest water */
+.drop__note { text-shadow: 0 1px 3px rgba(2, 20, 36, .55), 0 2px 18px rgba(2, 20, 36, .5); }
 .strip--gallery .rows { gap: clamp(30px, 6vh, 64px); }
 .strip--gallery .rows .row {
   margin: 0 auto;
