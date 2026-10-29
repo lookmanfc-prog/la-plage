@@ -250,7 +250,7 @@
       "id": "maree-short",
       "handle": "maree-short",
       "title": "Marée Short",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "Blue Stripe",
@@ -282,7 +282,7 @@
       "id": "sable-short",
       "handle": "sable-short",
       "title": "Sable Short",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "Sand Stripe",
@@ -314,7 +314,7 @@
       "id": "plage-short",
       "handle": "plage-short",
       "title": "Plage Short",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "Pine Stripe",
