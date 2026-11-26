@@ -25,7 +25,7 @@
       "note": "Seersucker and quiet stripes for long lunches by the sea."
     },
     {
-      "key": "brise",
+      "key": "manta",
       "name": "Après-plage",
       "kind": "Hoodies",
       "note": "For when the sea breeze turns cool and the day is not over yet."
@@ -423,9 +423,9 @@
       "cutoutBack": "assets/img/products/cutouts/tee-esprit-cotier-back.webp"
     },
     {
-      "id": "brise-hoodie",
-      "handle": "brise-hoodie",
-      "title": "Brise Hoodie",
+      "id": "manta-hoodie",
+      "handle": "manta-hoodie",
+      "title": "Manta Hoodie",
       "price": 650000,
       "compareAtPrice": null,
       "color": {
@@ -433,14 +433,14 @@
         "hex": "#1F7F86"
       },
       "image": {
-        "src": "assets/img/products/hoodies/brise-teal-front.png",
-        "alt": "Brise Hoodie in cream teal, front, with the LA PLAGE palm on the chest",
+        "src": "assets/img/products/hoodies/manta-teal-front.png",
+        "alt": "Manta Hoodie in cream teal, front, with the LA PLAGE palm on the chest",
         "width": 669,
         "height": 727
       },
       "imageHover": {
-        "src": "assets/img/products/hoodies/brise-teal-back.png",
-        "alt": "Brise Hoodie in cream teal, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+        "src": "assets/img/products/hoodies/manta-teal-back.png",
+        "alt": "Manta Hoodie in cream teal, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
         "width": 651,
         "height": 725
       },
@@ -457,99 +457,99 @@
         "XL"
       ],
       "collection": "sea",
-      "category": "brise",
-      "cutout": "assets/img/products/hoodies/brise-teal-front.png",
-      "cutoutBack": "assets/img/products/hoodies/brise-teal-back.png",
+      "category": "manta",
+      "cutout": "assets/img/products/hoodies/manta-teal-front.png",
+      "cutoutBack": "assets/img/products/hoodies/manta-teal-back.png",
       "colors": [
         {
           "name": "Cream Teal",
           "hex": "#1F7F86",
           "image": {
-            "src": "assets/img/products/hoodies/brise-teal-front.png",
-            "alt": "Brise Hoodie in cream teal, front, with the LA PLAGE palm on the chest",
+            "src": "assets/img/products/hoodies/manta-teal-front.png",
+            "alt": "Manta Hoodie in cream teal, front, with the LA PLAGE palm on the chest",
             "width": 669,
             "height": 727
           },
-          "cutout": "assets/img/products/hoodies/brise-teal-front.png",
+          "cutout": "assets/img/products/hoodies/manta-teal-front.png",
           "imageHover": {
-            "src": "assets/img/products/hoodies/brise-teal-back.png",
-            "alt": "Brise Hoodie in cream teal, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "src": "assets/img/products/hoodies/manta-teal-back.png",
+            "alt": "Manta Hoodie in cream teal, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
             "width": 651,
             "height": 725
           },
-          "cutoutBack": "assets/img/products/hoodies/brise-teal-back.png"
+          "cutoutBack": "assets/img/products/hoodies/manta-teal-back.png"
         },
         {
           "name": "Navy",
           "hex": "#22345A",
           "image": {
-            "src": "assets/img/products/hoodies/brise-navy-front.png",
-            "alt": "Brise Hoodie in navy, front, with the LA PLAGE palm on the chest",
+            "src": "assets/img/products/hoodies/manta-navy-front.png",
+            "alt": "Manta Hoodie in navy, front, with the LA PLAGE palm on the chest",
             "width": 642,
             "height": 714
           },
-          "cutout": "assets/img/products/hoodies/brise-navy-front.png",
+          "cutout": "assets/img/products/hoodies/manta-navy-front.png",
           "imageHover": {
-            "src": "assets/img/products/hoodies/brise-navy-back.png",
-            "alt": "Brise Hoodie in navy, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "src": "assets/img/products/hoodies/manta-navy-back.png",
+            "alt": "Manta Hoodie in navy, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
             "width": 622,
             "height": 713
           },
-          "cutoutBack": "assets/img/products/hoodies/brise-navy-back.png"
+          "cutoutBack": "assets/img/products/hoodies/manta-navy-back.png"
         },
         {
           "name": "Cream Red",
           "hex": "#D9364A",
           "image": {
-            "src": "assets/img/products/hoodies/brise-red-front.png",
-            "alt": "Brise Hoodie in cream red, front, with the LA PLAGE palm on the chest",
+            "src": "assets/img/products/hoodies/manta-red-front.png",
+            "alt": "Manta Hoodie in cream red, front, with the LA PLAGE palm on the chest",
             "width": 638,
             "height": 707
           },
-          "cutout": "assets/img/products/hoodies/brise-red-front.png",
+          "cutout": "assets/img/products/hoodies/manta-red-front.png",
           "imageHover": {
-            "src": "assets/img/products/hoodies/brise-red-back.png",
-            "alt": "Brise Hoodie in cream red, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "src": "assets/img/products/hoodies/manta-red-back.png",
+            "alt": "Manta Hoodie in cream red, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
             "width": 620,
             "height": 705
           },
-          "cutoutBack": "assets/img/products/hoodies/brise-red-back.png"
+          "cutoutBack": "assets/img/products/hoodies/manta-red-back.png"
         },
         {
           "name": "Pink",
           "hex": "#F6C6D9",
           "image": {
-            "src": "assets/img/products/hoodies/brise-pink-front.png",
-            "alt": "Brise Hoodie in pink, front, with the LA PLAGE palm on the chest",
+            "src": "assets/img/products/hoodies/manta-pink-front.png",
+            "alt": "Manta Hoodie in pink, front, with the LA PLAGE palm on the chest",
             "width": 340,
             "height": 358
           },
-          "cutout": "assets/img/products/hoodies/brise-pink-front.png",
+          "cutout": "assets/img/products/hoodies/manta-pink-front.png",
           "imageHover": {
-            "src": "assets/img/products/hoodies/brise-pink-back.png",
-            "alt": "Brise Hoodie in pink, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "src": "assets/img/products/hoodies/manta-pink-back.png",
+            "alt": "Manta Hoodie in pink, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
             "width": 330,
             "height": 358
           },
-          "cutoutBack": "assets/img/products/hoodies/brise-pink-back.png"
+          "cutoutBack": "assets/img/products/hoodies/manta-pink-back.png"
         },
         {
           "name": "Mint",
           "hex": "#BDEDE2",
           "image": {
-            "src": "assets/img/products/hoodies/brise-mint-front.png",
-            "alt": "Brise Hoodie in mint, front, with the LA PLAGE palm on the chest",
+            "src": "assets/img/products/hoodies/manta-mint-front.png",
+            "alt": "Manta Hoodie in mint, front, with the LA PLAGE palm on the chest",
             "width": 340,
             "height": 370
           },
-          "cutout": "assets/img/products/hoodies/brise-mint-front.png",
+          "cutout": "assets/img/products/hoodies/manta-mint-front.png",
           "imageHover": {
-            "src": "assets/img/products/hoodies/brise-mint-back.png",
-            "alt": "Brise Hoodie in mint, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "src": "assets/img/products/hoodies/manta-mint-back.png",
+            "alt": "Manta Hoodie in mint, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
             "width": 330,
             "height": 369
           },
-          "cutoutBack": "assets/img/products/hoodies/brise-mint-back.png"
+          "cutoutBack": "assets/img/products/hoodies/manta-mint-back.png"
         }
       ]
     }
