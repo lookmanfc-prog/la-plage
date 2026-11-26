@@ -14,11 +14,11 @@
       ⚠ The same list must also be pasted into firestore.rules (function isAdmin),
       because the database enforces it, not this file.
 
-   3. Leave SHIPPING_FEE at 50000 unless you also change it in firestore.rules.
-      Shipping is free in Saigon (Ho Chi Minh City); everywhere else pays SHIPPING_FEE.
+   3. Leave SHIPPING_FEE at 0 (free shipping) unless you also change it in firestore.rules.
    ========================================================================== */
 window.LAPLAGE_CONFIG = {
   FIREBASE_CONFIG: {
+    // TEST SITE: its own Firebase project, so test orders never reach the official store's database
     apiKey: 'AIzaSyCgqIiVDwmWR5ZSPdlipOI28X7JdakIUcc',
     authDomain: 'la-plage-a53db.firebaseapp.com',
     projectId: 'la-plage-a53db',
@@ -29,17 +29,32 @@ window.LAPLAGE_CONFIG = {
   ADMIN_EMAILS: [
     'lookmanfc@gmail.com',
     'ryannguyen101209@gmail.com',
+    'yosuke6eguchi@gmail.com',
   ],
-  SHIPPING_FEE: 50000,
-  CONTACT_EMAIL: 'laplage.vn@gmail.com',
+  SHIPPING_FEE: 0,          // shipping inside Saigon: free (must match firestore.rules)
+  SHIPPING_FEE_OTHER: 50000, // shipping anywhere else in Vietnam (must match firestore.rules)
+  /* How customers pay (shown after they place an order). Fill in what you use; leave a line empty to say "we will send you the details". */
+  PAYMENT: {
+    BANK_NAME: 'VietinBank - CN Tan Binh - PGD Bau Cat',
+    ACCOUNT_NAME: 'NGUYEN MINH HY',
+    ACCOUNT_NO: '105600101209',
+    QR_IMAGE: 'assets/pay/qr.png',
+    CASH: 'Pay in cash, in person. We will contact you to arrange where and when to meet.',
+  },
 
-  /* Pre-order emails (EmailJS, free up to 200 emails a month). See ACCOUNTS-SETUP.md, "Emails".
-     EmailJS dashboard → Account → API keys → Public key; Email Services → Service ID;
-     Email Templates → each template's ID. Leave the PASTE_ values to switch emails off. */
-  EMAILJS: {
-    PUBLIC_KEY: 'PASTE_EMAILJS_PUBLIC_KEY',
-    SERVICE_ID: 'PASTE_SERVICE_ID',
-    ADMIN_TEMPLATE_ID: 'PASTE_ADMIN_TEMPLATE_ID',
-    CUSTOMER_TEMPLATE_ID: 'PASTE_CUSTOMER_TEMPLATE_ID',
+  /* Email alerts for every new order and contact message (Web3Forms, https://web3forms.com):
+     enter your inbox there, they email you an access key, paste it below. Leave as is to switch off. */
+  WEB3FORMS_KEY: 'PASTE_',   // TEST SITE: off, so test orders do not email the team
+
+  PREORDER_OPENS: '19 November 2026',
+  PREORDER_OPENS_AT: '2026-11-19T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
+
+
+  /* Phone notifications for the admins (free ntfy app, https://ntfy.sh): a push for every new message and new pre-order.
+     In the ntfy app tap "+" and subscribe to the TOPIC below. Anyone who knows the topic can read the alerts, so keep it
+     long and private (change it to anything unguessable if you like; the app just has to use the same word). */
+  NTFY: {
+    SERVER: 'https://ntfy.sh',
+    TOPIC: '',   // TEST SITE: off, so test orders do not push to the team's phones
   },
 };

@@ -4,18 +4,20 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth, connectAuthEmulator, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut, updateProfile, deleteUser,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc,
-  collection, query, where, getDocs, serverTimestamp,
+  collection, query, where, getDocs, serverTimestamp, onSnapshot,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export const CONFIG = window.LAPLAGE_CONFIG || {};
-export const SHIPPING_FEE = Number(CONFIG.SHIPPING_FEE) || 50000;
+export const SHIPPING_FEE = Number.isFinite(Number(CONFIG.SHIPPING_FEE)) && CONFIG.SHIPPING_FEE !== undefined ? Number(CONFIG.SHIPPING_FEE) : 0;   // free shipping (0)
 export const ADMIN_EMAILS = (CONFIG.ADMIN_EMAILS || []).map((e) => String(e).trim().toLowerCase());
-export const STATUSES = ['preordered', 'in production', 'shipped', 'delivered', 'cancelled'];
-
-export const CONTACT_EMAIL = CONFIG.CONTACT_EMAIL || 'laplage.vn@gmail.com';
+// the life of an order: placed (awaiting payment) -> paid and in process -> being packaged -> shipped -> delivered
+export const STATUSES = ['awaiting payment', 'in process', 'packaging', 'shipped', 'delivered', 'cancelled'];
+export const STATUS_LABEL = { 'awaiting payment': 'Awaiting payment', 'in process': 'In process', packaging: 'Being packaged', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
+export const PAYMENTS = { bank: 'Bank transfer', qr: 'QR code', cash: 'Cash' };
 
 // the site works exactly as before until the placeholders are filled in
 export const isConfigured = !!(CONFIG.FIREBASE_CONFIG && CONFIG.FIREBASE_CONFIG.apiKey && !/^PASTE_/.test(CONFIG.FIREBASE_CONFIG.apiKey));
@@ -38,9 +40,13 @@ if (isConfigured) {
    Admins sign in with their Gmail instead (anything containing "@" is used as is). */
 export const USERNAME_RE = /^[a-z0-9._]{3,20}$/;
 const LOGIN_DOMAIN = 'members.laplage.app';
+// customers sign in with their email address. It is stored under a private derived login (never an admin's real address),
+// so nobody can register an admin's email and gain admin access. Admins sign in with their real Gmail.
 export const loginEmailFor = (name) => {
   const v = String(name).trim().toLowerCase();
-  return v.includes('@') ? v : `${v}@${LOGIN_DOMAIN}`;
+  if (!v.includes('@')) return `${v}@${LOGIN_DOMAIN}`;       // old username accounts keep working
+  if (ADMIN_EMAILS.includes(v)) return v;                      // an admin signing in
+  return `${v.replace('@', '_at_').replace(/[^a-z0-9._+-]/g, '_')}@${LOGIN_DOMAIN}`;
 };
 export const isAdminUser = (user) => !!(user && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase()));
 
@@ -59,6 +65,9 @@ export const titleCase = (s) => String(s).replace(/\b\w/g, (c) => c.toUpperCase(
 // friendly messages for the errors people actually hit
 export const authMessage = (err) => {
   const code = (err && err.code) || '';
+  if (code.includes('unauthorized-domain')) return 'This website address is not allowed to sign in yet. Please tell us and we will fix it.';
+  if (code.includes('operation-not-allowed')) return 'Google sign-in is not switched on yet. Please try again soon.';
+  if (code.includes('account-exists-with-different-credential')) return 'An account with this email already exists. Please contact us.';
   if (code.includes('email-already-in-use')) return 'That username is taken. Please choose another.';
   if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return 'Username or password is not right.';
   if (code.includes('too-many-requests')) return 'Too many attempts. Please wait a moment and try again.';
@@ -68,15 +77,18 @@ export const authMessage = (err) => {
   return 'Something went wrong. Please try again.';
 };
 
-/* ---------- shipping and the two-piece price ----------
-   Shipping is free in Saigon (Ho Chi Minh City) and SHIPPING_FEE everywhere else.
-   firestore.rules uses the same city pattern, so keep the two in step. */
-export const SAIGON_RE = /s[aà]i ?g[oò]n|h[oồ] ch[ií] minh|hcm/;
-export const isSaigon = (city) => SAIGON_RE.test(String(city || '').normalize('NFC').toLowerCase());
-export const shippingFor = (city) => (isSaigon(city) ? 0 : SHIPPING_FEE);
+// hidden pieces are left out of the pre-order form; the admin panel asks for them too, for past orders
+export async function loadProducts({ includeHidden = false } = {}) {
+  const res = await fetch('data/products.json', { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`products ${res.status}`);
+  const data = await res.json();
+  catalog.bundle = data.bundle || null;
+  const all = data.products || [];
+  return includeHidden ? all : all.filter((p) => !p.hidden);
+}
 
 // "bundle" in data/products.json: any two eligible pieces for one price (925.000 ₫).
-// Pieces are paired from the dearest down; each pair saves the difference.
+// Pieces are paired from the dearest down; each pair saves the difference. lines: [{ productId, price, quantity }]
 export const catalog = { bundle: null };
 export function bundleDiscount(lines) {
   const b = catalog.bundle;
@@ -91,17 +103,8 @@ export function bundleDiscount(lines) {
   return off;
 }
 
-// hidden pieces are left out of the pre-order form; the admin panel asks for them too, for past orders
-export async function loadProducts({ includeHidden = false } = {}) {
-  const res = await fetch('data/products.json', { cache: 'no-cache' });
-  if (!res.ok) throw new Error(`products ${res.status}`);
-  const data = await res.json();
-  catalog.bundle = data.bundle || null;
-  const all = data.products || [];
-  return includeHidden ? all : all.filter((p) => !p.hidden);
-}
-
 export {
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, deleteUser,
-  doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, getDocs, serverTimestamp,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, getDocs, serverTimestamp, onSnapshot,
 };

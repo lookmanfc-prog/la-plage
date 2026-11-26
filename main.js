@@ -173,8 +173,8 @@
   };
 
   let categories = [];
-  let bundle = null;
-  let sizeGuide = null;   // measurements for the product view's "Size guide"   // "any two for 925.000 ₫" in data/products.json
+  let sizeGuide = null;
+  let bundle = null;   // "any two for 925.000 ₫" in data/products.json   // measurements for the product view's "Size guide"
   // one row per line (Shoreline, Soleil, Marée), each on its own stretch of sand
   const renderRows = (products) => {
     const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
@@ -212,8 +212,8 @@
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
       categories = data.categories || [];
-      bundle = data.bundle || null;
       sizeGuide = data.sizeGuide || null;
+      bundle = data.bundle || null;
       // pieces marked "hidden" in products.json are resting between drops: kept in the data, not shown in the shop
       const live = (data.products || []).filter((p) => !p.hidden);
       renderRows(live);
@@ -225,7 +225,7 @@
     }
   };
 
-  /* ---------------- Product pop: the hovered garment lifts and tilts toward the cursor ---------------- */
+  /* ---------------- Product pop: the hovered garment lifts (no cursor tilt) ---------------- */
   const initCardPop = () => {
     const strip = document.querySelector('[data-strip]');
     const cursorLabel = document.querySelector('[data-drag-cursor] span');
@@ -233,20 +233,6 @@
       if (e.pointerType !== 'mouse') return;
       const card = e.target.closest('.card');
       if (cursorLabel) cursorLabel.textContent = card && !strip.classList.contains('is-dragging') ? 'View' : 'Drag';
-      if (!card) return;
-      const r = card.querySelector('.card__media').getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - .5;
-      const y = (e.clientY - r.top) / r.height - .5;
-      const lift = card.querySelector('.card__lift');
-      lift.style.setProperty('--ry', `${(x * 14).toFixed(2)}deg`);
-      lift.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`);
-    });
-    track.addEventListener('pointerout', (e) => {
-      const card = e.target.closest('.card');
-      if (card && !card.contains(e.relatedTarget)) {
-        const lift = card.querySelector('.card__lift');
-        lift.style.removeProperty('--rx'); lift.style.removeProperty('--ry');
-      }
     });
   };
 
@@ -261,7 +247,7 @@
     const sizes = $('[data-spot-sizes]');
     const tones = $('[data-spot-colors]');
     const guide = $('[data-spot-guide]');
-    // the piece in 3D (piece3d.js): drag to turn it; the flat photo stays underneath as a fallback
+    // the piece in 3D (piece3d.js): flat, no tilt; the flat photo stays underneath as a fallback
     let piece = null;
     try { piece = window.LaPlage3D ? window.LaPlage3D.mount($('.spotlight__float')) : null; } catch (err) { piece = null; }
     if (piece) spot.classList.add('has-3d');
@@ -284,6 +270,7 @@
           <a class="link link--underlined sg__more" href="help.html#sizes">Help choosing a size</a>
         </div>`;
     };
+
 
     // the colour guide (data/colour-guide.json): each print's pattern, colours and patch, shown over the stage
     let prints = [];
@@ -407,6 +394,12 @@
     });
     $('[data-spot-close]').addEventListener('click', close);
 
+    // phones: the Pre-order button sits in a bar pinned to the bottom of the screen, so it is always in view
+    const cta = $('[data-spot-access]'), buyBox = $('.spotlight__buy'), phone = matchMedia('(max-width: 860px)');
+    const placeCta = () => { if (phone.matches) { if (cta.parentElement !== spot) spot.appendChild(cta); } else if (cta.parentElement !== buyBox) buyBox.appendChild(cta); };
+    placeCta();
+    phone.addEventListener('change', placeCta);
+
     // a piece tapped anywhere on the page (collections, featured row) opens straight away
     document.addEventListener('laplage:view', (e) => {
       const { index: i, from } = e.detail;
@@ -415,10 +408,14 @@
     });
     $('[data-spot-prev]').addEventListener('click', () => go(-1));
     $('[data-spot-next]').addEventListener('click', () => go(1));
-    // "Pre-order": opens the pre-order form with this piece and size (portal/site.js); until accounts
+    // "Pre-order" (once pre-orders are open): opens the pre-order form with this piece and size (portal/site.js); until accounts
     // are set up it keeps its old behaviour and leads to Private access
+    // before the opening date the button becomes "Get notified" and leads to the email sign-up instead
+    const opensAt = Date.parse((window.LAPLAGE_CONFIG || {}).PREORDER_OPENS_AT || '') || 0;
+    const preordersOpen = () => Date.now() >= opensAt;
+    if (!preordersOpen()) $('[data-spot-access]').textContent = 'Get notified';
     $('[data-spot-access]').addEventListener('click', (e) => {
-      if (typeof window.laPlagePreorder === 'function') {
+      if (preordersOpen() && typeof window.laPlagePreorder === 'function') {
         e.preventDefault();
         const chosen = sizes.querySelector('.size[aria-checked="true"]');
         const p = products[index];
@@ -479,14 +476,6 @@
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
-    // The garment leans toward the cursor
-    stage.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse' || piece) return;   // the 3D piece leans toward the cursor by itself
-      const r = stage.getBoundingClientRect();
-      stage.style.setProperty('--ry', `${(((e.clientX - r.left) / r.width - .5) * 16).toFixed(2)}deg`);
-      stage.style.setProperty('--rx', `${(-((e.clientY - r.top) / r.height - .5) * 10).toFixed(2)}deg`);
-    });
-    stage.addEventListener('pointerleave', () => { stage.style.removeProperty('--rx'); stage.style.removeProperty('--ry'); });
     // Swipe between products on touch
     let sx = null;
     stage.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
@@ -1084,45 +1073,41 @@
     update();
   };
 
-  /* ---------------- Private access form (no backend yet) ---------------- */
+  /* ---------------- Mailing list sign-up (saved by portal/mailing.js) ---------------- */
   const initAccess = () => {
     const form = document.querySelector('[data-access-form]');
+    if (!form) return;   // the sign-up is now an account form (portal/site.js)
     const input = form.querySelector('input');
     const status = document.getElementById('access-status');
-    form.addEventListener('submit', (e) => {
+    const btn = form.querySelector('button[type="submit"]');
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const fail = (msg, el) => { status.classList.add('is-error'); status.textContent = msg; if (el) el.focus(); };
       const ok = input.value.trim() && input.checkValidity();
       input.setAttribute('aria-invalid', String(!ok));
-      status.classList.toggle('is-error', !ok);
-      if (!ok) { status.textContent = 'Please enter a valid email address.'; input.focus(); return; }
-      // saved by portal/site.js (Firestore "subscribers"); never say thank you for an address we did not keep
-      const btn = form.querySelector('button');
-      btn.disabled = true; status.textContent = 'Sending…';
-      // the accounts module may still be loading on a slow connection: give it a few seconds
-      const ready = () => new Promise((res) => {
-        const t0 = Date.now();
-        const tick = () => (typeof window.laPlageSubscribe === 'function' || Date.now() - t0 > 6000 ? res(window.laPlageSubscribe) : setTimeout(tick, 200));
-        tick();
-      });
-      ready().then((subscribe) => {
-        if (typeof subscribe !== 'function') throw Object.assign(new Error('unavailable'), { unavailable: true });
-        return subscribe(input.value);
-      }).then(() => {
-        status.textContent = 'Thank you. You are on the list, and we will write before the next drop.';
+      if (!ok) { fail('Please enter a valid email address.', input); return; }
+      if (!form.elements.consent.checked) { fail('Please tick the box so we know you want our emails.', form.elements.consent); return; }
+      if (form.elements.company.value) { status.classList.remove('is-error'); status.textContent = 'Thank you. We will write when pre-orders open.'; form.reset(); return; }   // a bot filled the hidden field
+      if (!window.laPlageSubscribe) { fail('Sign-up is unavailable right now. Please try again in a moment.'); return; }
+      btn.disabled = true; status.classList.remove('is-error'); status.textContent = 'One moment…';
+      try {
+        await window.laPlageSubscribe(input.value, 'home');
+        status.textContent = 'Thank you. We will write when pre-orders open on 20 November. Every email has an unsubscribe link.';
         form.reset();
-      }).catch((err) => {
-        console.warn('[LA PLAGE] sign-up', err);
-        status.classList.add('is-error');
-        status.textContent = err && err.unavailable
-          ? 'Sign-up is not available right now. Please email laplage.vn@gmail.com or follow @laplage.vn on Instagram.'
-          : 'That did not go through. Please check your connection and try again.';
-      }).finally(() => { btn.disabled = false; });
+      } catch (err) {
+        fail('We could not save your sign-up. Please check your connection and try again.');
+      }
+      btn.disabled = false;
     });
     input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); status.classList.remove('is-error'); status.textContent = ''; });
   };
 
-  /* ---------------- Footer year ---------------- */
+  /* ---------------- Footer language toggle (visual only for now) ---------------- */
   const initLocale = () => {
+    const btns = document.querySelectorAll('[data-lang]');
+    btns.forEach((b) => b.addEventListener('click', () => {
+      btns.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+    }));
     const y = document.querySelector('[data-year]');
     if (y) y.textContent = new Date().getFullYear();
   };

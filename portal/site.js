@@ -1,34 +1,38 @@
 /* LA PLAGE · home page: the Sign in / Account control in the header and the pre-order overlay.
    Opens from the product view's "Pre-order" button with that piece and size already chosen.
    Firebase is only downloaded once firebase-config.js has been filled in. */
-const cfg = (window.LAPLAGE_CONFIG || {}).FIREBASE_CONFIG || {};
+const cfgAll = window.LAPLAGE_CONFIG || {};
+const cfg = cfgAll.FIREBASE_CONFIG || {};
 const ready = !!(cfg.apiKey && !/^PASTE_/.test(cfg.apiKey));
 // if the SDK can't be reached (a content blocker, a bad connection) the shop carries on without accounts
 const load = async () => {
-  if (!ready) return [{ isConfigured: false }, {}, {}];
+  if (!ready) return [{ isConfigured: false }, {}, {}, {}, {}, {}];
   try {
-    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js')]);
+    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js'), import('./mailing.js'), import('./notify.js'), import('./pay.js')]);
   } catch (e) {
     console.warn('[LA PLAGE] accounts unavailable', e);
-    return [{ isConfigured: false }, {}, {}];
+    return [{ isConfigured: false }, {}, {}, {}, {}, {}];
   }
 };
 const [
   {
-    isConfigured, auth, db, esc, fmtVND, authMessage, loadProducts, shippingFor, bundleDiscount, catalog, CONTACT_EMAIL,
+    isConfigured, auth, db, SHIPPING_FEE, PAYMENTS, esc, fmtVND, authMessage, loadProducts, bundleDiscount, catalog,
     onAuthStateChanged, doc, updateDoc, addDoc, collection, serverTimestamp,
   },
   { renderAuthForm, loadProfile },
-  { sendOrderEmails, emailsReady },
+  { sendOrderEmails },
+  { subscribe },
+  { notifyAdmins },
+  { payPanel, wireCopy, orderCode, transferNote },
 ] = await load();
 
-// "Private access" sign-ups: saved in Firestore (subscribers); main.js calls this from the form.
-// Signing up twice just adds a second line; the admin list shows each address once.
-if (isConfigured) {
-  window.laPlageSubscribe = async (email) => {
-    const e = String(email).trim().toLowerCase();
-    await addDoc(collection(db, 'subscribers'), { email: e, source: 'private-access', createdAt: serverTimestamp() });
-  };
+// the mailing-list form on the home page (main.js) calls this
+if (subscribe) window.laPlageSubscribe = subscribe;
+
+// the "Private access" section: a normal account sign-up, right on the page
+const accessBox = document.querySelector('[data-access-auth]');
+if (accessBox) {
+  if (!isConfigured) accessBox.innerHTML = '<p class="pf-hint">Accounts open soon. Please check back shortly.</p>';
 }
 
 const links = [...document.querySelectorAll('[data-account-link]')];
@@ -41,6 +45,10 @@ if (isConfigured) {
   onAuthStateChanged(auth, async (u) => {
     user = u; profile = null;
     setLinks(u ? 'Account' : 'Sign in');
+    if (accessBox) {
+      if (u) accessBox.innerHTML = '<p class="pf-auth__intro">You have an account. Pre-orders are open: choose a piece and pre-order it.</p><p><a class="link link--underlined" href="account.html">Go to my account</a></p>';
+      else renderAuthForm(accessBox, {});
+    }
     if (u) { try { profile = await loadProfile(u); } catch (e) { profile = null; } }
     if (overlay && !overlay.hidden) draw();
   });
@@ -67,7 +75,6 @@ if (isConfigured) {
         <p class="label">Pre-order · Drop 001</p>
         <h2 class="pf-title" id="pf-title">Reserve your <em>piece.</em></h2>
         <p class="pf-lead">Pre-orders join the next production batch. We confirm each one personally and arrange payment with you directly. No card details are taken here.</p>
-        <p class="pf-lead pf-offer">${catalog.bundle && catalog.bundle.label ? `${esc(catalog.bundle.label)}. ` : ''}Free shipping in Saigon.</p>
         <div data-pf-body></div>
       </div>`;
     document.body.appendChild(overlay);
@@ -94,22 +101,23 @@ if (isConfigured) {
     </div>`;
 
   let items = [];
-  let city = '';
-  const linesOf = (list) => list.map((it) => {
-    const p = products.find((x) => x.id === it.productId) || {};
-    return { productId: p.id, price: p.price || 0, quantity: it.qty, lineTotal: (p.price || 0) * it.qty };
-  });
+  // delivery: free inside Saigon, a flat fee anywhere else in Vietnam (amounts in firebase-config.js; must match firestore.rules)
+  const FEE_OTHER = Number(cfgAll.SHIPPING_FEE_OTHER) || 50000;
+  // we deliver to three cities for now; Saigon ships free, Hanoi and Huế cost the flat fee
+  const CITIES = [['Ho Chi Minh City', 'Saigon · free shipping'], ['Hanoi', `Hanoi · +${fmtVND(FEE_OTHER)}`], ['Hue', `Huế · +${fmtVND(FEE_OTHER)}`]];
+  let city = CITIES[0][0];
+  const feeFor = (c) => (c === 'Ho Chi Minh City' ? SHIPPING_FEE : FEE_OTHER);
+  const shipFee = () => feeFor(city);
   const totals = () => {
-    const lines = linesOf(items);
-    const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+    const lines = items.map((it) => { const p = products.find((x) => x.id === it.productId) || {}; return { productId: p.id, price: p.price || 0, quantity: it.qty }; });
+    const subtotal = lines.reduce((s, l) => s + l.price * l.quantity, 0);
     const discount = bundleDiscount(lines);
-    const shipping = shippingFor(city);
-    return { subtotal, discount, shipping, total: subtotal - discount + shipping };
+    return { subtotal, discount, total: subtotal - discount + shipFee() };
   };
 
   const draw = () => {
     if (!user) {
-      renderAuthForm(body(), { intro: 'Sign in or create an account to place your pre-order.' });
+      renderAuthForm(body(), { intro: 'Sign in with Google to place your pre-order.' });
       return;
     }
     if (!profile) { body().innerHTML = '<p class="pf-state">Loading your account…</p>'; return; }
@@ -120,8 +128,7 @@ if (isConfigured) {
     if (!products.length) { body().innerHTML = '<p class="pf-state">The pieces could not be loaded. Please refresh and try again.</p>'; return; }
     if (!items.length) items = [pending || { productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 }];
     const a = profile.address || {};
-    city = a.city || '';
-    const { subtotal, discount, shipping, total } = totals();
+    const { subtotal, discount, total } = totals();
     body().innerHTML = `
       <form class="pf-form" novalidate data-order-form>
         <fieldset class="pf-set"><legend>Your pieces</legend>
@@ -139,20 +146,28 @@ if (isConfigured) {
           <div class="pf-grid">
             <label class="pf-field pf-field--wide"><span>Street</span><input name="street" autocomplete="address-line1" required maxlength="120" value="${esc(a.street || '')}"></label>
             <label class="pf-field"><span>Ward</span><input name="ward" required maxlength="60" value="${esc(a.ward || '')}"></label>
-            <label class="pf-field"><span>District</span><input name="district" required maxlength="60" value="${esc(a.district || '')}"></label>
-            <label class="pf-field"><span>City</span><input name="city" autocomplete="address-level2" required maxlength="60" value="${esc(a.city || '')}"></label>
+            <label class="pf-field"><span>District <em>optional</em></span><input name="district" maxlength="60" value="${esc(a.district || '')}"></label>
+            <label class="pf-field"><span>City <em>shipping</em></span><select name="city" required>${CITIES.map(([v, l]) => `<option value="${esc(v)}"${(a.city === v || (!CITIES.some(([x]) => x === a.city) && v === CITIES[0][0])) ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
           </div>
-          <p class="pf-hint">Free shipping in Saigon: write the city as <em>Ho Chi Minh City</em>. Everywhere else in Vietnam is ${esc(fmtVND(shippingFor('')))}.</p>
           <label class="pf-check"><input type="checkbox" name="save" checked> Save this address and phone to my account</label>
+        </fieldset>
+        <fieldset class="pf-set"><legend>How will you pay?</legend>
+          <div class="pf-pay">
+            ${Object.entries(PAYMENTS).map(([k, v], i) => `<label class="pf-check pf-check--box"><input type="radio" name="payment" value="${k}"${i === 0 ? ' checked' : ''}> ${esc(v)}</label>`).join('')}
+          </div>
+          <p class="pf-hint">After you place your pre-order you will see how to pay (bank transfer or QR, or cash if you choose it). We start making your piece once payment arrives. Nothing is charged on this site.</p>
         </fieldset>
         <label class="pf-field pf-field--wide"><span>Note <em>optional</em></span><textarea name="note" rows="2" maxlength="500"></textarea></label>
         <dl class="pf-sum">
           <div><dt>Subtotal</dt><dd data-subtotal>${esc(fmtVND(subtotal))}</dd></div>
-          <div data-discount-row${discount ? '' : ' hidden'}><dt>Two-piece price</dt><dd data-discount>−${esc(fmtVND(discount))}</dd></div>
-          <div><dt>Shipping</dt><dd data-shipping>${shipping ? esc(fmtVND(shipping)) : 'Free'}</dd></div>
+          <div data-discount-row${discount ? '' : ' hidden'}><dt>Two for ${esc(fmtVND((catalog.bundle || {}).price))}</dt><dd data-discount>−${esc(fmtVND(discount))}</dd></div>
+          <div><dt>Shipping</dt><dd data-ship>${shipFee() ? esc(fmtVND(shipFee())) : 'Free'}</dd></div>
           <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
         </dl>
+        ${catalog.bundle && catalog.bundle.label ? `<p class="pf-hint">${esc(catalog.bundle.label)}: the price comes off automatically.</p>` : ''}
+        <p class="pf-hint">10% of our profit goes to Saigon Xanh.</p>
         <p class="pf-error" role="alert" data-order-error></p>
+        <p class="pf-hint">By placing a pre-order you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
         <button class="btn-outline pf-submit" type="submit">Place pre-order</button>
       </form>`;
     wire();
@@ -167,18 +182,19 @@ if (isConfigured) {
     }));
   };
   const refreshSums = () => {
-    const { subtotal, discount, shipping, total } = totals();
-    const $ = (s) => body().querySelector(s);
-    $('[data-subtotal]').textContent = fmtVND(subtotal);
-    $('[data-discount-row]').hidden = !discount;
-    $('[data-discount]').textContent = `−${fmtVND(discount)}`;
-    $('[data-shipping]').textContent = shipping ? fmtVND(shipping) : 'Free';
-    $('[data-total]').textContent = fmtVND(total);
+    const { subtotal, discount, total } = totals();
+    body().querySelector('[data-subtotal]').textContent = fmtVND(subtotal);
+    body().querySelector('[data-discount-row]').hidden = !discount;
+    body().querySelector('[data-discount]').textContent = `−${fmtVND(discount)}`;
+    body().querySelector('[data-ship]').textContent = shipFee() ? fmtVND(shipFee()) : 'Free';
+    body().querySelector('[data-total]').textContent = fmtVND(total);
   };
 
   const wire = () => {
     const form = body().querySelector('[data-order-form]');
     const list = form.querySelector('[data-items]');
+    const citySel = form.querySelector('[name="city"]'); city = citySel.value;
+    citySel.addEventListener('change', () => { city = citySel.value; refreshSums(); });
     list.addEventListener('change', (e) => {
       readItems();
       if (e.target.name === 'product') { list.innerHTML = items.map(itemRow).join(''); }
@@ -195,7 +211,6 @@ if (isConfigured) {
       items.push({ productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 });
       list.innerHTML = items.map(itemRow).join(''); refreshSums();
     });
-    form.querySelector('[name="city"]').addEventListener('input', (e) => { city = e.target.value; refreshSums(); });
     form.addEventListener('submit', submit);
   };
 
@@ -206,8 +221,7 @@ if (isConfigured) {
     const btn = form.querySelector('.pf-submit');
     readItems();
     const f = Object.fromEntries(new FormData(form));
-    // NFC so accented city names match the free-shipping check in firestore.rules
-    const clean = (k, n) => String(f[k] || '').normalize('NFC').trim().slice(0, n);
+    const clean = (k, n) => String(f[k] || '').trim().slice(0, n);
     const data = {
       name: clean('name', 80), phone: clean('phone', 20), gmail: clean('gmail', 120).toLowerCase(),
       address: { street: clean('street', 120), ward: clean('ward', 60), district: clean('district', 60), city: clean('city', 60) },
@@ -217,23 +231,26 @@ if (isConfigured) {
     if (!data.name) { err.textContent = 'Please add your full name.'; return; }
     if (!/^[0-9+\s().-]{8,20}$/.test(data.phone)) { err.textContent = 'Please add a phone number we can reach you on.'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.gmail)) { err.textContent = 'Please add your Gmail. We send your pre-order confirmation there.'; return; }
-    if (Object.values(data.address).some((v) => !v)) { err.textContent = 'Please complete the street, ward, district and city.'; return; }
+    if (!CITIES.some(([v]) => v === data.address.city)) { err.textContent = 'Please choose Saigon, Hanoi or Huế.'; return; }
+    // districts were abolished in July 2025, so only street, ward and city are required
+    if (!data.address.street || !data.address.ward || !data.address.city) { err.textContent = 'Please complete the street, ward and city.'; return; }
     const lines = items.map((it) => {
       const p = products.find((x) => x.id === it.productId);
       const color = (p.colors || []).some((c) => c.name === it.color) ? it.color : p.color.name;
       return { productId: p.id, title: p.title, color, size: it.size, quantity: it.qty, price: p.price, lineTotal: p.price * it.qty };
     });
     const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+    const fee = feeFor(String(f.city || ''));
     const discount = bundleDiscount(lines);
-    const shippingFee = shippingFor(data.address.city);
-    const total = subtotal - discount + shippingFee;
+    const total = subtotal - discount + fee;
     btn.disabled = true; btn.classList.add('is-busy');
     try {
       const ref = await addDoc(collection(db, 'orders'), {
         uid: user.uid, username: profile.username || '', gmail: data.gmail,
         customerName: data.name, phone: data.phone, address: data.address, note: data.note,
-        items: lines, subtotal, discount, shippingFee, total,
-        status: 'preordered', createdAt: serverTimestamp(),
+        // "discount" is only written when the two-piece price applies
+        items: lines, subtotal, ...(discount ? { discount } : {}), shippingFee: fee, total,
+        payment: PAYMENTS[f.payment] ? f.payment : 'bank', status: 'awaiting payment', createdAt: serverTimestamp(),
       });
       if (f.save) {
         try {
@@ -242,15 +259,27 @@ if (isConfigured) {
         } catch (e2) { /* the pre-order is placed; saving the address is a nicety */ }
       }
       // emails to the admins and to the customer; the pre-order is already saved, so a failure here never undoes it
-      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, discount, shippingFee, total, username: profile.username || '' })
+      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, discount, shippingFee: fee, total, username: profile.username || '' })
         .catch((e3) => console.warn('[LA PLAGE] order emails', e3));
-      items = []; pending = null;
+      if (notifyAdmins) {
+        const no = orderCode(ref.id);
+        const addr = [data.address.street, data.address.ward, data.address.district, data.address.city].filter(Boolean).join(', ');
+        notifyAdmins({
+          title: `New order ${no} · ${fmtVND(total)}`,
+          message: `${data.name} · ${fmtVND(total)} · ${lines.reduce((n, l) => n + l.quantity, 0)} piece(s): ${lines.map((l) => `${l.title} ${l.size}`).join(', ')}`,
+          details: `NEW ORDER ${no}\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.gmail}\nAddress: ${addr}\n\n${lines.map((l) => `${l.title}${l.color ? ` (${l.color})` : ''} · size ${l.size} × ${l.quantity} = ${fmtVND(l.lineTotal)}`).join('\n')}${discount ? `\n\nTwo-piece price: −${fmtVND(discount)}` : ''}\n\nTotal: ${fmtVND(total)} (${fee ? `shipping ${fmtVND(fee)}, outside Saigon` : 'free shipping, Saigon'})\nPayment: ${PAYMENTS[f.payment] || f.payment}\nTransfer note to look for: ${transferNote(ref.id, data.name)}\nNote from customer: ${data.note || '-'}`,
+          path: '/admin.html#orders', tags: ['shopping_bags'], priority: 4, replyTo: data.gmail,
+        });
+      }
+      items = []; pending = null; city = CITIES[0][0];
       body().innerHTML = `
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
-          <p class="pf-lead">${emailsReady ? `A confirmation is on its way to ${esc(data.gmail)}.` : `We will write to ${esc(data.gmail)} soon.`} We will be in touch to confirm the details and arrange payment, and you can follow its status in your account. Questions: <a class="link link--underlined" href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a></p>
+          <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. Follow your order's progress in your account.</p>
+          ${payPanel(f.payment, { total, id: ref.id, name: data.name })}
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
+      wireCopy(body());
     } catch (ex) {
       err.textContent = ex && ex.code && ex.code.includes('permission-denied')
         ? 'This pre-order could not be placed. Please check your details, or contact us if your account is paused.'
@@ -261,6 +290,7 @@ if (isConfigured) {
 
   // the product view's "Pre-order" button calls this with the piece, size and colour on screen
   window.laPlagePreorder = (product, size, color) => {
+    if (Date.now() < (Date.parse(cfgAll.PREORDER_OPENS_AT || '') || 0)) { location.hash = 'access'; return; }   // not open yet: the sign-up is the way in
     ensureOverlay();
     lastFocus = document.activeElement;
     if (product) { pending = { productId: product.id, size: size || 'M', color: color || '', qty: 1 }; items = []; }
