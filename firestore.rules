@@ -9,19 +9,17 @@ service cloud.firestore {
 
     function isAdmin() {
       return request.auth != null
+        && request.auth.token.email_verified == true
         && request.auth.token.email in [
           'lookmanfc@gmail.com',
-          'ryannguyen101209@gmail.com'
+          'ryannguyen101209@gmail.com',
+          'yosuke6eguchi@gmail.com'
         ];
     }
     function signedIn() { return request.auth != null; }
     function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
     function validGmail(g) {
       return g is string && g.size() <= 120 && g.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
-    }
-    // free shipping in Saigon; keep this pattern in step with SAIGON_RE in portal/firebase.js
-    function isSaigon(city) {
-      return city.lower().matches('.*(s[aà]i ?g[oò]n|h[oồ] ch[ií] minh|hcm).*');
     }
     function validAddress(a) {
       return a is map && a.keys().hasOnly(['street', 'ward', 'district', 'city'])
@@ -43,6 +41,7 @@ service cloud.firestore {
         && request.resource.data.username is string && request.resource.data.username.matches('^[a-z0-9._]{3,20}$')
         && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
         && validGmail(request.resource.data.gmail)
+        && request.resource.data.gmail == request.auth.token.email   // the record carries the Google account's own email
         && request.resource.data.phone is string && request.resource.data.phone.size() <= 20
         && validAddress(request.resource.data.address)
         && request.resource.data.disabled == false
@@ -66,13 +65,14 @@ service cloud.firestore {
       allow read: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
 
       // a signed-in customer with an active (not disabled) account, ordering for themselves,
-      // always starting as "preordered". Shipping is free in Saigon and 50,000 VND elsewhere;
-      // an optional two-piece discount comes off the subtotal.
-      allow create: if signedIn()
+      // always starting as "awaiting payment", delivered to Saigon (free), Hanoi or Hue (50,000 VND), total = subtotal + shipping
+      // pre-orders open 19 November 2026, 00:00 Saigon time (= 17:00 UTC on the 18th); nothing can be placed before that
+      allow create: if request.time >= timestamp.date(2026, 11, 18) + duration.time(17, 0, 0, 0)
+        && signedIn()
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false
-        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'discount', 'shippingFee', 'total', 'status', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'discount', 'shippingFee', 'total', 'payment', 'status', 'createdAt'])
         && validGmail(request.resource.data.gmail)
         && request.resource.data.customerName is string && request.resource.data.customerName.size() > 0 && request.resource.data.customerName.size() <= 80
         && request.resource.data.phone is string && request.resource.data.phone.size() >= 8 && request.resource.data.phone.size() <= 20
@@ -80,32 +80,96 @@ service cloud.firestore {
         && request.resource.data.note is string && request.resource.data.note.size() <= 500
         && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 10
         && request.resource.data.subtotal is int && request.resource.data.subtotal > 0
+        // we deliver to three cities for now: Saigon ships free, Hanoi and Hue cost 50,000 VND
+        && ((request.resource.data.address.city == 'Ho Chi Minh City' && request.resource.data.shippingFee == 0)
+          || (request.resource.data.address.city in ['Hanoi', 'Hue'] && request.resource.data.shippingFee == 50000))
+        // optional two-piece discount (any two of Lagon, Corail, Palmier for 925,000 VND)
         && request.resource.data.get('discount', 0) is int
         && request.resource.data.get('discount', 0) >= 0
         && request.resource.data.get('discount', 0) < request.resource.data.subtotal
-        && ((isSaigon(request.resource.data.address.city) && request.resource.data.shippingFee == 0)
-          || (!isSaigon(request.resource.data.address.city) && request.resource.data.shippingFee == 50000))
         && request.resource.data.total == request.resource.data.subtotal - request.resource.data.get('discount', 0) + request.resource.data.shippingFee
-        && request.resource.data.status == 'preordered'
+        && request.resource.data.payment in ['bank', 'qr', 'cash']
+        && request.resource.data.status == 'awaiting payment'
         && request.resource.data.createdAt == request.time;
 
-      // only admins change a pre-order, and only its status
+      // only admins change a pre-order, and only its status and whether the money has been collected
       allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
-        && request.resource.data.status in ['preordered', 'in production', 'shipped', 'delivered', 'cancelled'];
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'paid', 'paidAt'])
+        && (!('paid' in request.resource.data) || request.resource.data.paid is bool)
+        && request.resource.data.status in ['awaiting payment', 'in process', 'packaging', 'shipped', 'delivered', 'cancelled'];
 
       allow delete: if isAdmin();
     }
 
-    // ---- Private access: the email list from the home page ----
-    // anyone may add an address; only admins can read or remove the list
-    match /subscribers/{id} {
-      allow create: if request.resource.data.keys().hasOnly(['email', 'source', 'createdAt'])
+    // ---- mailing list ----
+    // Each subscriber is stored under a long random token (their private unsubscribe key).
+    // Nobody can list or search subscribers except admins; anyone holding the token (from the
+    // email's unsubscribe link) can read that one record and flip its status.
+    match /subscribers/{token} {
+      allow get: if token.matches('^[a-f0-9]{32,64}$') || isAdmin();
+      allow list: if isAdmin();
+
+      allow create: if token.matches('^[a-f0-9]{32,64}$')
+        && request.resource.data.keys().hasOnly(['email', 'status', 'source', 'consent', 'createdAt', 'updatedAt'])
         && validGmail(request.resource.data.email)
-        && request.resource.data.email == request.resource.data.email.lower()
-        && request.resource.data.source is string && request.resource.data.source.size() <= 40
-        && request.resource.data.createdAt == request.time;
-      allow read, delete: if isAdmin();
+        && request.resource.data.status == 'subscribed'
+        && request.resource.data.consent == true
+        && request.resource.data.source is string && request.resource.data.source.size() <= 30
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      // unsubscribe (or re-subscribe): the status and its timestamp, nothing else
+      allow update: if token.matches('^[a-f0-9]{32,64}$')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status in ['subscribed', 'unsubscribed']
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if isAdmin();
+    }
+
+    // ---- contact messages ----
+    // One document per conversation, stored under a long random token (the customer's private link to the thread).
+    // Customers can create a conversation and append their own messages; only admins can list, answer, close or delete.
+    match /messages/{token} {
+      allow get: if token.matches('^[a-f0-9]{32,64}$') || isAdmin();
+      allow list: if isAdmin();
+
+      allow create: if token.matches('^[a-f0-9]{32,64}$')
+        && request.resource.data.keys().hasOnly(['name', 'email', 'topic', 'status', 'thread', 'unreadAdmin', 'createdAt', 'updatedAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
+        && validGmail(request.resource.data.email)
+        && request.resource.data.topic in ['general', 'unsubscribe', 'preorder', 'order', 'other']
+        && request.resource.data.status == 'open'
+        && request.resource.data.unreadAdmin == true
+        && request.resource.data.thread is list && request.resource.data.thread.size() == 1
+        && request.resource.data.thread[0].keys().hasOnly(['from', 'text', 'at'])
+        && request.resource.data.thread[0].from == 'customer'
+        && request.resource.data.thread[0].text is string && request.resource.data.thread[0].text.size() > 0 && request.resource.data.thread[0].text.size() <= 2000
+        && request.resource.data.thread[0].at is number
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update:
+        // the customer adds exactly one more message of their own, and nothing else changes
+        if (token.matches('^[a-f0-9]{32,64}$')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['thread', 'unreadAdmin', 'status', 'updatedAt'])
+          && request.resource.data.thread.size() == resource.data.thread.size() + 1
+          && request.resource.data.thread[0:resource.data.thread.size()] == resource.data.thread
+          && request.resource.data.thread[resource.data.thread.size()].keys().hasOnly(['from', 'text', 'at'])
+          && request.resource.data.thread[resource.data.thread.size()].from == 'customer'
+          && request.resource.data.thread[resource.data.thread.size()].text is string
+          && request.resource.data.thread[resource.data.thread.size()].text.size() > 0
+          && request.resource.data.thread[resource.data.thread.size()].text.size() <= 2000
+          && request.resource.data.thread[resource.data.thread.size()].at is number
+          && request.resource.data.unreadAdmin == true
+          && request.resource.data.status == 'open'
+          && request.resource.data.updatedAt == request.time)
+        // admins reply, mark as read, close or reopen
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['thread', 'unreadAdmin', 'status', 'updatedAt'])
+          && request.resource.data.status in ['open', 'closed']);
+
+      allow delete: if isAdmin();
     }
 
     // everything else is closed

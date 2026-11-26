@@ -6,21 +6,23 @@
   <title>LA PLAGE · Dressed for golden hour.</title>
   <meta name="description" content="LA PLAGE. Beachwear made by students in Saigon. Few pieces, made well. Drop 001 · Summer.">
   <meta name="theme-color" content="#FFFFFF">
+  <link rel="icon" href="assets/brand/mark.png">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://laplage.store/">
   <meta property="og:site_name" content="LA PLAGE">
   <meta property="og:title" content="LA PLAGE · Dressed for golden hour.">
-  <meta property="og:description" content="Beachwear made by students in Saigon. Drop 001: shorts from 500.000 ₫, two for 925.000 ₫. Free shipping in Saigon.">
-  <meta property="og:url" content="https://la-plage-eight.vercel.app/">
-  <meta property="og:image" content="https://la-plage-eight.vercel.app/assets/brand/og.jpg">
+  <meta property="og:description" content="Beachwear made by students in Saigon. Few pieces, made well. Pre-orders are open.">
+  <meta property="og:image" content="https://laplage.store/assets/brand/og-image.png?v=2">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="LA PLAGE logo: two palm trees and the wordmark">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="assets/brand/mark.png">
+  <meta name="twitter:image" content="https://laplage.store/assets/brand/og-image.png?v=2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
-  <link rel="stylesheet" href="styles.css?v=60">
-  <link rel="stylesheet" href="portal/portal.css?v=47">
+  <link rel="stylesheet" href="styles.css?v=67">
+  <link rel="stylesheet" href="portal/portal.css?v=55">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
 <body>
@@ -50,8 +52,8 @@
       </a>
       <nav class="nav__links" aria-label="Sections">
         <ul>
+          <li><a href="#lookbook" data-spy="lookbook">Lookbook</a></li>
           <li><a href="#drop" data-spy="drop">Shop</a></li>
-          <li><a href="#collections" data-spy="collections">Collections</a></li>
           <li><a href="#story" data-spy="story">Story</a></li>
           <li class="nav__account-item"><a href="account.html" data-account-link>Sign in</a></li>
         </ul>
@@ -90,11 +92,33 @@
       <ul class="glass-row drift__row" data-glass-row aria-label="Featured pieces"></ul>
     </section>
 
+    <!-- Lookbook -->
+    <section class="lookbook section float-card" data-motion id="lookbook" aria-labelledby="lookbook-title">
+      <div class="lookbook__head wrap">
+        <p class="label label--index" data-animate="fade-up"><span>01</span> Lookbook</p>
+        <h2 class="display-2" id="lookbook-title" data-animate="words" data-delay="100">Golden hour, <em>Mũi Né</em></h2>
+      </div>
+      <div class="lookbook__grid wrap">
+        <figure class="look" data-animate="fade-up">
+          <div class="look__frame" data-animate="clip"><img data-parallax="0.08" src="assets/img/lookbook/look-01.webp" alt="Lagon Short in blue camo hibiscus resting on a sun lounger beside a bright blue pool" width="1200" height="1500" style="object-position:68% 50%" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 01</span> Lagon Short, Blue Camo Hibiscus</figcaption>
+        </figure>
+        <figure class="look look--low" data-animate="fade-up" data-delay="140">
+          <div class="look__frame" data-animate="clip" data-delay="140"><img data-parallax="0.14" src="assets/img/lookbook/look-02.webp" alt="Corail Short in pink floral hung over a wooden rail at sunset with the sea behind" width="1200" height="1500" style="object-position:52% 50%" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 02</span> Corail Short, Pink Floral</figcaption>
+        </figure>
+        <figure class="look" data-animate="fade-up" data-delay="280">
+          <div class="look__frame" data-animate="clip" data-delay="280"><img data-parallax="0.06" src="assets/img/lookbook/look-03.webp" alt="Palmier Short in palm print laid on a surfboard on the sand beside two coconuts" width="1200" height="1500" style="object-position:30% 50%" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 03</span> Palmier Short, Palm Print</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- The first wash -->
     <section class="drop section" id="drop" aria-labelledby="drop-title">
       <div class="drop__head wrap">
         <div>
-          <p class="label label--index" data-animate="fade-up"><span>01</span> The drop</p>
+          <p class="label label--index" data-animate="fade-up"><span>02</span> The drop</p>
           <h2 class="display-2" id="drop-title" data-animate="words" data-delay="100">The first <em>wash</em></h2>
         </div>
         <p class="drop__note" data-animate="fade-up" data-delay="200"><span>Inspiration</span>Faded beach-cabin stripes, hibiscus in two blues, and palms sketched by hand.</p>
@@ -108,66 +132,11 @@
       </div>
     </section>
 
-    <!-- Interlude: a fast wave rushes up the screen and the tide rolls in -->
-    <section class="tide" aria-labelledby="tide-title" data-tide>
-      <div class="tide__stage">
-      <div class="tide__sea" aria-hidden="true">
-        <span class="tide__wave tide__wave--foam" data-motion></span>
-        <span class="tide__wave tide__wave--aqua" data-motion></span>
-        <span class="tide__wave tide__wave--sea" data-motion></span>
-        <span class="tide__wave tide__wave--deep" data-motion></span>
-      </div>
-      <div class="tide__life" aria-hidden="true">
-        <span class="tide__caustics" data-motion></span>
-        <span class="tide__swell tide__swell--1" data-motion></span>
-        <span class="tide__swell tide__swell--2" data-motion></span>
-        <span class="tide__swell tide__swell--3" data-motion></span>
-      </div>
-      <div class="tide__words wrap">
-        <p class="tide__kicker" data-motion>Drop 001 &nbsp;·&nbsp; Sea &amp; Sand</p>
-        <h2 class="tide__phrase" id="tide-title" data-motion><span class="tide__line" data-motion>The tide</span> <em class="tide__line" data-motion>rolls in.</em></h2>
-        <p class="tide__sub" data-motion>Two collections, washed up on the same shore.</p>
-      </div>
-      </div>
-    </section>
-
-    <!-- Sea / Sand -->
-    <section class="panels section" id="collections" aria-label="Collections">
-      <div class="panel panel--sea" data-collection="sea" data-motion>
-        <div class="panel__fade" aria-hidden="true"></div>
-        <a class="panel__link" href="#drop" data-collection-link="sea">Shop Sea</a>
-        <div class="panel__light" aria-hidden="true" data-motion></div>
-        <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="200"></div>
-        <div class="panel__fan" aria-hidden="true" data-fan="sea"></div>
-        <div class="panel__caption" data-motion>
-          <p class="label label--index" data-animate="fade-up" data-delay="0"><span>02</span> Collection</p>
-          <h2 class="panel__title" data-animate="words" data-delay="120"><em>Sea</em></h2>
-          <p class="panel__count" data-count="sea" data-animate="fade-up" data-delay="240"></p>
-          <p class="panel__text" data-animate="fade-up" data-delay="320">Deep blues for early water and late swims.</p>
-          <span class="panel__cta" data-animate="fade-up" data-delay="440" data-motion>Shop Sea<span class="panel__arrow" aria-hidden="true" data-motion></span></span>
-        </div>
-      </div>
-      <div class="panel panel--sand" data-collection="sand" data-motion>
-        <div class="panel__fade" aria-hidden="true"></div>
-        <a class="panel__link" href="#drop" data-collection-link="sand">Shop Sand</a>
-        <div class="panel__light" aria-hidden="true" data-motion></div>
-        <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="320"></div>
-        <div class="panel__fan" aria-hidden="true" data-fan="sand"></div>
-        <div class="panel__caption" data-motion>
-          <p class="label label--index" data-animate="fade-up" data-delay="120"><span>03</span> Collection</p>
-          <h2 class="panel__title" data-animate="words" data-delay="240"><em>Sand</em></h2>
-          <p class="panel__count" data-count="sand" data-animate="fade-up" data-delay="360"></p>
-          <p class="panel__text" data-animate="fade-up" data-delay="440">Warm neutrals, sun-faded by design.</p>
-          <span class="panel__cta" data-animate="fade-up" data-delay="560" data-motion>Shop Sand<span class="panel__arrow" aria-hidden="true" data-motion></span></span>
-        </div>
-      </div>
-    </section>
-
     <!-- Story -->
     <section class="story section float-card" data-motion id="story" aria-labelledby="story-title">
       <div class="story__inner wrap">
         <img class="story__mark" src="assets/brand/mark.png" alt="" width="44" height="40" data-animate="fade-up">
-        <p class="label label--index label--center" data-animate="fade-up" data-delay="80"><span>04</span> Story</p>
+        <p class="label label--index label--center" data-animate="fade-up" data-delay="80"><span>03</span> Story</p>
         <h2 class="visually-hidden" id="story-title">Our story</h2>
         <p class="story__text" data-animate="words" data-delay="160">Made for the hours between the <em>tide</em> and the <em>evening.</em> Few pieces. Made well. Never rushed.</p>
       </div>
@@ -197,48 +166,21 @@
           </li>
           <li class="why__point">
             <span class="why__num">04</span>
-            <h4 class="why__name">10% for the shore</h4>
-            <p class="why__text">We give 10% of our profit to Sài Gòn Xanh, a group that cleans up Vietnam's beaches. The places that inspire every piece deserve something back.</p>
+            <h4 class="why__name">10% goes to Saigon Xanh</h4>
+            <p class="why__text">10% of our profit goes to Saigon Xanh.</p>
           </li>
         </ol>
       </div>
     </section>
 
-    <!-- Lookbook: hidden until the real photos from the shoot are in (remove "hidden" and add them to the nav and footer) -->
-    <section class="lookbook section float-card" data-motion id="lookbook" aria-labelledby="lookbook-title" hidden>
-      <div class="lookbook__head wrap">
-        <p class="label label--index" data-animate="fade-up"><span>05</span> Lookbook</p>
-        <h2 class="display-2" id="lookbook-title" data-animate="words" data-delay="100">Golden hour, <em>Mũi Né</em></h2>
-      </div>
-      <div class="lookbook__grid wrap">
-        <figure class="look" data-animate="fade-up">
-          <div class="look__frame" data-animate="clip"><img data-parallax="0.08" src="assets/img/lookbook/look-01.svg" alt="Placeholder: a wide, empty beach in soft morning light" width="900" height="1400" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 01</span> Lagon Short, Blue Camo Hibiscus</figcaption>
-        </figure>
-        <figure class="look look--low" data-animate="fade-up" data-delay="140">
-          <div class="look__frame" data-animate="clip" data-delay="140"><img data-parallax="0.14" src="assets/img/lookbook/look-02.svg" alt="Placeholder: low sun over the water at golden hour" width="900" height="1400" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 02</span> Corail Short, Pink Floral</figcaption>
-        </figure>
-        <figure class="look" data-animate="fade-up" data-delay="280">
-          <div class="look__frame" data-animate="clip" data-delay="280"><img data-parallax="0.06" src="assets/img/lookbook/look-03.svg" alt="Placeholder: pale sand and calm sea under a clear sky" width="900" height="1400" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 03</span> Palmier Short, Palm Print</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <!-- Private access -->
+    <!-- Packaging section is hidden for now. To bring it back, paste the contents of packaging-section.html here (above Private access), renumber "Private access" to 07 and re-add the footer link. -->
+    <!-- Pre-orders: sign in with Google -->
     <section class="access section float-card" data-motion id="access" aria-labelledby="access-title">
       <div class="access__inner wrap">
-        <p class="label label--index label--center" data-animate="fade-up"><span>06</span> Private access</p>
-        <h2 class="display-2" id="access-title" data-animate="words" data-delay="100">Before it opens to <em>everyone.</em></h2>
-        <p class="access__text" data-animate="fade-up" data-delay="300">Each drop is small. Members hear first.</p>
-        <form class="access__form" novalidate data-access-form data-animate="fade-up" data-delay="420">
-          <label class="visually-hidden" for="access-email">Email address</label>
-          <input class="access__input" id="access-email" name="email" type="email" autocomplete="email" placeholder="Email address" required aria-describedby="access-status">
-          <button class="btn-outline" type="submit">Request access</button>
-        </form>
-        <p class="access__status" id="access-status" role="status" aria-live="polite"></p>
-        <p class="access__legal">We only use your email to write about new drops. See our <a class="link link--underlined" href="privacy.html">privacy policy</a>.</p>
+        <p class="label label--index label--center" data-animate="fade-up"><span>04</span> Pre-orders</p>
+        <h2 class="display-2" id="access-title" data-animate="words" data-delay="100">Pre-orders are <em>open.</em></h2>
+        <p class="access__text" data-animate="fade-up" data-delay="300">Each drop is small. <strong>Pre-orders are open.</strong> Sign in with Google, then choose a piece and pre-order it.</p>
+        <div class="access__auth" data-access-auth data-animate="fade-up" data-delay="420"><p class="pf-hint">Loading…</p></div>
       </div>
     </section>
   </main>
@@ -250,21 +192,22 @@
         <div class="footer__mark palm" aria-hidden="true"></div>
         <p class="footer__wordmark">LA PLAGE</p>
         <p class="footer__tag">Dressed for <em>golden hour.</em></p>
+        <p class="footer__give">10% of our profit goes to Saigon Xanh.</p>
       </div>
       <nav class="footer__col" aria-label="Shop">
         <h3>Shop</h3>
         <ul>
           <li><a class="link" href="#drop">Drop 001</a></li>
-          <li><a class="link" href="#collections">Sea</a></li>
-          <li><a class="link" href="#collections">Sand</a></li>
           <li><a class="link" href="colour-guide.html">Colour guide</a></li>
         </ul>
       </nav>
       <nav class="footer__col" aria-label="House">
         <h3>House</h3>
         <ul>
+          <li><a class="link" href="#lookbook">Lookbook</a></li>
           <li><a class="link" href="#story">Story</a></li>
-          <li><a class="link" href="#access">Private access</a></li>
+          <li><a class="link" href="#access">Pre-order</a></li>
+          <li><a class="link" href="unsubscribe.html">Unsubscribe</a></li>
         </ul>
       </nav>
       <nav class="footer__col" aria-label="Help">
@@ -273,9 +216,7 @@
           <li><a class="link" href="help.html#shipping">Shipping</a></li>
           <li><a class="link" href="help.html#returns">Returns</a></li>
           <li><a class="link" href="help.html#sizes">Size guide</a></li>
-          <li><a class="link" href="help.html#contact">Contact</a></li>
-          <li><a class="link" href="privacy.html">Privacy</a></li>
-          <li><a class="link" href="terms.html">Terms</a></li>
+          <li><a class="link" href="contact.html">Contact</a></li>
         </ul>
       </nav>
       <div class="footer__col">
@@ -288,6 +229,12 @@
     </div>
     <div class="footer__base wrap">
       <p>&copy; <span data-year>2026</span> LA PLAGE. Made in Vietnam.</p>
+      <nav class="footer__legal" aria-label="Legal">
+        <a class="link" href="privacy.html">Privacy Policy</a>
+        <a class="link" href="terms.html">Terms of Use</a>
+        <a class="link" href="contact.html">Contact</a>
+        <a class="link" href="unsubscribe.html">Unsubscribe</a>
+      </nav>
       <div class="footer__locale">
         <span class="footer__currency">VND</span>
       </div>
@@ -312,7 +259,6 @@
       <div class="spotlight__float" data-motion>
         <img class="spotlight__img" data-spot-img data-motion src="" alt="" width="1200" height="1500" decoding="async">
       </div>
-      <p class="spotlight__hint" aria-hidden="true"><span></span>Drag to tilt</p>
       <div class="spotlight__guide" data-spot-guide hidden></div>
     </figure>
     <div class="spotlight__buy" data-motion>
@@ -335,11 +281,11 @@
     </button>
   </div>
 
-  <script src="intro.js?v=46" defer></script>
+  <script src="intro.js?v=47" defer></script>
   <script src="ocean.js?v=46" defer></script>
-  <script src="piece3d.js?v=51" defer></script>
-  <script src="main.js?v=58" defer></script>
-  <script src="firebase-config.js?v=47"></script>
-  <script type="module" src="portal/site.js?v=47"></script>
+  <script src="piece3d.js?v=52" defer></script>
+  <script src="main.js?v=63" defer></script>
+  <script src="firebase-config.js?v=64"></script>
+  <script type="module" src="portal/site.js?v=68"></script>
 </body>
 </html>

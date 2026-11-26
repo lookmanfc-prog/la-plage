@@ -7,7 +7,7 @@ Until these steps are done the site behaves exactly as before: "Sign in" leads t
 1. Go to https://console.firebase.google.com → **Add project** (any name, e.g. `la-plage`). Google Analytics is not needed.
 2. In the project: **Build → Authentication → Get started → Sign-in method → Email/Password → Enable** (leave "Email link" off). Save.
 3. **Authentication → Settings → Authorized domains**: make sure these are listed (add any that are missing):
-   `la-plage-eight.vercel.app`, `localhost`, and any custom domain you use later.
+   `laplage.store`, `www.laplage.store`, `localhost`, and any Vercel preview domain you use.
 4. **Build → Firestore Database → Create database** → choose a location close to Vietnam (e.g. `asia-southeast1`) → start in **production mode**.
 
 ## 2. Create your admin login (do this before going live)
@@ -28,7 +28,7 @@ These rules are what actually protect customer data; the admin list in `firebase
 ## 5. Deploy and test
 Commit and push (Vercel deploys). Then:
 1. Open the site → **Sign in** → **Create account** → place a test pre-order from any product.
-2. Open `/account` and check it is listed with the right shipping line (free for a Ho Chi Minh City address, 50.000 ₫ elsewhere).
+2. Open `/account` and check it is listed (shipping is free).
 3. Open `/admin`, sign in with the admin Gmail, change the order's status, export CSV.
 
 ## Good to know
@@ -38,53 +38,54 @@ Commit and push (Vercel deploys). Then:
   **Firestore → users** delete their record (their pre-orders stay), and ask them to sign up again with the same username.
 - Every customer must give a **Gmail**. It receives their pre-order confirmation (see Emails below); their login still uses the username.
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
-- Prices are read from `data/products.json` in the browser. The rules check shipping (free when the city looks like Saigon / Ho Chi Minh City / HCM, otherwise 50.000 ₫) and that total = subtotal − discount + shipping, but cannot check each price or the two-piece discount, so glance at totals before confirming payment.
-- The two-piece price lives in `bundle` in `data/products.json` (any two eligible shorts for 925.000 ₫).
-- "Private access" sign-ups from the home page are saved in Firestore → `subscribers`, and listed in /admin → Private access, with a CSV export.
+- Prices are read from `data/products.json` in the browser. The rules check that shipping is free (0) and that total = subtotal, but cannot check each price, so glance at totals before confirming payment.
 
-## Emails (EmailJS, free up to 200 emails a month)
-Every pre-order sends two emails: one to all admins in `ADMIN_EMAILS`, and a confirmation to the customer's Gmail.
-1. Sign up at https://www.emailjs.com (free).
-2. **Email Services → Add New Service → Gmail → Connect account** with the Gmail that should send the emails (laplage.vn@gmail.com). Note the **Service ID**.
-3. **Email Templates → Create New Template**, twice:
-   - **Admin template.** Settings: To Email `{{to_email}}`, Subject `New pre-order from {{customer_name}} · {{total}}`. Content:
-     ```
-     New pre-order {{order_id}} on {{order_date}}
+## Emails (Resend, sent by the site's own server function)
+All emails go out through **Resend**, from `api/send.js` (a Vercel function), so the Resend key stays secret on the server.
+What gets emailed:
+- **New pre-order:** to every admin (full details) and a confirmation to the customer.
+- **New contact message:** to the admins. Your reply in /admin -> Messages is emailed to the customer with a link to the conversation.
+Setup:
+1. In Resend: create an API key, and verify your sending domain (Resend -> Domains). Without a verified domain Resend only delivers to your own address.
+2. In Vercel (the project that deploys this repo) -> Settings -> Environment Variables, add:
+   - `RESEND_API_KEY` = your key
+   - `FROM_EMAIL` = `LA PLAGE <hello@yourdomain.com>`
+   - `ADMIN_EMAILS` = comma-separated inboxes for alerts (e.g. `you@gmail.com,partner@gmail.com`)
+3. Redeploy (Vercel -> Deployments -> Redeploy). Nothing else to configure.
+If the Firebase project is ever changed, also set `FIREBASE_PROJECT_ID` and `FIREBASE_API_KEY` in Vercel.
 
-     Customer: {{customer_name}} (@{{customer_username}})
-     Gmail: {{customer_gmail}}   Phone: {{customer_phone}}
-     Ship to: {{shipping_address}}
+## Mailing list (sign-ups, unsubscribe, privacy and terms)
+The home page's "Notify me" form saves each address in Firestore (collection `subscribers`) under a long random token.
+That token is the person's private unsubscribe key: `unsubscribe.html?t=TOKEN`. Nothing else is needed on a server.
 
-     {{items}}
+1. **Publish the new `firestore.rules`** (Firestore Database → Rules → paste the whole file → Publish). It now has a `subscribers` section.
+   Without this step sign-ups are refused and the form shows "We could not save your sign-up".
+2. **Sending the 20 November announcement.** Open `/admin` → **Mailing list**.
+   - "Copy subscribed emails" copies everyone currently subscribed (put them in **BCC**, never in To/CC).
+   - "Export CSV" includes each person's own unsubscribe link, for mail-merge tools (Mailchimp, Brevo, Buttondown).
+   - Every marketing email must contain a working unsubscribe link and your business name/contact. If you import the list into another mailing tool, use that tool's own unsubscribe, and then mark those people "Unsubscribe" here too so the lists stay in step.
+   - Never email anyone listed as **unsubscribed**.
+3. **Legal pages.** `privacy.html` and `terms.html` use `lookmanfc@gmail.com` as the contact and "LA PLAGE, Ho Chi Minh City" as the operator.
+   Replace those with your registered business name, address and a business email, and have a lawyer check both pages before launch.
 
-     Subtotal: {{subtotal}}
-     Two-piece price: {{discount}}
-     Shipping: {{shipping_fee}}
-     Total: {{total}}
-     Note: {{note}}
+## Contact messages (internal inbox in the admin panel)
+The footer's **Contact** link and the unsubscribe page lead to `contact.html`. A customer writes a message; it is saved in Firestore
+(collection `messages`) and appears live in **/admin → Messages** (a gold counter shows unread ones). You read it, write back in the
+same screen, and the answer shows on the customer's private conversation page (`contact.html?t=…`, kept in their browser and in the
+confirmation). Nobody's personal email address is shown anywhere.
+1. **Publish the new `firestore.rules`** (it has a `messages` section), otherwise sending fails with "We could not send your message".
 
-     Open the admin panel: {{admin_link}}
-     ```
-   - **Customer template.** Settings: To Email `{{to_email}}`, Reply To `{{reply_to}}`, Subject `Your LA PLAGE pre-order is in`. Content:
-     ```
-     Hello {{customer_name}},
+## Phone notifications (ntfy)
+Every new message and every new pre-order sends a push to the free ntfy app.
+1. Install **ntfy** (App Store / Google Play, or https://ntfy.sh on desktop).
+2. Tap **+ Subscribe to topic** and enter exactly: `laplage-admin-6930082a18ac759b`  (leave the server as ntfy.sh).
+3. That's it. The topic and server live in `firebase-config.js` under `NTFY`. Tapping a notification opens /admin on the right tab.
+Everyone subscribed to that topic gets the alerts, so share it only with admins. Anyone who learns the topic could read (or spam) the alerts:
+if that happens, change the topic in `firebase-config.js` to a new long random word and subscribe to the new one.
 
-     Thank you for your pre-order. It joins our next production batch.
-     We will be in touch to confirm the details and arrange payment.
 
-     {{items}}
-
-     Subtotal: {{subtotal}}
-     Two-piece price: {{discount}}
-     Shipping: {{shipping_fee}}
-     Total: {{total}}
-     Ship to: {{shipping_address}}
-
-     Follow your pre-order: {{account_link}}
-
-     LA PLAGE · made by students in Saigon
-     ```
-   Note each template's **Template ID**.
-4. **Account → General → Public Key**: copy it.
-5. **Account → Security**: tick "Allow EmailJS API for non-browser applications" OFF, and add `la-plage-eight.vercel.app` to the allowed domains, so nobody else can send with your key.
-6. Put the four values in the `EMAILJS` block of `firebase-config.js`.
+## Orders, payment and the status bar
+Customers choose **Bank transfer, QR code or Cash** when they order (set your bank details and QR picture under `PAYMENT` in `firebase-config.js`; whatever you leave empty shows "we will send you the details").
+Each order moves through: **Awaiting payment -> In process (paid) -> Being packaged -> Shipped -> Delivered** (or Cancelled). Change it from the dropdown in /admin -> **Orders**; the customer sees the same progress bar on their account page.
+The Orders page shows **Orders to fulfil** (awaiting payment, in process, packaging), **Questions to answer** (contact messages waiting for your reply) and **Done & shipped**. Each order lists the customer's phone, address, sizes and payment method.
+After changing `firestore.rules`, publish them again in the Firebase console.

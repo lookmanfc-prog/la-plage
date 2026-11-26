@@ -628,7 +628,7 @@ html.intro-on { overflow: hidden; }
 @media (hover: hover) and (pointer: fine) {
   /* The hovered piece pops out, tilting toward the cursor; everything else steps back */
   .card:hover .card__lift {
-    transform: translate3d(0, -7%, 40px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotate(-2.5deg) scale(1.13);
+    transform: translate3d(0, -7%, 40px) rotate(-2.5deg) scale(1.13);
   }
   .card:hover .card__shadow { opacity: 1; transform: scale(1.05); }
   .card:hover .card__hover { opacity: 1; }
@@ -1421,11 +1421,19 @@ html.intro-on { overflow: hidden; }
 .access__input:focus { outline: none; border-bottom-color: var(--sea); }
 .access__input:focus-visible { outline: none; box-shadow: 0 1px 0 0 var(--sea); }
 .access__input[aria-invalid="true"] { border-bottom-color: #A23B2A; }
+.access__form { flex-wrap: wrap; }
+.access__input { flex: 1 1 260px; }
+.access__trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.access__consent { flex: 1 1 100%; display: flex; gap: 10px; align-items: flex-start; text-align: left; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
+.access__consent a, .footer__legal a { text-transform: none; letter-spacing: 0; font-size: inherit; }
+
+.access__consent input { margin-top: 3px; width: 16px; height: 16px; flex: none; accent-color: var(--sea-deep); }
 .access__status { min-height: 1.6em; margin-top: 18px; font-size: 13px; color: var(--ink-soft); }
 .access__status.is-error { color: #A23B2A; }
 
 @media (max-width: 520px) {
   .access__form { flex-direction: column; align-items: stretch; }
+  .access__input { flex: none; }
 }
 
 /* ==========================================================================
@@ -1460,6 +1468,7 @@ html.intro-on { overflow: hidden; }
   padding-block: 24px 28px;
   font-size: 11.5px; letter-spacing: .08em; color: rgba(246, 238, 223, .7);
 }
+.footer__legal { display: flex; gap: 22px; flex-wrap: wrap; }
 .footer__locale { display: flex; align-items: center; gap: 28px; }
 .footer__lang { display: flex; align-items: center; gap: 8px; color: var(--sand); }
 .footer__lang .ui-btn { font-size: 11px; opacity: .55; transition: opacity .3s; }
@@ -1511,8 +1520,6 @@ html.spot-on { overflow: hidden; }
 .spotlight__stage { position: relative; margin: 0; height: min(72vh, 760px); perspective: 1200px; }
 .spotlight__float {
   position: absolute; inset: 0;
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 600ms var(--ease-out);
 }
 .spotlight__img {
   position: absolute; inset: 8%;
@@ -1896,14 +1903,48 @@ body { background: #0B3A5C; }
 .page-loader.is-on img { animation: loader-turn 600ms cubic-bezier(.65, 0, .35, 1) 60ms both; }
 @keyframes loader-turn { from { rotate: 0deg; } to { rotate: 360deg; } }
 
-/* ---- site fixes, Nov 2026 ---- */
-.lookbook[hidden] { display: none !important; }
-.spotlight__offer { margin-top: 14px; max-width: 280px; font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.5; color: var(--sand-ink); }
-.spotlight__offer[hidden] { display: none; }
+/* ==========================================================================
+   Packaging: the box, three photographs and a few words
+   ========================================================================== */
+.pack { padding: var(--section-y) 0 clamp(90px, 14vh, 160px); }
+.pack__head { margin-bottom: clamp(40px, 7vh, 80px); display: grid; gap: 18px; }
+.pack__copy { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20px, 4vw, 64px); max-width: 980px; margin-top: 10px; }
+.pack__copy p { font-family: var(--serif); font-size: 17px; line-height: 1.7; color: var(--ink-soft); max-width: 46ch; }
+.pack__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(14px, 2.4vw, 40px); align-items: start; }
+.pack__fig:nth-child(2) { margin-top: clamp(28px, 6vw, 90px); }
+.pack__frame { aspect-ratio: 4 / 5; display: grid; place-items: center; }   /* the boxes are cut out: they sit straight on the section */
+.pack__frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pack__fig figcaption { display: flex; align-items: baseline; gap: 14px; padding-top: 16px; font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-soft); }
+.pack__fig figcaption span { font-family: var(--sans); font-style: normal; font-weight: 400; letter-spacing: var(--track-label); text-transform: uppercase; font-size: 10.5px; color: var(--sea-deep); }
+@media (max-width: 760px) {
+  .pack__copy { grid-template-columns: 1fr; }
+  .pack__grid { grid-template-columns: 1fr 1fr; }
+  .pack__fig:first-child { grid-column: 1 / -1; width: 78%; }
+  .pack__fig:nth-child(2) { margin-top: 0; }
+}
+
+.access__auth { width: 100%; max-width: 440px; text-align: left; }
+.access__auth .pf-tabs { justify-content: center; }
+
+.footer__give { margin-top: 12px; font-size: 12.5px; letter-spacing: .04em; color: rgba(246, 238, 223, .75); }
+
+/* size guide panel in the product view */
 .sg__size { display: grid; place-items: center; background: #fff; border-radius: 18px; overflow: hidden; }
 .sg__size img { width: 100%; height: auto; max-height: 100%; object-fit: contain; }
 .sg__table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
 .sg__table th, .sg__table td { padding: 7px 4px; border-bottom: 1px solid var(--line); text-align: center; color: var(--sea-deep); font-weight: 400; }
 .sg__table thead th { font-size: 10.5px; letter-spacing: var(--track-label); color: var(--ink-soft); }
 .sg__table tbody th { text-align: left; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
-.access__legal { margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+
+/* two-for-925k offer line in the product view */
+.spotlight__offer { margin-top: 14px; max-width: 280px; font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.5; color: var(--sand-ink); }
+.spotlight__offer[hidden] { display: none; }
+
+/* phones: Pre-order pinned to the bottom of the product view (moved out of .spotlight__buy by main.js) */
+@media (max-width: 860px) {
+  .spotlight { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .spotlight > .spotlight__cta {
+    position: fixed; left: 24px; right: 24px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 6;
+    display: flex; justify-content: center; background: var(--white); box-shadow: 0 10px 30px -12px rgba(11, 44, 71, .35);
+  }
+}

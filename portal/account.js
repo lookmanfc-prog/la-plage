@@ -1,9 +1,10 @@
 /* LA PLAGE · account page: sign in, profile, notification Gmail & address, pre-orders, sign out. */
 import {
-  isConfigured, auth, db, esc, fmtVND, fmtDate, fmtAddress, titleCase, authMessage, isAdminUser,
+  isConfigured, auth, db, esc, fmtVND, fmtDate, fmtAddress, authMessage, isAdminUser, STATUS_LABEL, PAYMENTS,
   onAuthStateChanged, signOut, doc, updateDoc, collection, query, where, getDocs,
 } from './firebase.js';
 import { renderAuthForm, loadProfile } from './auth-form.js';
+import { payPanel, wireCopy, orderCode } from './pay.js';
 
 const root = document.querySelector('[data-account]');
 const GMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,7 +18,7 @@ if (!isConfigured) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       root.innerHTML = '<div class="pf-card pf-card--narrow"><h1 class="pf-title">Your <em>account.</em></h1><div data-auth></div></div>';
-      renderAuthForm(root.querySelector('[data-auth]'), { intro: 'Sign in to see your pre-orders, or create an account to place one.' });
+      renderAuthForm(root.querySelector('[data-auth]'), { intro: 'Sign in with Google to see your pre-orders.' });
       return;
     }
     if (isAdminUser(user)) {
@@ -46,15 +47,15 @@ if (!isConfigured) {
 
 function render(user, profile, orders) {
   const a = profile.address || {};
-  const status = orders.some((o) => o.status !== 'cancelled') ? 'Preordered' : 'No pre-order yet';
+  const status = orders.some((o) => o.status !== 'cancelled') ? 'Pre-ordered' : 'No pre-order yet';
   root.innerHTML = `
     <div class="pf-card">
       <div class="pf-head">
         <div>
-          <p class="label">Account · @${esc(profile.username || '')}</p>
+          <p class="label">Account · ${esc(profile.gmail || '')}</p>
           <h1 class="pf-title">Hello, <em>${esc((profile.name || '').split(' ')[0] || 'there')}.</em></h1>
         </div>
-        <span class="pf-badge${status === 'Preordered' ? ' is-on' : ''}">${esc(status)}</span>
+        <span class="pf-badge${status === 'Pre-ordered' ? ' is-on' : ''}">${esc(status)}</span>
       </div>
       ${profile.disabled ? '<p class="pf-notice">This account is paused and cannot place new pre-orders. Please contact us.</p>' : ''}
       <dl class="pf-facts">
@@ -73,8 +74,8 @@ function render(user, profile, orders) {
           <label class="pf-field"><span>Phone</span><input name="phone" type="tel" inputmode="tel" maxlength="20" value="${esc(profile.phone || '')}"></label>
           <label class="pf-field pf-field--wide"><span>Street</span><input name="street" maxlength="120" value="${esc(a.street || '')}"></label>
           <label class="pf-field"><span>Ward</span><input name="ward" maxlength="60" value="${esc(a.ward || '')}"></label>
-          <label class="pf-field"><span>District</span><input name="district" maxlength="60" value="${esc(a.district || '')}"></label>
-          <label class="pf-field"><span>City</span><input name="city" maxlength="60" value="${esc(a.city || '')}"></label>
+          <label class="pf-field"><span>District <em>optional</em></span><input name="district" maxlength="60" value="${esc(a.district || '')}"></label>
+          <label class="pf-field"><span>City</span><select name="city"><option value="">Choose a city</option>${[['Ho Chi Minh City', 'Saigon (Ho Chi Minh City)'], ['Hanoi', 'Hanoi'], ['Hue', 'Huế']].map(([v, l]) => `<option value="${v}"${a.city === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
         </div>
         <p class="pf-error" role="status" aria-live="polite" data-profile-msg></p>
         <button class="btn-outline pf-submit" type="submit">Save</button>
@@ -90,6 +91,7 @@ function render(user, profile, orders) {
 
     <p class="pf-actions pf-actions--end"><button type="button" class="btn-outline" data-signout>Sign out</button></p>`;
 
+  wireCopy(root);
   root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
   root.querySelector('[data-profile-form]').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -112,15 +114,25 @@ function render(user, profile, orders) {
   });
 }
 
+const STEPS = ['awaiting payment', 'in process', 'packaging', 'shipped', 'delivered'];
+function progress(status) {
+  if (status === 'cancelled') return '<p class="pf-notice">This order was cancelled.</p>';
+  const at = Math.max(0, STEPS.indexOf(status));
+  return `<ol class="pf-track" aria-label="Order progress">${STEPS.map((st, i) => `
+    <li class="pf-track__step${i < at ? ' is-done' : ''}${i === at ? ' is-now' : ''}"${i === at ? ' aria-current="step"' : ''}><span class="pf-track__dot"></span><span class="pf-track__label">${esc(STATUS_LABEL[st])}</span></li>`).join('')}</ol>`;
+}
+
 function orderCard(o) {
   return `
     <article class="pf-order">
       <header class="pf-order__head">
-        <span>${esc(fmtDate(o.createdAt))}</span>
-        <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(titleCase(o.status || 'preordered'))}</span>
+        <span>${esc(orderCode(o.id))} · ${esc(fmtDate(o.createdAt))} · ${esc(PAYMENTS[o.payment] || '')} · ${o.paid ? 'Paid' : 'Payment not received yet'}</span>
+        <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(STATUS_LABEL[o.status] || o.status || '')}</span>
       </header>
+      ${progress(o.status)}
+      ${o.status === 'awaiting payment' && !o.paid ? payPanel(o.payment, { total: o.total, id: o.id, name: o.customerName }) : ''}
       <ul class="pf-order__items">${(o.items || []).map((it) => `
-        <li><span>${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
+        <li><span>${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · size ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
       </ul>
       <dl class="pf-sum pf-sum--small">
         <div><dt>Subtotal</dt><dd>${esc(fmtVND(o.subtotal))}</dd></div>

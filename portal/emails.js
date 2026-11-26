@@ -1,44 +1,36 @@
-/* LA PLAGE · pre-order emails, sent through EmailJS (https://www.emailjs.com).
-   One email to every admin in ADMIN_EMAILS, and one confirmation to the customer's Gmail.
-   Does nothing until the EMAILJS block in firebase-config.js is filled in. */
-import { CONFIG, ADMIN_EMAILS, fmtVND, fmtAddress } from './firebase.js';
+/* LA PLAGE · emails. The browser only tells our server function (api/send.js, which uses Resend) WHAT happened;
+   the function reads the record itself and sends the emails, so the Resend key stays private and nobody can use the
+   site to send arbitrary email. A failure here never blocks a customer. */
+import { auth } from './firebase.js';
 
-const E = CONFIG.EMAILJS || {};
-export const emailsReady = !!(E.PUBLIC_KEY && !/^PASTE_/.test(E.PUBLIC_KEY) && E.SERVICE_ID && E.ADMIN_TEMPLATE_ID && E.CUSTOMER_TEMPLATE_ID);
-
-const send = async (templateId, params) => {
-  const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ service_id: E.SERVICE_ID, template_id: templateId, user_id: E.PUBLIC_KEY, template_params: params }),
-  });
-  if (!res.ok) throw new Error(`EmailJS ${res.status}: ${await res.text()}`);
+const call = async (body) => {
+  try {
+    const res = await fetch('/api/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) console.warn('[LA PLAGE] email', res.status, await res.text());
+  } catch (e) { console.warn('[LA PLAGE] email', e); }
 };
+const idToken = () => (auth && auth.currentUser ? auth.currentUser.getIdToken() : Promise.resolve(''));
 
-export async function sendOrderEmails(order) {
-  if (!emailsReady) return;
-  // plain text only: EmailJS escapes these values in the email ({{ }} placeholders)
-  const params = {
-    order_id: order.id,
-    order_date: new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }),
-    customer_name: order.name,
-    customer_username: order.username,
-    customer_gmail: order.gmail,
-    customer_phone: order.phone,
-    shipping_address: fmtAddress(order.address),
-    items: order.items.map((it) => `${it.title}${it.color ? ` · ${it.color}` : ''} · size ${it.size} × ${it.quantity} = ${fmtVND(it.lineTotal)}`).join('\n'),
-    subtotal: fmtVND(order.subtotal),
-    discount: order.discount ? `−${fmtVND(order.discount)}` : '—',
-    shipping_fee: order.shippingFee ? fmtVND(order.shippingFee) : 'Free (Saigon)',
-    total: fmtVND(order.total),
-    note: order.note || '—',
-    admin_link: `${location.origin}/admin`,
-    account_link: `${location.origin}/account`,
-  };
-  await Promise.allSettled([
-    // admins: one email, every admin on the To line
-    ADMIN_EMAILS.length ? send(E.ADMIN_TEMPLATE_ID, { ...params, to_email: ADMIN_EMAILS.join(',') }) : Promise.resolve(),
-    // the customer's confirmation, replies go to the first admin
-    send(E.CUSTOMER_TEMPLATE_ID, { ...params, to_email: order.gmail, reply_to: ADMIN_EMAILS[0] || '' }),
-  ]).then((r) => r.forEach((x) => { if (x.status === 'rejected') console.warn('[LA PLAGE] email', x.reason); }));
-}
+// a pre-order was placed: admins get the details, the customer gets a confirmation
+export async function sendOrderEmails(order) { await call({ type: 'order', orderId: order.id, idToken: await idToken() }); }
+// a customer wrote (new conversation or follow-up): admins get an email
+export async function sendContactEmails({ token }) { await call({ type: 'contact', token }); }
+export const notifyNewCustomerMessage = sendContactEmails;
+// an admin replied in Messages: the customer gets an email with their private link
+export async function sendReplyEmail({ token }) { await call({ type: 'reply', token, idToken: await idToken() }); }
+
+// an admin changed an order's status: the server emails the customer. Returns { ok, reason }.
+const adminCall = async (body) => {
+  try {
+    const res = await fetch('/api/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, idToken: await idToken() }) });
+    const j = await res.json().catch(() => ({}));
+    if (res.ok && j.sent === true) return { ok: true };
+    if (res.ok) return { ok: false, reason: 'No email is sent for that status.' };
+    if (res.status === 404) return { ok: false, reason: 'The email function is not on the site yet (404). Vercel may not have deployed it.' };
+    if (res.status === 503) return { ok: false, reason: 'Email is not switched on: GMAIL_USER / GMAIL_APP_PASSWORD are missing in Vercel, or the site was not redeployed after adding them.' };
+    return { ok: false, reason: j.detail || j.error || `Error ${res.status}` };
+  } catch (err) { return { ok: false, reason: 'Could not reach the email function.' }; }
+};
+export const sendStatusEmail = ({ orderId }) => adminCall({ type: 'status', orderId });
+export const sendPaidEmail = ({ orderId }) => adminCall({ type: 'paid', orderId });
+export const sendTestEmail = () => adminCall({ type: 'test' });
