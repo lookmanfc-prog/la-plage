@@ -50,11 +50,24 @@ if (isConfigured) {
       else renderAuthForm(accessBox, {});
     }
     if (u) { try { profile = await loadProfile(u); } catch (e) { profile = null; } }
-    if (overlay && !overlay.hidden) draw();
+    if (overlay && !overlay.hidden) { draw(); return; }
+    // back from a sign-in that reloaded the page: reopen the pre-order at step 2 with the same pieces
+    if (u) {
+      let saved = null;
+      try { saved = JSON.parse(sessionStorage.getItem(BASKET) || 'null'); } catch (e) { saved = null; }
+      if (saved && Array.isArray(saved.items) && saved.items.length && Date.now() - (saved.at || 0) < 30 * 60 * 1000) {
+        if (!products.length) { try { products = await loadProducts(); } catch (e) { return; } }
+        items = saved.items.filter((it) => products.some((p) => p.id === it.productId));
+        if (!items.length) { forgetBasket(); return; }
+        if (CITIES.some(([v]) => v === saved.city)) { city = saved.city; drawPieces.cityChosen = true; }
+        step = 'details'; openOverlay();
+      }
+    }
   });
 
   const close = () => {
     if (!overlay) return;
+    forgetBasket();
     overlay.classList.remove('is-open');
     document.documentElement.classList.remove('pf-lock');
     setTimeout(() => { overlay.hidden = true; }, 350);
@@ -115,9 +128,35 @@ if (isConfigured) {
     return { subtotal, discount, total: subtotal - discount + shipFee() };
   };
 
+  // the basket is kept for a short while so a sign-in that reloads the page lands back on step 2
+  const BASKET = 'laplage-basket';
+  const forgetBasket = () => { try { sessionStorage.removeItem(BASKET); } catch (e) { /* fine */ } };
+
+  // two steps: 1) choose pieces and see the total (no sign-in needed), 2) sign in, delivery details and payment
+  let step = 'pieces';
+  const sumHTML = () => {
+    const { subtotal, discount, total } = totals();
+    return `
+        <dl class="pf-sum">
+          <div><dt>Subtotal</dt><dd data-subtotal>${esc(fmtVND(subtotal))}</dd></div>
+          <div data-discount-row${discount ? '' : ' hidden'}><dt>Two for ${esc(fmtVND((catalog.bundle || {}).price))}</dt><dd data-discount>−${esc(fmtVND(discount))}</dd></div>
+          <div><dt>Shipping</dt><dd data-ship>${shipFee() ? esc(fmtVND(shipFee())) : 'Free'}</dd></div>
+          <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
+        </dl>`;
+  };
+  const cityOptions = () => CITIES.map(([v, l]) => `<option value="${esc(v)}"${v === city ? ' selected' : ''}>${esc(l)}</option>`).join('');
+  const stepLabel = (n) => `<p class="pf-steps" aria-label="Step ${n} of 2"><span${n === 1 ? ' class="is-on"' : ''}>1 · Your pieces</span><span${n === 2 ? ' class="is-on"' : ''}>2 · Delivery &amp; payment</span></p>`;
+  const toTop = () => { if (overlay) overlay.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const goPieces = () => { step = 'pieces'; draw(); toTop(); };
+
   const draw = () => {
+    if (!products.length) { body().innerHTML = '<p class="pf-state">The pieces could not be loaded. Please refresh and try again.</p>'; return; }
+    if (!items.length) items = [pending || { productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 }];
+    if (step === 'pieces') { drawPieces(); return; }
     if (!user) {
-      renderAuthForm(body(), { intro: 'Sign in with Google to place your pre-order.' });
+      body().innerHTML = `${stepLabel(2)}<div data-auth></div><button type="button" class="ui-btn link pf-back" data-back>← Back to your pieces</button>`;
+      renderAuthForm(body().querySelector('[data-auth]'), { intro: 'Sign in with Google to finish your pre-order. Your pieces stay as you chose them.' });
+      body().querySelector('[data-back]').addEventListener('click', goPieces);
       return;
     }
     if (!profile) { body().innerHTML = '<p class="pf-state">Loading your account…</p>'; return; }
@@ -125,15 +164,67 @@ if (isConfigured) {
       body().innerHTML = '<p class="pf-state">This account cannot place new pre-orders at the moment. Please contact us if you think this is a mistake.</p>';
       return;
     }
-    if (!products.length) { body().innerHTML = '<p class="pf-state">The pieces could not be loaded. Please refresh and try again.</p>'; return; }
-    if (!items.length) items = [pending || { productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 }];
-    const a = profile.address || {};
-    const { subtotal, discount, total } = totals();
+    drawDetails();
+  };
+
+  // step 1: pieces, delivery city and the total
+  const drawPieces = () => {
+    if (user && profile && profile.address && CITIES.some(([v]) => v === profile.address.city) && !drawPieces.cityChosen) city = profile.address.city;
     body().innerHTML = `
-      <form class="pf-form" novalidate data-order-form>
+      ${stepLabel(1)}
+      <form class="pf-form" novalidate data-pieces-form>
         <fieldset class="pf-set"><legend>Your pieces</legend>
           <div data-items>${items.map(itemRow).join('')}</div>
           <button type="button" class="ui-btn link pf-add" data-add>+ Add another piece</button>
+        </fieldset>
+        <label class="pf-field"><span>Delivering to</span><select name="city">${cityOptions()}</select></label>
+        ${sumHTML()}
+        ${catalog.bundle && catalog.bundle.label ? `<p class="pf-hint">${esc(catalog.bundle.label)}: the price comes off automatically.</p>` : ''}
+        <p class="pf-hint">10% of our profit goes to Saigon Xanh.</p>
+        <button class="btn-outline pf-submit" type="submit">Continue</button>
+        <p class="pf-hint">${user ? 'Next: your delivery details and how you will pay.' : 'Next: sign in with Google, then your delivery details. Nothing is charged on this site.'}</p>
+      </form>`;
+    const form = body().querySelector('[data-pieces-form]');
+    const list = form.querySelector('[data-items]');
+    const citySel = form.querySelector('[name="city"]');
+    citySel.addEventListener('change', () => { city = citySel.value; drawPieces.cityChosen = true; refreshSums(); });
+    list.addEventListener('change', (e) => {
+      readItems();
+      if (e.target.name === 'product') { list.innerHTML = items.map(itemRow).join(''); }
+      refreshSums();
+    });
+    list.addEventListener('click', (e) => {
+      const rm = e.target.closest('[data-remove]'); if (!rm) return;
+      readItems(); items.splice(Number(rm.closest('[data-item]').dataset.item), 1);
+      list.innerHTML = items.map(itemRow).join(''); refreshSums();
+    });
+    form.querySelector('[data-add]').addEventListener('click', () => {
+      readItems();
+      if (items.length >= 10) return;
+      items.push({ productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 });
+      list.innerHTML = items.map(itemRow).join(''); refreshSums();
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); readItems(); step = 'details';
+      try { sessionStorage.setItem(BASKET, JSON.stringify({ items, city, at: Date.now() })); } catch (e2) { /* private mode: fine */ }
+      draw(); toTop();
+    });
+  };
+
+  // step 2: contact, address and payment, with the chosen pieces summed up at the top
+  const drawDetails = () => {
+    const a = profile.address || {};
+    const pieceList = items.map((it) => {
+      const p = products.find((x) => x.id === it.productId) || {};
+      const colour = (p.colors || []).length > 1 ? (it.color || p.color.name) : '';
+      return `<li><span>${esc(p.title)}${colour ? ` · ${esc(colour)}` : ''} · ${esc(it.size)} × ${esc(it.qty)}</span><span>${esc(fmtVND((p.price || 0) * it.qty))}</span></li>`;
+    }).join('');
+    body().innerHTML = `
+      ${stepLabel(2)}
+      <form class="pf-form" novalidate data-order-form>
+        <fieldset class="pf-set"><legend>Your pieces</legend>
+          <ul class="pf-order__items">${pieceList}</ul>
+          <button type="button" class="ui-btn link pf-add" data-back>Edit pieces</button>
         </fieldset>
         <fieldset class="pf-set"><legend>Contact</legend>
           <div class="pf-grid">
@@ -147,7 +238,7 @@ if (isConfigured) {
             <label class="pf-field pf-field--wide"><span>Street</span><input name="street" autocomplete="address-line1" required maxlength="120" value="${esc(a.street || '')}"></label>
             <label class="pf-field"><span>Ward</span><input name="ward" required maxlength="60" value="${esc(a.ward || '')}"></label>
             <label class="pf-field"><span>District <em>optional</em></span><input name="district" maxlength="60" value="${esc(a.district || '')}"></label>
-            <label class="pf-field"><span>City <em>shipping</em></span><select name="city" required>${CITIES.map(([v, l]) => `<option value="${esc(v)}"${(a.city === v || (!CITIES.some(([x]) => x === a.city) && v === CITIES[0][0])) ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            <label class="pf-field"><span>City <em>shipping</em></span><select name="city" required>${cityOptions()}</select></label>
           </div>
           <label class="pf-check"><input type="checkbox" name="save" checked> Save this address and phone to my account</label>
         </fieldset>
@@ -158,19 +249,16 @@ if (isConfigured) {
           <p class="pf-hint">After you place your pre-order you will see how to pay (bank transfer or QR, or cash if you choose it). We start making your piece once payment arrives. Nothing is charged on this site.</p>
         </fieldset>
         <label class="pf-field pf-field--wide"><span>Note <em>optional</em></span><textarea name="note" rows="2" maxlength="500"></textarea></label>
-        <dl class="pf-sum">
-          <div><dt>Subtotal</dt><dd data-subtotal>${esc(fmtVND(subtotal))}</dd></div>
-          <div data-discount-row${discount ? '' : ' hidden'}><dt>Two for ${esc(fmtVND((catalog.bundle || {}).price))}</dt><dd data-discount>−${esc(fmtVND(discount))}</dd></div>
-          <div><dt>Shipping</dt><dd data-ship>${shipFee() ? esc(fmtVND(shipFee())) : 'Free'}</dd></div>
-          <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
-        </dl>
-        ${catalog.bundle && catalog.bundle.label ? `<p class="pf-hint">${esc(catalog.bundle.label)}: the price comes off automatically.</p>` : ''}
-        <p class="pf-hint">10% of our profit goes to Saigon Xanh.</p>
+        ${sumHTML()}
         <p class="pf-error" role="alert" data-order-error></p>
         <p class="pf-hint">By placing a pre-order you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
         <button class="btn-outline pf-submit" type="submit">Place pre-order</button>
       </form>`;
-    wire();
+    const form = body().querySelector('[data-order-form]');
+    const citySel = form.querySelector('[name="city"]');
+    citySel.addEventListener('change', () => { city = citySel.value; refreshSums(); });
+    form.querySelector('[data-back]').addEventListener('click', goPieces);
+    form.addEventListener('submit', submit);
   };
 
   const readItems = () => {
@@ -190,36 +278,11 @@ if (isConfigured) {
     body().querySelector('[data-total]').textContent = fmtVND(total);
   };
 
-  const wire = () => {
-    const form = body().querySelector('[data-order-form]');
-    const list = form.querySelector('[data-items]');
-    const citySel = form.querySelector('[name="city"]'); city = citySel.value;
-    citySel.addEventListener('change', () => { city = citySel.value; refreshSums(); });
-    list.addEventListener('change', (e) => {
-      readItems();
-      if (e.target.name === 'product') { list.innerHTML = items.map(itemRow).join(''); }
-      refreshSums();
-    });
-    list.addEventListener('click', (e) => {
-      const rm = e.target.closest('[data-remove]'); if (!rm) return;
-      readItems(); items.splice(Number(rm.closest('[data-item]').dataset.item), 1);
-      list.innerHTML = items.map(itemRow).join(''); refreshSums();
-    });
-    form.querySelector('[data-add]').addEventListener('click', () => {
-      readItems();
-      if (items.length >= 10) return;
-      items.push({ productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 });
-      list.innerHTML = items.map(itemRow).join(''); refreshSums();
-    });
-    form.addEventListener('submit', submit);
-  };
-
   const submit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const err = form.querySelector('[data-order-error]');
     const btn = form.querySelector('.pf-submit');
-    readItems();
     const f = Object.fromEntries(new FormData(form));
     const clean = (k, n) => String(f[k] || '').trim().slice(0, n);
     const data = {
@@ -271,7 +334,7 @@ if (isConfigured) {
           path: '/admin.html#orders', tags: ['shopping_bags'], priority: 4, replyTo: data.gmail,
         });
       }
-      items = []; pending = null; city = CITIES[0][0];
+      items = []; pending = null; city = CITIES[0][0]; step = 'pieces'; drawPieces.cityChosen = false; forgetBasket();
       body().innerHTML = `
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
@@ -288,16 +351,22 @@ if (isConfigured) {
     }
   };
 
-  // the product view's "Pre-order" button calls this with the piece, size and colour on screen
-  window.laPlagePreorder = (product, size, color) => {
-    if (Date.now() < (Date.parse(cfgAll.PREORDER_OPENS_AT || '') || 0)) { location.hash = 'access'; return; }   // not open yet: the sign-up is the way in
+  // opens the pre-order overlay on whatever step is set
+  function openOverlay() {
     ensureOverlay();
     lastFocus = document.activeElement;
-    if (product) { pending = { productId: product.id, size: size || 'M', color: color || '', qty: 1 }; items = []; }
     overlay.hidden = false;
     document.documentElement.classList.add('pf-lock');
     requestAnimationFrame(() => overlay.classList.add('is-open'));
     draw();
     overlay.querySelector('[data-pf-close]').focus({ preventScroll: true });
+  }
+
+  // the product view's "Pre-order" button calls this with the piece, size and colour on screen
+  window.laPlagePreorder = (product, size, color) => {
+    if (Date.now() < (Date.parse(cfgAll.PREORDER_OPENS_AT || '') || 0)) { location.hash = 'access'; return; }   // not open yet: the sign-up is the way in
+    if (product) { pending = { productId: product.id, size: size || 'M', color: color || '', qty: 1 }; items = []; }
+    step = 'pieces';
+    openOverlay();
   };
 }
