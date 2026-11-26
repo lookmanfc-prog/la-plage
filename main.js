@@ -281,7 +281,7 @@
     const chips = (list) => list.map((c) => `<li><i style="background:${c.hex}" aria-hidden="true"></i><b>${c.role}</b><span>${c.hex}${c.share ? ` · ${c.share}%` : ''}</span></li>`).join('');
     const drawGuide = (g) => {
       guide.innerHTML = `
-        <div class="sg__pattern" style="background-image:url('${g.pattern}')" role="img" aria-label="The ${g.name} pattern"></div>
+        <div class="sg__pattern" style="background-image:url('${g.pattern}')${g.patternFit === 'contain' ? `;background-size:contain;background-repeat:no-repeat;background-position:center;background-color:${g.patternColours[0].hex}` : ''}" role="img" aria-label="The ${g.name} pattern"></div>
         <div class="sg__info">
           <p class="label">${g.name} · ${g.kind}</p>
           <p class="sg__h">Pattern colours</p>
