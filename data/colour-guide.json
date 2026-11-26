@@ -359,6 +359,191 @@
           "hex": "#2B7BB6"
         }
       ]
+    },
+    {
+      "key": "manta-teal",
+      "name": "Cream Teal",
+      "kind": "Manta Hoodie",
+      "product": "manta-hoodie",
+      "color": "Cream Teal",
+      "shorts": "assets/img/products/hoodies/manta-teal-front.png",
+      "pattern": "assets/img/guide/manta/manta-teal-design.png",
+      "patch": "assets/img/guide/manta/manta-teal-palm.png",
+      "patternColours": [
+        {
+          "role": "Body",
+          "hex": "#E8DCCD",
+          "share": 94
+        },
+        {
+          "role": "Manta",
+          "hex": "#196568",
+          "share": 6
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Body",
+          "hex": "#E8DCCD"
+        },
+        {
+          "role": "Palm",
+          "hex": "#196568"
+        },
+        {
+          "role": "Hood trim",
+          "hex": "#196568"
+        }
+      ],
+      "patternFit": "contain"
+    },
+    {
+      "key": "manta-navy",
+      "name": "Navy",
+      "kind": "Manta Hoodie",
+      "product": "manta-hoodie",
+      "color": "Navy",
+      "shorts": "assets/img/products/hoodies/manta-navy-front.png",
+      "pattern": "assets/img/guide/manta/manta-navy-design.png",
+      "patch": "assets/img/guide/manta/manta-navy-palm.png",
+      "patternColours": [
+        {
+          "role": "Body",
+          "hex": "#29344D",
+          "share": 93
+        },
+        {
+          "role": "Manta",
+          "hex": "#DAD6CF",
+          "share": 7
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Body",
+          "hex": "#29344D"
+        },
+        {
+          "role": "Palm",
+          "hex": "#DAD6CF"
+        },
+        {
+          "role": "Hood trim",
+          "hex": "#DAD6CF"
+        }
+      ],
+      "patternFit": "contain"
+    },
+    {
+      "key": "manta-red",
+      "name": "Cream Red",
+      "kind": "Manta Hoodie",
+      "product": "manta-hoodie",
+      "color": "Cream Red",
+      "shorts": "assets/img/products/hoodies/manta-red-front.png",
+      "pattern": "assets/img/guide/manta/manta-red-design.png",
+      "patch": "assets/img/guide/manta/manta-red-palm.png",
+      "patternColours": [
+        {
+          "role": "Body",
+          "hex": "#E9DAC9",
+          "share": 93
+        },
+        {
+          "role": "Manta",
+          "hex": "#BD3E4D",
+          "share": 7
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Body",
+          "hex": "#E9DAC9"
+        },
+        {
+          "role": "Palm",
+          "hex": "#BD3E4D"
+        },
+        {
+          "role": "Hood trim",
+          "hex": "#BD3E4D"
+        }
+      ],
+      "patternFit": "contain"
+    },
+    {
+      "key": "manta-pink",
+      "name": "Pink",
+      "kind": "Manta Hoodie",
+      "product": "manta-hoodie",
+      "color": "Pink",
+      "shorts": "assets/img/products/hoodies/manta-pink-front.png",
+      "pattern": "assets/img/guide/manta/manta-pink-design.png",
+      "patch": "assets/img/guide/manta/manta-pink-palm.png",
+      "patternColours": [
+        {
+          "role": "Body",
+          "hex": "#F7C7D7",
+          "share": 94
+        },
+        {
+          "role": "Manta",
+          "hex": "#C76078",
+          "share": 6
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Body",
+          "hex": "#F7C7D7"
+        },
+        {
+          "role": "Palm",
+          "hex": "#C76078"
+        },
+        {
+          "role": "Hood trim",
+          "hex": "#C76078"
+        }
+      ],
+      "patternFit": "contain"
+    },
+    {
+      "key": "manta-mint",
+      "name": "Mint",
+      "kind": "Manta Hoodie",
+      "product": "manta-hoodie",
+      "color": "Mint",
+      "shorts": "assets/img/products/hoodies/manta-mint-front.png",
+      "pattern": "assets/img/guide/manta/manta-mint-design.png",
+      "patch": "assets/img/guide/manta/manta-mint-palm.png",
+      "patternColours": [
+        {
+          "role": "Body",
+          "hex": "#C0E6DE",
+          "share": 94
+        },
+        {
+          "role": "Manta",
+          "hex": "#2EA099",
+          "share": 6
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Body",
+          "hex": "#C0E6DE"
+        },
+        {
+          "role": "Palm",
+          "hex": "#2EA099"
+        },
+        {
+          "role": "Hood trim",
+          "hex": "#2EA099"
+        }
+      ],
+      "patternFit": "contain"
     }
   ],
   "brand": {
