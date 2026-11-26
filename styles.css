@@ -1900,5 +1900,10 @@ body { background: #0B3A5C; }
 .lookbook[hidden] { display: none !important; }
 .spotlight__offer { margin-top: 14px; max-width: 280px; font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.5; color: var(--sand-ink); }
 .spotlight__offer[hidden] { display: none; }
-.spotlight__sizeguide { align-self: flex-start; margin-top: 10px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); }
+.sg__size { display: grid; place-items: center; background: #fff; border-radius: 18px; overflow: hidden; }
+.sg__size img { width: 100%; height: auto; max-height: 100%; object-fit: contain; }
+.sg__table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.sg__table th, .sg__table td { padding: 7px 4px; border-bottom: 1px solid var(--line); text-align: center; color: var(--sea-deep); font-weight: 400; }
+.sg__table thead th { font-size: 10.5px; letter-spacing: var(--track-label); color: var(--ink-soft); }
+.sg__table tbody th { text-align: left; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
 .access__legal { margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
