@@ -15,6 +15,7 @@
       because the database enforces it, not this file.
 
    3. Leave SHIPPING_FEE at 50000 unless you also change it in firestore.rules.
+      Shipping is free in Saigon (Ho Chi Minh City); everywhere else pays SHIPPING_FEE.
    ========================================================================== */
 window.LAPLAGE_CONFIG = {
   FIREBASE_CONFIG: {
@@ -30,6 +31,7 @@ window.LAPLAGE_CONFIG = {
     'ryannguyen101209@gmail.com',
   ],
   SHIPPING_FEE: 50000,
+  CONTACT_EMAIL: 'laplage.vn@gmail.com',
 
   /* Pre-order emails (EmailJS, free up to 200 emails a month). See ACCOUNTS-SETUP.md, "Emails".
      EmailJS dashboard → Account → API keys → Public key; Email Services → Service ID;

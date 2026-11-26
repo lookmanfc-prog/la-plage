@@ -124,7 +124,8 @@ function orderCard(o) {
       </ul>
       <dl class="pf-sum pf-sum--small">
         <div><dt>Subtotal</dt><dd>${esc(fmtVND(o.subtotal))}</dd></div>
-        <div><dt>Shipping</dt><dd>${esc(fmtVND(o.shippingFee))}</dd></div>
+        ${o.discount ? `<div><dt>Two-piece price</dt><dd>−${esc(fmtVND(o.discount))}</dd></div>` : ''}
+        <div><dt>Shipping</dt><dd>${o.shippingFee ? esc(fmtVND(o.shippingFee)) : 'Free'}</dd></div>
         <div class="pf-sum__total"><dt>Total</dt><dd>${esc(fmtVND(o.total))}</dd></div>
       </dl>
       <p class="pf-order__addr">${esc(fmtAddress(o.address))}</p>

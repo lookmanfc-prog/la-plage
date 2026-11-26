@@ -173,6 +173,7 @@
   };
 
   let categories = [];
+  let bundle = null;   // "any two for 925.000 ₫" in data/products.json
   // one row per line (Shoreline, Soleil, Marée), each on its own stretch of sand
   const renderRows = (products) => {
     const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
@@ -210,6 +211,7 @@
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
       categories = data.categories || [];
+      bundle = data.bundle || null;
       // pieces marked "hidden" in products.json are resting between drops: kept in the data, not shown in the shop
       const live = (data.products || []).filter((p) => !p.hidden);
       renderRows(live);
@@ -301,6 +303,10 @@
       $('[data-spot-desc]').textContent = p.description || '';
       $('[data-spot-color]').textContent = p.color.name;
       $('[data-spot-price]').textContent = formatVND.format(p.price);
+      const offer = $('[data-spot-offer]');
+      const two = bundle && (bundle.eligible || []).includes(base.id);
+      offer.hidden = !two;
+      offer.textContent = two ? `Two for ${formatVND.format(bundle.price)}: mix any two of Lagon, Corail and Palmier.` : '';
       // the cut-out version floats on the frosted glass (the photos have a white backdrop)
       const back = view === 'back' && p.imageHover;
       const src = { src: back ? (p.cutoutBack || p.imageHover.src) : (p.cutout || p.image.src) };
@@ -1056,19 +1062,34 @@
       input.setAttribute('aria-invalid', String(!ok));
       status.classList.toggle('is-error', !ok);
       if (!ok) { status.textContent = 'Please enter a valid email address.'; input.focus(); return; }
-      // TODO: connect to the mailing platform (e.g. Shopify customer marketing / Klaviyo)
-      status.textContent = 'Thank you. We will write before the next drop.';
-      form.reset();
+      // saved by portal/site.js (Firestore "subscribers"); never say thank you for an address we did not keep
+      const btn = form.querySelector('button');
+      btn.disabled = true; status.textContent = 'Sending…';
+      // the accounts module may still be loading on a slow connection: give it a few seconds
+      const ready = () => new Promise((res) => {
+        const t0 = Date.now();
+        const tick = () => (typeof window.laPlageSubscribe === 'function' || Date.now() - t0 > 6000 ? res(window.laPlageSubscribe) : setTimeout(tick, 200));
+        tick();
+      });
+      ready().then((subscribe) => {
+        if (typeof subscribe !== 'function') throw Object.assign(new Error('unavailable'), { unavailable: true });
+        return subscribe(input.value);
+      }).then(() => {
+        status.textContent = 'Thank you. You are on the list, and we will write before the next drop.';
+        form.reset();
+      }).catch((err) => {
+        console.warn('[LA PLAGE] sign-up', err);
+        status.classList.add('is-error');
+        status.textContent = err && err.unavailable
+          ? 'Sign-up is not available right now. Please email laplage.vn@gmail.com or follow @laplage.vn on Instagram.'
+          : 'That did not go through. Please check your connection and try again.';
+      }).finally(() => { btn.disabled = false; });
     });
     input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); status.classList.remove('is-error'); status.textContent = ''; });
   };
 
-  /* ---------------- Footer language toggle (visual only for now) ---------------- */
+  /* ---------------- Footer year ---------------- */
   const initLocale = () => {
-    const btns = document.querySelectorAll('[data-lang]');
-    btns.forEach((b) => b.addEventListener('click', () => {
-      btns.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
-    }));
     const y = document.querySelector('[data-year]');
     if (y) y.textContent = new Date().getFullYear();
   };
