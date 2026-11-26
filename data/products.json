@@ -23,6 +23,12 @@
       "name": "Marée",
       "kind": "Old money",
       "note": "Seersucker and quiet stripes for long lunches by the sea."
+    },
+    {
+      "key": "raie",
+      "name": "Après-plage",
+      "kind": "Hoodies",
+      "note": "For when the sea breeze turns cool and the day is not over yet."
     }
   ],
   "products": [
@@ -415,6 +421,137 @@
       "category": "lagon",
       "cutout": "assets/img/products/cutouts/tee-esprit-cotier-front.webp",
       "cutoutBack": "assets/img/products/cutouts/tee-esprit-cotier-back.webp"
+    },
+    {
+      "id": "raie-hoodie",
+      "handle": "raie-hoodie",
+      "title": "Raie Hoodie",
+      "price": 650000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Cream Teal",
+        "hex": "#1F7F86"
+      },
+      "image": {
+        "src": "assets/img/products/hoodies/raie-teal-front.png",
+        "alt": "Raie Hoodie in cream teal, front, with the LA PLAGE palm on the chest",
+        "width": 669,
+        "height": 727
+      },
+      "imageHover": {
+        "src": "assets/img/products/hoodies/raie-teal-back.png",
+        "alt": "Raie Hoodie in cream teal, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+        "width": 651,
+        "height": 725
+      },
+      "available": true,
+      "tags": [
+        "hoodie",
+        "drop-002"
+      ],
+      "description": "Hoodie with the LA PLAGE palm on the chest, a manta ray across the back and a zigzag trim along the hood. In five colours.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sea",
+      "category": "raie",
+      "cutout": "assets/img/products/hoodies/raie-teal-front.png",
+      "cutoutBack": "assets/img/products/hoodies/raie-teal-back.png",
+      "colors": [
+        {
+          "name": "Cream Teal",
+          "hex": "#1F7F86",
+          "image": {
+            "src": "assets/img/products/hoodies/raie-teal-front.png",
+            "alt": "Raie Hoodie in cream teal, front, with the LA PLAGE palm on the chest",
+            "width": 669,
+            "height": 727
+          },
+          "cutout": "assets/img/products/hoodies/raie-teal-front.png",
+          "imageHover": {
+            "src": "assets/img/products/hoodies/raie-teal-back.png",
+            "alt": "Raie Hoodie in cream teal, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "width": 651,
+            "height": 725
+          },
+          "cutoutBack": "assets/img/products/hoodies/raie-teal-back.png"
+        },
+        {
+          "name": "Navy",
+          "hex": "#22345A",
+          "image": {
+            "src": "assets/img/products/hoodies/raie-navy-front.png",
+            "alt": "Raie Hoodie in navy, front, with the LA PLAGE palm on the chest",
+            "width": 642,
+            "height": 714
+          },
+          "cutout": "assets/img/products/hoodies/raie-navy-front.png",
+          "imageHover": {
+            "src": "assets/img/products/hoodies/raie-navy-back.png",
+            "alt": "Raie Hoodie in navy, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "width": 622,
+            "height": 713
+          },
+          "cutoutBack": "assets/img/products/hoodies/raie-navy-back.png"
+        },
+        {
+          "name": "Cream Red",
+          "hex": "#D9364A",
+          "image": {
+            "src": "assets/img/products/hoodies/raie-red-front.png",
+            "alt": "Raie Hoodie in cream red, front, with the LA PLAGE palm on the chest",
+            "width": 638,
+            "height": 707
+          },
+          "cutout": "assets/img/products/hoodies/raie-red-front.png",
+          "imageHover": {
+            "src": "assets/img/products/hoodies/raie-red-back.png",
+            "alt": "Raie Hoodie in cream red, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "width": 620,
+            "height": 705
+          },
+          "cutoutBack": "assets/img/products/hoodies/raie-red-back.png"
+        },
+        {
+          "name": "Pink",
+          "hex": "#F6C6D9",
+          "image": {
+            "src": "assets/img/products/hoodies/raie-pink-front.png",
+            "alt": "Raie Hoodie in pink, front, with the LA PLAGE palm on the chest",
+            "width": 340,
+            "height": 358
+          },
+          "cutout": "assets/img/products/hoodies/raie-pink-front.png",
+          "imageHover": {
+            "src": "assets/img/products/hoodies/raie-pink-back.png",
+            "alt": "Raie Hoodie in pink, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "width": 330,
+            "height": 358
+          },
+          "cutoutBack": "assets/img/products/hoodies/raie-pink-back.png"
+        },
+        {
+          "name": "Mint",
+          "hex": "#BDEDE2",
+          "image": {
+            "src": "assets/img/products/hoodies/raie-mint-front.png",
+            "alt": "Raie Hoodie in mint, front, with the LA PLAGE palm on the chest",
+            "width": 340,
+            "height": 370
+          },
+          "cutout": "assets/img/products/hoodies/raie-mint-front.png",
+          "imageHover": {
+            "src": "assets/img/products/hoodies/raie-mint-back.png",
+            "alt": "Raie Hoodie in mint, back, with the manta ray and LA PLAGE across the back and a zigzag trim along the hood",
+            "width": 330,
+            "height": 369
+          },
+          "cutoutBack": "assets/img/products/hoodies/raie-mint-back.png"
+        }
+      ]
     }
   ],
   "sizeGuide": {

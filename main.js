@@ -126,7 +126,9 @@
   // a piece made in more than one colour lists them in "colors"; this gives the piece as seen in one of them
   const inColor = (p, k) => {
     const c = p.colors && p.colors[k];
-    return c ? { ...p, color: { name: c.name, hex: c.hex }, image: c.image || p.image, cutout: c.cutout || p.cutout } : p;
+    // a colour can bring its own back view too (the hoodies are printed on both sides)
+    return c ? { ...p, color: { name: c.name, hex: c.hex }, image: c.image || p.image, cutout: c.cutout || p.cutout,
+      imageHover: c.imageHover || p.imageHover, cutoutBack: c.cutoutBack || p.cutoutBack } : p;
   };
   const colorLabel = (p) => (p.colors && p.colors.length > 1
     ? `<span class="card__dots" aria-hidden="true">${p.colors.map((c) => `<i style="background:${c.hex}"></i>`).join('')}</span>${p.colors.length} colours`
@@ -343,7 +345,7 @@
       // pieces in the colour guide get a "Pattern & colours" view; it stays open while the colour changes
       const g = printFor(p);
       guideBtn.hidden = !g;
-      sizeBtn.hidden = !sizeGuide;
+      sizeBtn.hidden = !sizeGuide || !(base.tags || []).includes('short');   // the measurements are for the shorts
       if (guideMode === 'size' && sizeGuide) { drawSizes(sizeGuide); showGuide(guideOpen); }
       else { guideMode = 'print'; if (g) drawGuide(g); showGuide(!!g && guideOpen); }
       tones.querySelector('[data-spot-swatches]').innerHTML = many

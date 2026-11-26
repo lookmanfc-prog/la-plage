@@ -1840,6 +1840,7 @@ body { background: #0B3A5C; }
 .row[data-line="lagon"] { --line-ink: #17406E; --line-accent: #2F6FB0; --line-tint: rgba(214, 232, 247, .55); }
 .row[data-line="riva"]  { --line-ink: #C2386F; --line-accent: #E77FA6; --line-tint: rgba(255, 222, 232, .55); }
 .row[data-line="maree"] { --line-ink: #23402F; --line-accent: #A9853F; --line-tint: rgba(226, 232, 214, .55); }
+.row[data-line="raie"]  { --line-ink: #164B52; --line-accent: #1F7F86; --line-tint: rgba(210, 238, 234, .6); }   /* Après-plage: the teal of the Raie embroidery */
 .strip--gallery .rows .row[data-line] {
   background:
     linear-gradient(180deg, var(--line-tint), rgba(255, 248, 232, .45)),
@@ -1948,3 +1949,5 @@ body { background: #0B3A5C; }
     display: flex; justify-content: center; background: var(--white); box-shadow: 0 10px 30px -12px rgba(11, 44, 71, .35);
   }
 }
+
+.row[data-line="raie"] .row__name { font-family: "Playfair Display", var(--serif); font-style: italic; }
