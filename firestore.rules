@@ -19,6 +19,10 @@ service cloud.firestore {
     function validGmail(g) {
       return g is string && g.size() <= 120 && g.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
     }
+    // free shipping in Saigon; keep this pattern in step with SAIGON_RE in portal/firebase.js
+    function isSaigon(city) {
+      return city.lower().matches('.*(s[aà]i ?g[oò]n|h[oồ] ch[ií] minh|hcm).*');
+    }
     function validAddress(a) {
       return a is map && a.keys().hasOnly(['street', 'ward', 'district', 'city'])
         && a.street is string && a.street.size() <= 120
@@ -62,12 +66,13 @@ service cloud.firestore {
       allow read: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
 
       // a signed-in customer with an active (not disabled) account, ordering for themselves,
-      // always starting as "preordered", with the flat 50,000 VND shipping added to the total
+      // always starting as "preordered". Shipping is free in Saigon and 50,000 VND elsewhere;
+      // an optional two-piece discount comes off the subtotal.
       allow create: if signedIn()
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false
-        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'shippingFee', 'total', 'status', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'discount', 'shippingFee', 'total', 'status', 'createdAt'])
         && validGmail(request.resource.data.gmail)
         && request.resource.data.customerName is string && request.resource.data.customerName.size() > 0 && request.resource.data.customerName.size() <= 80
         && request.resource.data.phone is string && request.resource.data.phone.size() >= 8 && request.resource.data.phone.size() <= 20
@@ -75,8 +80,12 @@ service cloud.firestore {
         && request.resource.data.note is string && request.resource.data.note.size() <= 500
         && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 10
         && request.resource.data.subtotal is int && request.resource.data.subtotal > 0
-        && request.resource.data.shippingFee == 50000
-        && request.resource.data.total == request.resource.data.subtotal + 50000
+        && request.resource.data.get('discount', 0) is int
+        && request.resource.data.get('discount', 0) >= 0
+        && request.resource.data.get('discount', 0) < request.resource.data.subtotal
+        && ((isSaigon(request.resource.data.address.city) && request.resource.data.shippingFee == 0)
+          || (!isSaigon(request.resource.data.address.city) && request.resource.data.shippingFee == 50000))
+        && request.resource.data.total == request.resource.data.subtotal - request.resource.data.get('discount', 0) + request.resource.data.shippingFee
         && request.resource.data.status == 'preordered'
         && request.resource.data.createdAt == request.time;
 
@@ -86,6 +95,17 @@ service cloud.firestore {
         && request.resource.data.status in ['preordered', 'in production', 'shipped', 'delivered', 'cancelled'];
 
       allow delete: if isAdmin();
+    }
+
+    // ---- Private access: the email list from the home page ----
+    // anyone may add an address; only admins can read or remove the list
+    match /subscribers/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['email', 'source', 'createdAt'])
+        && validGmail(request.resource.data.email)
+        && request.resource.data.email == request.resource.data.email.lower()
+        && request.resource.data.source is string && request.resource.data.source.size() <= 40
+        && request.resource.data.createdAt == request.time;
+      allow read, delete: if isAdmin();
     }
 
     // everything else is closed

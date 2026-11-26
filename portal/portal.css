@@ -268,3 +268,7 @@ body.portal.portal--admin { background: #04192A; }
 .portal--admin .pf-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 .portal--admin .pf-tabs::-webkit-scrollbar { display: none; }
 .portal--admin .pf-tab { white-space: nowrap; flex: none; }
+
+/* ---- offer line in the pre-order overlay ---- */
+.pf-offer { margin-top: 6px; font-family: var(--serif); font-style: italic; color: var(--sand-ink); }
+.pf-sum div[hidden] { display: none; }

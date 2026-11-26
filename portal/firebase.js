@@ -15,6 +15,8 @@ export const SHIPPING_FEE = Number(CONFIG.SHIPPING_FEE) || 50000;
 export const ADMIN_EMAILS = (CONFIG.ADMIN_EMAILS || []).map((e) => String(e).trim().toLowerCase());
 export const STATUSES = ['preordered', 'in production', 'shipped', 'delivered', 'cancelled'];
 
+export const CONTACT_EMAIL = CONFIG.CONTACT_EMAIL || 'laplage.vn@gmail.com';
+
 // the site works exactly as before until the placeholders are filled in
 export const isConfigured = !!(CONFIG.FIREBASE_CONFIG && CONFIG.FIREBASE_CONFIG.apiKey && !/^PASTE_/.test(CONFIG.FIREBASE_CONFIG.apiKey));
 
@@ -66,11 +68,36 @@ export const authMessage = (err) => {
   return 'Something went wrong. Please try again.';
 };
 
+/* ---------- shipping and the two-piece price ----------
+   Shipping is free in Saigon (Ho Chi Minh City) and SHIPPING_FEE everywhere else.
+   firestore.rules uses the same city pattern, so keep the two in step. */
+export const SAIGON_RE = /s[aà]i ?g[oò]n|h[oồ] ch[ií] minh|hcm/;
+export const isSaigon = (city) => SAIGON_RE.test(String(city || '').normalize('NFC').toLowerCase());
+export const shippingFor = (city) => (isSaigon(city) ? 0 : SHIPPING_FEE);
+
+// "bundle" in data/products.json: any two eligible pieces for one price (925.000 ₫).
+// Pieces are paired from the dearest down; each pair saves the difference.
+export const catalog = { bundle: null };
+export function bundleDiscount(lines) {
+  const b = catalog.bundle;
+  if (!b || !b.price || !b.size) return 0;
+  const units = [];
+  lines.forEach((l) => { if ((b.eligible || []).includes(l.productId)) for (let i = 0; i < l.quantity; i++) units.push(l.price); });
+  units.sort((x, y) => y - x);
+  let off = 0;
+  for (let i = 0; i + b.size <= units.length; i += b.size) {
+    off += Math.max(0, units.slice(i, i + b.size).reduce((s, v) => s + v, 0) - b.price);
+  }
+  return off;
+}
+
 // hidden pieces are left out of the pre-order form; the admin panel asks for them too, for past orders
 export async function loadProducts({ includeHidden = false } = {}) {
   const res = await fetch('data/products.json', { cache: 'no-cache' });
   if (!res.ok) throw new Error(`products ${res.status}`);
-  const all = (await res.json()).products || [];
+  const data = await res.json();
+  catalog.bundle = data.bundle || null;
+  const all = data.products || [];
   return includeHidden ? all : all.filter((p) => !p.hidden);
 }
 

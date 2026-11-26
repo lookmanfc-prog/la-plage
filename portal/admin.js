@@ -9,7 +9,7 @@ import { renderAuthForm } from './auth-form.js';
 const root = document.querySelector('[data-admin]');
 const state = (html) => { root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">${html}</p></div>`; };
 
-let users = [], orders = [], products = [], tab = 'overview';
+let users = [], orders = [], products = [], subscribers = [], tab = 'overview';
 const view = { q: '', sort: 'newest', status: 'all', oq: '' };
 
 if (!isConfigured) {
@@ -35,8 +35,16 @@ if (!isConfigured) {
 async function load(user) {
   state('Loading accounts and pre-orders…');
   try {
-    const [u, o, p] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders')), loadProducts({ includeHidden: true }).catch(() => [])]);
+    const [u, o, p, s] = await Promise.all([
+      getDocs(collection(db, 'users')), getDocs(collection(db, 'orders')), loadProducts({ includeHidden: true }).catch(() => []),
+      // the sign-up list needs the newer firestore.rules; until they are published it is simply empty
+      getDocs(collection(db, 'subscribers')).catch(() => null),
+    ]);
     products = p;
+    // one line per address, keeping the first sign-up
+    subscribers = s ? [...s.docs.map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => ts(a.createdAt) - ts(b.createdAt))
+      .reduce((m, r) => (m.has(r.email) ? m : m.set(r.email, r)), new Map()).values()] : null;
     users = u.docs.map((d) => ({ id: d.id, ...d.data() }));
     orders = o.docs.map((d) => ({ id: d.id, ...d.data() }));
   } catch (e) {
@@ -64,6 +72,7 @@ function shell(user) {
       <button type="button" role="tab" class="pf-tab" data-tab="overview">Tide report</button>
       <button type="button" role="tab" class="pf-tab" data-tab="accounts">Accounts <span data-count-accounts></span></button>
       <button type="button" role="tab" class="pf-tab" data-tab="orders">Pre-orders <span data-count-orders></span></button>
+      <button type="button" role="tab" class="pf-tab" data-tab="access">Private access <span data-count-access></span></button>
     </div>
     <div data-panel></div>`;
   root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
@@ -75,10 +84,40 @@ function draw() {
   root.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
   root.querySelector('[data-count-accounts]').textContent = `(${users.length})`;
   root.querySelector('[data-count-orders]').textContent = `(${orders.length})`;
+  root.querySelector('[data-count-access]').textContent = subscribers ? `(${subscribers.length})` : '';
   const panel = root.querySelector('[data-panel]');
   if (tab === 'overview') drawOverview(panel);
   else if (tab === 'accounts') drawAccounts(panel);
+  else if (tab === 'access') drawAccess(panel);
   else drawOrders(panel);
+}
+
+/* ---------------- Private access: the email sign-up list ---------------- */
+function drawAccess(panel) {
+  if (!subscribers) {
+    panel.innerHTML = '<p class="pf-state">The sign-up list could not be read. Publish the latest firestore.rules in the Firebase console, then refresh.</p>';
+    return;
+  }
+  const rows = [...subscribers].sort((a, b) => ts(b.createdAt) - ts(a.createdAt));
+  panel.innerHTML = `
+    <div class="pf-toolbar"><p class="pf-lead">Everyone who asked for Private access on the home page.</p>
+      <button type="button" class="btn-outline pf-export" data-export-access>Export CSV</button></div>
+    ${rows.length ? `<table class="pf-table"><thead><tr><th>Email</th><th>Signed up</th></tr></thead><tbody>${rows.map((r) => `
+      <tr><td data-label="Email">${esc(r.email || r.id)}</td><td data-label="Signed up">${esc(fmtDate(r.createdAt))}</td></tr>`).join('')}</tbody></table>`
+      : '<p class="pf-state">No sign-ups yet.</p>'}`;
+  panel.querySelector('[data-export-access]').addEventListener('click', () => {
+    const csv = '\ufeff' + [['Email', 'Signed up'], ...rows.map((r) => [r.email || r.id, r.createdAt && r.createdAt.toDate ? r.createdAt.toDate().toISOString().slice(0, 10) : ''])]
+      .map((r) => r.map((v) => { let t = String(v); if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`; return `"${t.replace(/"/g, '""')}"`; }).join(',')).join('\r\n');
+    download(csv, `la-plage-private-access-${new Date().toISOString().slice(0, 10)}.csv`);
+  });
+}
+
+function download(csv, name) {
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /* ---------------- Tide report: the shop at a glance ---------------- */
@@ -259,8 +298,8 @@ function drawOrders(panel) {
             <td data-label="Customer">${esc(o.customerName)}<small>${esc(o.phone)}${o.gmail ? ` · ${esc(o.gmail)}` : ''}</small></td>
             <td data-label="Address">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
             <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · ${esc(it.size)} × ${esc(it.quantity)}`).join('<br>')}</td>
-            <td data-label="Subtotal">${esc(fmtVND(o.subtotal))}</td>
-            <td data-label="Shipping">${esc(fmtVND(o.shippingFee))}</td>
+            <td data-label="Subtotal">${esc(fmtVND(o.subtotal))}${o.discount ? `<small>−${esc(fmtVND(o.discount))} two-piece</small>` : ''}</td>
+            <td data-label="Shipping">${o.shippingFee ? esc(fmtVND(o.shippingFee)) : 'Free'}</td>
             <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong></td>
             <td data-label="Status"><select class="pf-status-select" data-order="${esc(o.id)}" aria-label="Status for ${esc(o.customerName)}">
               ${STATUSES.map((s) => `<option value="${esc(s)}"${o.status === s ? ' selected' : ''}>${esc(titleCase(s))}</option>`).join('')}
@@ -292,18 +331,14 @@ function exportCSV() {
     if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
     return `"${s.replace(/"/g, '""')}"`;
   };
-  const head = ['Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Shipping (VND)', 'Total (VND)', 'Status', 'Note'];
+  const head = ['Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Discount (VND)', 'Shipping (VND)', 'Total (VND)', 'Status', 'Note'];
   const rows = filteredOrders().map((o) => {
     const a = o.address || {};
     const d = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : '';
     return [o.id, d, o.customerName, o.username, o.phone, o.gmail, a.street, a.ward, a.district, a.city,
       (o.items || []).map((it) => `${it.title}${it.color ? ` - ${it.color}` : ''} (${it.size}) x${it.quantity}`).join('; '),
-      o.subtotal, o.shippingFee, o.total, o.status, o.note];
+      o.subtotal, o.discount || 0, o.shippingFee, o.total, o.status, o.note];
   });
   const csv = '﻿' + [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
-  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-  const a = document.createElement('a');
-  a.href = url; a.download = `la-plage-preorders-${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  download(csv, `la-plage-preorders-${new Date().toISOString().slice(0, 10)}.csv`);
 }

@@ -28,7 +28,7 @@ These rules are what actually protect customer data; the admin list in `firebase
 ## 5. Deploy and test
 Commit and push (Vercel deploys). Then:
 1. Open the site → **Sign in** → **Create account** → place a test pre-order from any product.
-2. Open `/account` and check it is listed with the 50.000 ₫ shipping line.
+2. Open `/account` and check it is listed with the right shipping line (free for a Ho Chi Minh City address, 50.000 ₫ elsewhere).
 3. Open `/admin`, sign in with the admin Gmail, change the order's status, export CSV.
 
 ## Good to know
@@ -38,12 +38,14 @@ Commit and push (Vercel deploys). Then:
   **Firestore → users** delete their record (their pre-orders stay), and ask them to sign up again with the same username.
 - Every customer must give a **Gmail**. It receives their pre-order confirmation (see Emails below); their login still uses the username.
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
-- Prices are read from `data/products.json` in the browser. The rules check the 50.000 ₫ shipping and that total = subtotal + shipping, but cannot check each price, so glance at totals before confirming payment.
+- Prices are read from `data/products.json` in the browser. The rules check shipping (free when the city looks like Saigon / Ho Chi Minh City / HCM, otherwise 50.000 ₫) and that total = subtotal − discount + shipping, but cannot check each price or the two-piece discount, so glance at totals before confirming payment.
+- The two-piece price lives in `bundle` in `data/products.json` (any two eligible shorts for 925.000 ₫).
+- "Private access" sign-ups from the home page are saved in Firestore → `subscribers`, and listed in /admin → Private access, with a CSV export.
 
 ## Emails (EmailJS, free up to 200 emails a month)
 Every pre-order sends two emails: one to all admins in `ADMIN_EMAILS`, and a confirmation to the customer's Gmail.
 1. Sign up at https://www.emailjs.com (free).
-2. **Email Services → Add New Service → Gmail → Connect account** with the Gmail that should send the emails. Note the **Service ID**.
+2. **Email Services → Add New Service → Gmail → Connect account** with the Gmail that should send the emails (laplage.vn@gmail.com). Note the **Service ID**.
 3. **Email Templates → Create New Template**, twice:
    - **Admin template.** Settings: To Email `{{to_email}}`, Subject `New pre-order from {{customer_name}} · {{total}}`. Content:
      ```
@@ -56,6 +58,7 @@ Every pre-order sends two emails: one to all admins in `ADMIN_EMAILS`, and a con
      {{items}}
 
      Subtotal: {{subtotal}}
+     Two-piece price: {{discount}}
      Shipping: {{shipping_fee}}
      Total: {{total}}
      Note: {{note}}
@@ -72,6 +75,7 @@ Every pre-order sends two emails: one to all admins in `ADMIN_EMAILS`, and a con
      {{items}}
 
      Subtotal: {{subtotal}}
+     Two-piece price: {{discount}}
      Shipping: {{shipping_fee}}
      Total: {{total}}
      Ship to: {{shipping_address}}

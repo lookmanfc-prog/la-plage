@@ -15,12 +15,21 @@ const load = async () => {
 };
 const [
   {
-    isConfigured, auth, db, SHIPPING_FEE, esc, fmtVND, authMessage, loadProducts,
+    isConfigured, auth, db, esc, fmtVND, authMessage, loadProducts, shippingFor, bundleDiscount, catalog, CONTACT_EMAIL,
     onAuthStateChanged, doc, updateDoc, addDoc, collection, serverTimestamp,
   },
   { renderAuthForm, loadProfile },
-  { sendOrderEmails },
+  { sendOrderEmails, emailsReady },
 ] = await load();
+
+// "Private access" sign-ups: saved in Firestore (subscribers); main.js calls this from the form.
+// Signing up twice just adds a second line; the admin list shows each address once.
+if (isConfigured) {
+  window.laPlageSubscribe = async (email) => {
+    const e = String(email).trim().toLowerCase();
+    await addDoc(collection(db, 'subscribers'), { email: e, source: 'private-access', createdAt: serverTimestamp() });
+  };
+}
 
 const links = [...document.querySelectorAll('[data-account-link]')];
 const setLinks = (label) => links.forEach((a) => { a.textContent = label; });
@@ -58,6 +67,7 @@ if (isConfigured) {
         <p class="label">Pre-order · Drop 001</p>
         <h2 class="pf-title" id="pf-title">Reserve your <em>piece.</em></h2>
         <p class="pf-lead">Pre-orders join the next production batch. We confirm each one personally and arrange payment with you directly. No card details are taken here.</p>
+        <p class="pf-lead pf-offer">${catalog.bundle && catalog.bundle.label ? `${esc(catalog.bundle.label)}. ` : ''}Free shipping in Saigon.</p>
         <div data-pf-body></div>
       </div>`;
     document.body.appendChild(overlay);
@@ -84,9 +94,17 @@ if (isConfigured) {
     </div>`;
 
   let items = [];
+  let city = '';
+  const linesOf = (list) => list.map((it) => {
+    const p = products.find((x) => x.id === it.productId) || {};
+    return { productId: p.id, price: p.price || 0, quantity: it.qty, lineTotal: (p.price || 0) * it.qty };
+  });
   const totals = () => {
-    const subtotal = items.reduce((s, it) => s + ((products.find((p) => p.id === it.productId) || {}).price || 0) * it.qty, 0);
-    return { subtotal, total: subtotal + SHIPPING_FEE };
+    const lines = linesOf(items);
+    const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+    const discount = bundleDiscount(lines);
+    const shipping = shippingFor(city);
+    return { subtotal, discount, shipping, total: subtotal - discount + shipping };
   };
 
   const draw = () => {
@@ -102,7 +120,8 @@ if (isConfigured) {
     if (!products.length) { body().innerHTML = '<p class="pf-state">The pieces could not be loaded. Please refresh and try again.</p>'; return; }
     if (!items.length) items = [pending || { productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 }];
     const a = profile.address || {};
-    const { subtotal, total } = totals();
+    city = a.city || '';
+    const { subtotal, discount, shipping, total } = totals();
     body().innerHTML = `
       <form class="pf-form" novalidate data-order-form>
         <fieldset class="pf-set"><legend>Your pieces</legend>
@@ -123,12 +142,14 @@ if (isConfigured) {
             <label class="pf-field"><span>District</span><input name="district" required maxlength="60" value="${esc(a.district || '')}"></label>
             <label class="pf-field"><span>City</span><input name="city" autocomplete="address-level2" required maxlength="60" value="${esc(a.city || '')}"></label>
           </div>
+          <p class="pf-hint">Free shipping in Saigon: write the city as <em>Ho Chi Minh City</em>. Everywhere else in Vietnam is ${esc(fmtVND(shippingFor('')))}.</p>
           <label class="pf-check"><input type="checkbox" name="save" checked> Save this address and phone to my account</label>
         </fieldset>
         <label class="pf-field pf-field--wide"><span>Note <em>optional</em></span><textarea name="note" rows="2" maxlength="500"></textarea></label>
         <dl class="pf-sum">
           <div><dt>Subtotal</dt><dd data-subtotal>${esc(fmtVND(subtotal))}</dd></div>
-          <div><dt>Shipping</dt><dd>${esc(fmtVND(SHIPPING_FEE))}</dd></div>
+          <div data-discount-row${discount ? '' : ' hidden'}><dt>Two-piece price</dt><dd data-discount>−${esc(fmtVND(discount))}</dd></div>
+          <div><dt>Shipping</dt><dd data-shipping>${shipping ? esc(fmtVND(shipping)) : 'Free'}</dd></div>
           <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
         </dl>
         <p class="pf-error" role="alert" data-order-error></p>
@@ -146,9 +167,13 @@ if (isConfigured) {
     }));
   };
   const refreshSums = () => {
-    const { subtotal, total } = totals();
-    body().querySelector('[data-subtotal]').textContent = fmtVND(subtotal);
-    body().querySelector('[data-total]').textContent = fmtVND(total);
+    const { subtotal, discount, shipping, total } = totals();
+    const $ = (s) => body().querySelector(s);
+    $('[data-subtotal]').textContent = fmtVND(subtotal);
+    $('[data-discount-row]').hidden = !discount;
+    $('[data-discount]').textContent = `−${fmtVND(discount)}`;
+    $('[data-shipping]').textContent = shipping ? fmtVND(shipping) : 'Free';
+    $('[data-total]').textContent = fmtVND(total);
   };
 
   const wire = () => {
@@ -170,6 +195,7 @@ if (isConfigured) {
       items.push({ productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 });
       list.innerHTML = items.map(itemRow).join(''); refreshSums();
     });
+    form.querySelector('[name="city"]').addEventListener('input', (e) => { city = e.target.value; refreshSums(); });
     form.addEventListener('submit', submit);
   };
 
@@ -180,7 +206,8 @@ if (isConfigured) {
     const btn = form.querySelector('.pf-submit');
     readItems();
     const f = Object.fromEntries(new FormData(form));
-    const clean = (k, n) => String(f[k] || '').trim().slice(0, n);
+    // NFC so accented city names match the free-shipping check in firestore.rules
+    const clean = (k, n) => String(f[k] || '').normalize('NFC').trim().slice(0, n);
     const data = {
       name: clean('name', 80), phone: clean('phone', 20), gmail: clean('gmail', 120).toLowerCase(),
       address: { street: clean('street', 120), ward: clean('ward', 60), district: clean('district', 60), city: clean('city', 60) },
@@ -197,12 +224,15 @@ if (isConfigured) {
       return { productId: p.id, title: p.title, color, size: it.size, quantity: it.qty, price: p.price, lineTotal: p.price * it.qty };
     });
     const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+    const discount = bundleDiscount(lines);
+    const shippingFee = shippingFor(data.address.city);
+    const total = subtotal - discount + shippingFee;
     btn.disabled = true; btn.classList.add('is-busy');
     try {
       const ref = await addDoc(collection(db, 'orders'), {
         uid: user.uid, username: profile.username || '', gmail: data.gmail,
         customerName: data.name, phone: data.phone, address: data.address, note: data.note,
-        items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE,
+        items: lines, subtotal, discount, shippingFee, total,
         status: 'preordered', createdAt: serverTimestamp(),
       });
       if (f.save) {
@@ -212,13 +242,13 @@ if (isConfigured) {
         } catch (e2) { /* the pre-order is placed; saving the address is a nicety */ }
       }
       // emails to the admins and to the customer; the pre-order is already saved, so a failure here never undoes it
-      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE, username: profile.username || '' })
+      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, discount, shippingFee, total, username: profile.username || '' })
         .catch((e3) => console.warn('[LA PLAGE] order emails', e3));
       items = []; pending = null;
       body().innerHTML = `
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
-          <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. We will be in touch to confirm the details and arrange payment, and you can follow its status in your account.</p>
+          <p class="pf-lead">${emailsReady ? `A confirmation is on its way to ${esc(data.gmail)}.` : `We will write to ${esc(data.gmail)} soon.`} We will be in touch to confirm the details and arrange payment, and you can follow its status in your account. Questions: <a class="link link--underlined" href="mailto:${esc(CONTACT_EMAIL)}">${esc(CONTACT_EMAIL)}</a></p>
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
     } catch (ex) {
